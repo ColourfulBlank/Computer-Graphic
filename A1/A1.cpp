@@ -2,6 +2,7 @@
 #include "cs488-framework/GlErrorCheck.hpp"
 
 #include <iostream>
+#include <math.h>
 
 #include <imgui/imgui.h>
 #include <glm/glm.hpp>
@@ -12,15 +13,20 @@ using namespace glm;
 using namespace std;
 
 static const size_t DIM = 16;
+const float PI = 3.14159265f;
 
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
-	: current_col( 0 )
+	: current_col( 0 ), projection_distance( 45.0f ), degrees(0.0f), old_x_position( 0 ), old_y_position( 0 ), mouse_state( 0 )
 {
-	colour[0] = 0.0f;
-	colour[1] = 0.0f;
-	colour[2] = 0.0f;
+	// colour[0] = 0.0f;
+	// colour[1] = 0.0f;
+	// colour[2] = 0.0f;
+	for (int i = 0; i < 27; i++){
+		current_col_array[i] = 0.0f;
+	}
+
 }
 
 //----------------------------------------------------------------------------------------
@@ -61,7 +67,7 @@ void A1::init()
 		glm::vec3( 0.0f, 0.0f, 0.0f ),
 		glm::vec3( 0.0f, 1.0f, 0.0f ) );
 	proj = glm::perspective( 
-		glm::radians( 45.0f ),
+		glm::radians( projection_distance ),
 		float( m_framebufferWidth ) / float( m_framebufferHeight ),
 		1.0f, 1000.0f );
 }
@@ -121,32 +127,10 @@ void A1::initGrid()
 }
 
 void A1::initCube(){
+
 	size_t sz = 3 * 3 * 2 * 6;
-
 	float *verts = new float[ sz ];
-	size_t ct = 0;
-	// for( int idx = 0; idx < DIM+3; ++idx ) {
-	// 	verts[ ct ] = -1;
-	// 	verts[ ct+1 ] = 0;
-	// 	verts[ ct+2 ] = idx-1;
-	// 	verts[ ct+3 ] = DIM+1;
-	// 	verts[ ct+4 ] = 0;
-	// 	verts[ ct+5 ] = idx-1;
-	// 	ct += 6;
 
-	// 	verts[ ct ] = idx-1;
-	// 	verts[ ct+1 ] = 0;
-	// 	verts[ ct+2 ] = -1;
-	// 	verts[ ct+3 ] = idx-1;
-	// 	verts[ ct+4 ] = 0;
-	// 	verts[ ct+5 ] = DIM+1;
-	// 	ct += 6;
-	// }
-	// verts = { 
-	// 	-1.0f, -1.0f, 0.0f,
- //   		1.0f, -1.0f, 0.0f,
- //   		0.0f,  1.0f, 0.0f,
- //   	};
 	//xz
 	verts[0] = 0.0f;
 	verts[1] = 0.0f;
@@ -209,65 +193,65 @@ void A1::initCube(){
 	verts[53] = 1.0f;
 	//rest three
 	//xz
-	verts[0] = 0.0f;
-	verts[1] = 1.0f;
-	verts[2] = 0.0f;
-	verts[3] = 1.0f;
-	verts[4] = 1.0f;
-	verts[5] = 0.0f;
-	verts[6] = 0.0f;
-	verts[7] = 1.0f;
-	verts[8] = 1.0f;
+	verts[54] = 0.0f;
+	verts[55] = 1.0f;
+	verts[56] = 0.0f;
+	verts[57] = 1.0f;
+	verts[58] = 1.0f;
+	verts[59] = 0.0f;
+	verts[60] = 0.0f;
+	verts[61] = 1.0f;
+	verts[62] = 1.0f;
 
-	verts[9] = 1.0f;
-	verts[10] = 1.0f;
-	verts[11] = 0.0f;
-	verts[12] = 1.0f;
-	verts[13] = 1.0f;
-	verts[14] = 1.0f;
-	verts[15] = 0.0f;
-	verts[16] = 1.0f;
-	verts[17] = 1.0f;
+	verts[63] = 1.0f;
+	verts[64] = 1.0f;
+	verts[65] = 0.0f;
+	verts[66] = 1.0f;
+	verts[67] = 1.0f;
+	verts[68] = 1.0f;
+	verts[69] = 0.0f;
+	verts[70] = 1.0f;
+	verts[71] = 1.0f;
 	//xy
-	verts[18] = 0.0f;
-	verts[19] = 1.0f;
-	verts[20] = 1.0f;
-	verts[21] = 1.0f;
-	verts[22] = 0.0f;
-	verts[23] = 1.0f;
-	verts[24] = 0.0f;
-	verts[25] = 0.0f;
-	verts[26] = 1.0f;
+	verts[72] = 0.0f;
+	verts[73] = 1.0f;
+	verts[74] = 1.0f;
+	verts[75] = 1.0f;
+	verts[76] = 0.0f;
+	verts[77] = 1.0f;
+	verts[78] = 0.0f;
+	verts[79] = 0.0f;
+	verts[80] = 1.0f;
 
-	verts[27] = 0.0f;
-	verts[28] = 1.0f;
-	verts[29] = 1.0f;
-	verts[30] = 1.0f;
-	verts[31] = 1.0f;
-	verts[32] = 1.0f;
-	verts[33] = 1.0f;
-	verts[34] = 0.0f;
-	verts[35] = 1.0f;
+	verts[81] = 0.0f;
+	verts[82] = 1.0f;
+	verts[83] = 1.0f;
+	verts[84] = 1.0f;
+	verts[85] = 1.0f;
+	verts[86] = 1.0f;
+	verts[87] = 1.0f;
+	verts[88] = 0.0f;
+	verts[89] = 1.0f;
 	//yz
-	verts[36] = 1.0f;
-	verts[37] = 1.0f;
-	verts[38] = 0.0f;
-	verts[39] = 1.0f;
-	verts[40] = 0.0f;
-	verts[41] = 0.0f;
-	verts[42] = 1.0f;
-	verts[43] = 0.0f;
-	verts[44] = 1.0f;
+	verts[90] = 1.0f;
+	verts[91] = 1.0f;
+	verts[92] = 0.0f;
+	verts[93] = 1.0f;
+	verts[94] = 0.0f;
+	verts[95] = 0.0f;
+	verts[96] = 1.0f;
+	verts[97] = 0.0f;
+	verts[98] = 1.0f;
 
-	verts[45] = 1.0f;
-	verts[46] = 1.0f;
-	verts[47] = 0.0f;
-	verts[48] = 1.0f;
-	verts[49] = 1.0f;
-	verts[50] = 1.0f;
-	verts[51] = 1.0f;
-	verts[52] = 0.0f;
-	verts[53] = 1.0f;
+	verts[99] = 1.0f;
+	verts[100] = 1.0f;
+	verts[101] = 0.0f;
+	verts[102] = 1.0f;
+	verts[103] = 1.0f;
+	verts[104] = 1.0f;
+	verts[105] = 1.0f;
+	verts[106] = 0.0f;
+	verts[107] = 1.0f;
 
 
 	// Create the vertex array to record buffer assignments.
@@ -278,7 +262,7 @@ void A1::initCube(){
 	glGenBuffers( 1, &m_cube_vbo );
 	glBindBuffer( GL_ARRAY_BUFFER, m_cube_vbo );
 	glBufferData( GL_ARRAY_BUFFER, sz*sizeof(float),
-		verts, GL_STATIC_DRAW );// need to change to Dynamic?
+		verts, GL_DYNAMIC_DRAW );// need to change to Dynamic?
 
 
 	// Specify the means of extracting the position values properly.
@@ -329,7 +313,18 @@ void A1::guiLogic()
 		if( ImGui::Button( "Quit Application" ) ) {
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
 		}
-
+		ImGui::SameLine();
+		if( ImGui::Button( "Reset Application" ) ) {
+			current_col = 0; 
+			for (int i = 0; i < 27; i++){
+				current_col_array[i] = 0.0f;
+			}
+			projection_distance = 45.0f;
+			degrees = 0.0f;
+			old_x_position = 0;
+			old_y_position = 0;
+			mouse_state = 0;
+		}
 		// Eventually you'll create multiple colour widgets with
 		// radio buttons.  If you use PushID/PopID to give them all
 		// unique IDs, then ImGui will be able to keep them separate.
@@ -338,16 +333,16 @@ void A1::guiLogic()
 
 		// Prefixing a widget name with "##" keeps it from being
 		// displayed.
-
-		ImGui::PushID( 0 );
-		ImGui::ColorEdit3( "##Colour", colour );
-		ImGui::SameLine();
-		if( ImGui::RadioButton( "##Col", &current_col, 0 ) ) {
-			// Select this colour.
+		for (int i = 0; i < 9; i++){
+			ImGui::PushID( i );
+			ImGui::ColorEdit3( "##Colour", &current_col_array[i*3] );
+			ImGui::SameLine();
+			if( ImGui::RadioButton( "##Col", &current_col, i ) ) {
+				// Select this colour.
+				std::cout << i << " colour picked" << std::endl;
+			}
+			ImGui::PopID();
 		}
-		ImGui::PopID();
-
-
 		// For convenience, you can uncomment this to show ImGui's massive
 		// demonstration window right in your application.  Very handy for
 		// browsing around to get the widget you want.  Then look in 
@@ -374,8 +369,14 @@ void A1::draw()
 {
 	// Create a global transformation for the model (centre it).
 	mat4 W;
-	W = glm::translate( W, vec3( -float(DIM)/2.0f, 0, -float(DIM)/2.0f ) );
+	vec3 y_axis(0.0f,1.0f,0.0f);
+	W = glm::rotate( W, degrees, y_axis);
 
+	W = glm::translate( W, vec3( -float(DIM)/2.0f, 0, -float(DIM)/2.0f ) );
+	proj = glm::perspective( 
+			glm::radians( projection_distance ),
+			float( m_framebufferWidth ) / float( m_framebufferHeight ),
+			1.0f, 1000.0f );
 	m_shader.enable();
 		glEnable( GL_DEPTH_TEST );
 
@@ -391,10 +392,8 @@ void A1::draw()
 		// Draw the cubes
 		initCube();
 		glBindVertexArray( m_cube_vao );
-		glUniform3f( col_uni, 1, 1, 1 );
+		glUniform3f( col_uni, 0.1, 1, 1 );
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		// glDrawTriangle( GL_LINES, 10, (3+DIM)*4 );
-
 
 		// Highlight the active square.
 
@@ -422,7 +421,7 @@ bool A1::cursorEnterWindowEvent (
 		int entered
 ) {
 	bool eventHandled(false);
-
+	cout << "In some windows" << endl;
 	// Fill in with event handling code...
 
 	return eventHandled;
@@ -437,12 +436,20 @@ bool A1::mouseMoveEvent(double xPos, double yPos)
 	bool eventHandled(false);
 
 	if (!ImGui::IsMouseHoveringAnyWindow()) {
+
 		// Put some code here to handle rotations.  Probably need to
 		// check whether we're *dragging*, not just moving the mouse.
 		// Probably need some instance variables to track the current
 		// rotation amount, and maybe the previous X position (so 
 		// that you can rotate relative to the *change* in X.
+		if (ImGui::IsMouseDragging()){
+			degrees += (xPos - old_x_position) *  PI / m_windowWidth;//xPos difference
+		}
+			
 	}
+	old_x_position = xPos;
+	old_y_position = yPos;
+	// cout << "xPos: " << xPos << " yPos: " << yPos << endl;
 
 	return eventHandled;
 }
@@ -457,6 +464,8 @@ bool A1::mouseButtonInputEvent(int button, int actions, int mods) {
 	if (!ImGui::IsMouseHoveringAnyWindow()) {
 		// The user clicked in the window.  If it's the left
 		// mouse button, initiate a rotation.
+		cout << "Mouse Is Not Hovering Any Window" <<endl;
+		eventHandled = true;
 	}
 
 	return eventHandled;
@@ -470,6 +479,10 @@ bool A1::mouseScrollEvent(double xOffSet, double yOffSet) {
 	bool eventHandled(false);
 
 	// Zoom in or out.
+	cout << "mouse scrolled: y: " << yOffSet << " x:" << xOffSet << endl;
+	projection_distance -= yOffSet;
+	
+	eventHandled = true;
 
 	return eventHandled;
 }
@@ -496,10 +509,40 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 	// Fill in with event handling code...
 	if( action == GLFW_PRESS ) {
 		// Respond to some key events.
+		if (key == GLFW_KEY_EQUAL) {
+			cout << "+ key pressed" << endl;
+			projection_distance -= 1.0f;
+			proj = glm::perspective( 
+					glm::radians( projection_distance ),
+					float( m_framebufferWidth ) / float( m_framebufferHeight ),
+					1.0f, 1000.0f );
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_MINUS) {
+			cout << "- key pressed" << endl;
+			projection_distance += 1.0f;
+			proj = glm::perspective( 
+					glm::radians( projection_distance ),
+					float( m_framebufferWidth ) / float( m_framebufferHeight ),
+					1.0f, 1000.0f );
+			eventHandled = true;
+		}
 		if (key == GLFW_KEY_Q ) {
 			cout << "q key pressed" << endl;
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
-			// TODO - kill app
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_R ) {
+			cout << "r key pressed" << endl;
+			current_col = 0; 
+			for (int i = 0; i < 27; i++){
+				current_col_array[i] = 0.0f;
+			}
+			projection_distance = 45.0f;
+			degrees = 0.0f;
+			old_x_position = 0;
+			old_y_position = 0;
+			mouse_state = 0;
 			eventHandled = true;
 		}	
 	}

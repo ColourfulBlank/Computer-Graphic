@@ -40,7 +40,7 @@ private:
 
 	// Fields related to grid geometry.
 	GLuint m_grid_vao; // Vertex Array Object
-	GLuint m_grid_vbo; // Vertex Buffer Object
+	GLuint m_grid_vbo; // Vertex qqq Object
 	// Fields related to cube geometry.
 	GLuint m_cube_vao; // Vertex Array Object
 	GLuint m_cube_vbo; // Vertex Buffer Object
@@ -49,6 +49,13 @@ private:
 	glm::mat4 proj;
 	glm::mat4 view;
 
-	float colour[3];
+	// float colour[3];
 	int current_col;
+	float current_col_array [27];
+
+	float projection_distance;
+	float degrees;
+	float old_x_position;
+	float old_y_position;
+	int mouse_state;
 };
