@@ -50,7 +50,7 @@ void A1::init()
 	V_uni = m_shader.getUniformLocation( "V" );
 	M_uni = m_shader.getUniformLocation( "M" );
 	col_uni = m_shader.getUniformLocation( "colour" );
-	
+
 
 	initGrid();
 
@@ -73,13 +73,15 @@ void A1::initGrid()
 	float *verts = new float[ sz ];
 	size_t ct = 0;
 	for( int idx = 0; idx < DIM+3; ++idx ) {
+
 		verts[ ct ] = -1;
 		verts[ ct+1 ] = 0;
 		verts[ ct+2 ] = idx-1;
 		verts[ ct+3 ] = DIM+1;
 		verts[ ct+4 ] = 0;
-		verts[ ct+5 ] = idx-1;
+		verts[ ct+5 ] = idx-1; 
 		ct += 6;
+
 
 		verts[ ct ] = idx-1;
 		verts[ ct+1 ] = 0;
@@ -98,7 +100,8 @@ void A1::initGrid()
 	glGenBuffers( 1, &m_grid_vbo );
 	glBindBuffer( GL_ARRAY_BUFFER, m_grid_vbo );
 	glBufferData( GL_ARRAY_BUFFER, sz*sizeof(float),
-		verts, GL_STATIC_DRAW );
+		verts, GL_STATIC_DRAW );// need to change to Dynamic?
+
 
 	// Specify the means of extracting the position values properly.
 	GLint posAttrib = m_shader.getAttribLocation( "position" );
@@ -116,6 +119,185 @@ void A1::initGrid()
 
 	CHECK_GL_ERRORS;
 }
+
+void A1::initCube(){
+	size_t sz = 3 * 3 * 2 * 6;
+
+	float *verts = new float[ sz ];
+	size_t ct = 0;
+	// for( int idx = 0; idx < DIM+3; ++idx ) {
+	// 	verts[ ct ] = -1;
+	// 	verts[ ct+1 ] = 0;
+	// 	verts[ ct+2 ] = idx-1;
+	// 	verts[ ct+3 ] = DIM+1;
+	// 	verts[ ct+4 ] = 0;
+	// 	verts[ ct+5 ] = idx-1;
+	// 	ct += 6;
+
+	// 	verts[ ct ] = idx-1;
+	// 	verts[ ct+1 ] = 0;
+	// 	verts[ ct+2 ] = -1;
+	// 	verts[ ct+3 ] = idx-1;
+	// 	verts[ ct+4 ] = 0;
+	// 	verts[ ct+5 ] = DIM+1;
+	// 	ct += 6;
+	// }
+	// verts = { 
+	// 	-1.0f, -1.0f, 0.0f,
+ //   		1.0f, -1.0f, 0.0f,
+ //   		0.0f,  1.0f, 0.0f,
+ //   	};
+	//xz
+	verts[0] = 0.0f;
+	verts[1] = 0.0f;
+	verts[2] = 0.0f;
+	verts[3] = 1.0f;
+	verts[4] = 0.0f;
+	verts[5] = 0.0f;
+	verts[6] = 0.0f;
+	verts[7] = 0.0f;
+	verts[8] = 1.0f;
+
+	verts[9] = 1.0f;
+	verts[10] = 0.0f;
+	verts[11] = 0.0f;
+	verts[12] = 1.0f;
+	verts[13] = 0.0f;
+	verts[14] = 1.0f;
+	verts[15] = 0.0f;
+	verts[16] = 0.0f;
+	verts[17] = 1.0f;
+	//xy
+	verts[18] = 0.0f;
+	verts[19] = 1.0f;
+	verts[20] = 0.0f;
+	verts[21] = 1.0f;
+	verts[22] = 0.0f;
+	verts[23] = 0.0f;
+	verts[24] = 0.0f;
+	verts[25] = 0.0f;
+	verts[26] = 0.0f;
+
+	verts[27] = 0.0f;
+	verts[28] = 1.0f;
+	verts[29] = 0.0f;
+	verts[30] = 1.0f;
+	verts[31] = 1.0f;
+	verts[32] = 0.0f;
+	verts[33] = 1.0f;
+	verts[34] = 0.0f;
+	verts[35] = 0.0f;
+	//yz
+	verts[36] = 0.0f;
+	verts[37] = 1.0f;
+	verts[38] = 0.0f;
+	verts[39] = 0.0f;
+	verts[40] = 0.0f;
+	verts[41] = 0.0f;
+	verts[42] = 0.0f;
+	verts[43] = 0.0f;
+	verts[44] = 1.0f;
+
+	verts[45] = 0.0f;
+	verts[46] = 1.0f;
+	verts[47] = 0.0f;
+	verts[48] = 0.0f;
+	verts[49] = 1.0f;
+	verts[50] = 1.0f;
+	verts[51] = 0.0f;
+	verts[52] = 0.0f;
+	verts[53] = 1.0f;
+	//rest three
+	//xz
+	verts[0] = 0.0f;
+	verts[1] = 1.0f;
+	verts[2] = 0.0f;
+	verts[3] = 1.0f;
+	verts[4] = 1.0f;
+	verts[5] = 0.0f;
+	verts[6] = 0.0f;
+	verts[7] = 1.0f;
+	verts[8] = 1.0f;
+
+	verts[9] = 1.0f;
+	verts[10] = 1.0f;
+	verts[11] = 0.0f;
+	verts[12] = 1.0f;
+	verts[13] = 1.0f;
+	verts[14] = 1.0f;
+	verts[15] = 0.0f;
+	verts[16] = 1.0f;
+	verts[17] = 1.0f;
+	//xy
+	verts[18] = 0.0f;
+	verts[19] = 1.0f;
+	verts[20] = 1.0f;
+	verts[21] = 1.0f;
+	verts[22] = 0.0f;
+	verts[23] = 1.0f;
+	verts[24] = 0.0f;
+	verts[25] = 0.0f;
+	verts[26] = 1.0f;
+
+	verts[27] = 0.0f;
+	verts[28] = 1.0f;
+	verts[29] = 1.0f;
+	verts[30] = 1.0f;
+	verts[31] = 1.0f;
+	verts[32] = 1.0f;
+	verts[33] = 1.0f;
+	verts[34] = 0.0f;
+	verts[35] = 1.0f;
+	//yz
+	verts[36] = 1.0f;
+	verts[37] = 1.0f;
+	verts[38] = 0.0f;
+	verts[39] = 1.0f;
+	verts[40] = 0.0f;
+	verts[41] = 0.0f;
+	verts[42] = 1.0f;
+	verts[43] = 0.0f;
+	verts[44] = 1.0f;
+
+	verts[45] = 1.0f;
+	verts[46] = 1.0f;
+	verts[47] = 0.0f;
+	verts[48] = 1.0f;
+	verts[49] = 1.0f;
+	verts[50] = 1.0f;
+	verts[51] = 1.0f;
+	verts[52] = 0.0f;
+	verts[53] = 1.0f;
+
+
+	// Create the vertex array to record buffer assignments.
+	glGenVertexArrays( 1, &m_cube_vao );
+	glBindVertexArray( m_cube_vao );
+
+	// Create the cube vertex buffer
+	glGenBuffers( 1, &m_cube_vbo );
+	glBindBuffer( GL_ARRAY_BUFFER, m_cube_vbo );
+	glBufferData( GL_ARRAY_BUFFER, sz*sizeof(float),
+		verts, GL_STATIC_DRAW );// need to change to Dynamic?
+
+
+	// Specify the means of extracting the position values properly.
+	GLint posAttrib = m_shader.getAttribLocation( "position" );
+	glEnableVertexAttribArray( posAttrib );
+	glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
+
+	// Reset state to prevent rogue code from messing with *my* 
+	// stuff!
+	glBindVertexArray( 0 );
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+
+	// OpenGL has the buffer now, there's no need for us to keep a copy.
+	delete [] verts;
+
+	CHECK_GL_ERRORS;
+}
+
 
 //----------------------------------------------------------------------------------------
 /*
@@ -165,7 +347,7 @@ void A1::guiLogic()
 		}
 		ImGui::PopID();
 
-/*
+
 		// For convenience, you can uncomment this to show ImGui's massive
 		// demonstration window right in your application.  Very handy for
 		// browsing around to get the widget you want.  Then look in 
@@ -173,7 +355,7 @@ void A1::guiLogic()
 		if( ImGui::Button( "Test Window" ) ) {
 			showTestWindow = !showTestWindow;
 		}
-*/
+
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
 
@@ -207,7 +389,16 @@ void A1::draw()
 		glDrawArrays( GL_LINES, 0, (3+DIM)*4 );
 
 		// Draw the cubes
+		initCube();
+		glBindVertexArray( m_cube_vao );
+		glUniform3f( col_uni, 1, 1, 1 );
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		// glDrawTriangle( GL_LINES, 10, (3+DIM)*4 );
+
+
 		// Highlight the active square.
+
+
 	m_shader.disable();
 
 	// Restore defaults
@@ -305,6 +496,12 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 	// Fill in with event handling code...
 	if( action == GLFW_PRESS ) {
 		// Respond to some key events.
+		if (key == GLFW_KEY_Q ) {
+			cout << "q key pressed" << endl;
+			glfwSetWindowShouldClose(m_window, GL_TRUE);
+			// TODO - kill app
+			eventHandled = true;
+		}	
 	}
 
 	return eventHandled;
