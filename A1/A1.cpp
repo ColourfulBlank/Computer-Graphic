@@ -18,7 +18,7 @@ const float PI = 3.14159265f;
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
-	: current_col( 0 ), projection_distance( 45.0f ), degrees(0.0f), old_x_position( 0 ), old_y_position( 0 ), mouse_state( 0 )
+	: current_col( 0 ), projection_distance( 45.0f ), degrees(0.0f), old_x_position( 0 ), old_y_position( 0 ), mouse_state( 0 ), cursor_x( 0 ), cursor_y( 0 )
 {
 	// colour[0] = 0.0f;
 	// colour[1] = 0.0f;
@@ -26,13 +26,26 @@ A1::A1()
 	for (int i = 0; i < 27; i++){
 		current_col_array[i] = 0.0f;
 	}
+	for (int i = 0; i < 18; i++){
+		Number_of_Block[i] = new int[18];
+		Colour_id[i] = new int[18];
+		for (int j = 0; j < 18; j++){
+			Number_of_Block[i][j] = 0;
+			Colour_id[i][j] = 0;
+		}
+	}
 
 }
 
 //----------------------------------------------------------------------------------------
 // Destructor
 A1::~A1()
-{}
+{
+	for (int i = 0; i < 18; i++){
+		delete [] Number_of_Block[i];
+		delete [] Colour_id[i];
+	}
+}
 
 //----------------------------------------------------------------------------------------
 /*
@@ -135,43 +148,43 @@ void A1::initCube(){
 	verts[0] = 0.0f;
 	verts[1] = 0.0f;
 	verts[2] = 0.0f;
-	verts[3] = 1.0f;
+	verts[3] = -1.0f;
 	verts[4] = 0.0f;
 	verts[5] = 0.0f;
 	verts[6] = 0.0f;
 	verts[7] = 0.0f;
-	verts[8] = 1.0f;
+	verts[8] = -1.0f;
 
-	verts[9] = 1.0f;
+	verts[9] = 0.0f;
 	verts[10] = 0.0f;
-	verts[11] = 0.0f;
-	verts[12] = 1.0f;
+	verts[11] = -1.0f;
+	verts[12] = -1.0f;
 	verts[13] = 0.0f;
-	verts[14] = 1.0f;
-	verts[15] = 0.0f;
+	verts[14] = -1.0f;
+	verts[15] = -1.0f;
 	verts[16] = 0.0f;
-	verts[17] = 1.0f;
+	verts[17] = 0.0f;
 	//xy
 	verts[18] = 0.0f;
-	verts[19] = 1.0f;
+	verts[19] = 0.0f;
 	verts[20] = 0.0f;
-	verts[21] = 1.0f;
-	verts[22] = 0.0f;
+	verts[21] = 0.0f;
+	verts[22] = 1.0f;
 	verts[23] = 0.0f;
-	verts[24] = 0.0f;
+	verts[24] = -1.0f;
 	verts[25] = 0.0f;
 	verts[26] = 0.0f;
 
 	verts[27] = 0.0f;
 	verts[28] = 1.0f;
 	verts[29] = 0.0f;
-	verts[30] = 1.0f;
+	verts[30] = -1.0f;
 	verts[31] = 1.0f;
 	verts[32] = 0.0f;
-	verts[33] = 1.0f;
+	verts[33] = -1.0f;
 	verts[34] = 0.0f;
 	verts[35] = 0.0f;
-	//yz
+	// //yz
 	verts[36] = 0.0f;
 	verts[37] = 1.0f;
 	verts[38] = 0.0f;
@@ -179,79 +192,79 @@ void A1::initCube(){
 	verts[40] = 0.0f;
 	verts[41] = 0.0f;
 	verts[42] = 0.0f;
-	verts[43] = 0.0f;
-	verts[44] = 1.0f;
+	verts[43] = 1.0f;
+	verts[44] = -1.0f;
 
 	verts[45] = 0.0f;
 	verts[46] = 1.0f;
-	verts[47] = 0.0f;
+	verts[47] = -1.0f;
 	verts[48] = 0.0f;
-	verts[49] = 1.0f;
-	verts[50] = 1.0f;
+	verts[49] = 0.0f;
+	verts[50] = 0.0f;
 	verts[51] = 0.0f;
 	verts[52] = 0.0f;
-	verts[53] = 1.0f;
+	verts[53] = -1.0f;
 	//rest three
 	//xz
 	verts[54] = 0.0f;
 	verts[55] = 1.0f;
 	verts[56] = 0.0f;
-	verts[57] = 1.0f;
+	verts[57] = 0.0f;
 	verts[58] = 1.0f;
-	verts[59] = 0.0f;
-	verts[60] = 0.0f;
+	verts[59] = -1.0f;
+	verts[60] = -1.0f;
 	verts[61] = 1.0f;
-	verts[62] = 1.0f;
+	verts[62] = 0.0f;
 
-	verts[63] = 1.0f;
+	verts[63] = 0.0f;
 	verts[64] = 1.0f;
-	verts[65] = 0.0f;
-	verts[66] = 1.0f;
+	verts[65] = -1.0f;
+	verts[66] = -1.0f;
 	verts[67] = 1.0f;
-	verts[68] = 1.0f;
-	verts[69] = 0.0f;
+	verts[68] = -1.0f;
+	verts[69] = -1.0f;
 	verts[70] = 1.0f;
-	verts[71] = 1.0f;
-	//xy
+	verts[71] = 0.0f;
+	// xy
 	verts[72] = 0.0f;
 	verts[73] = 1.0f;
-	verts[74] = 1.0f;
-	verts[75] = 1.0f;
+	verts[74] = -1.0f;
+	verts[75] = -1.0f;
 	verts[76] = 0.0f;
-	verts[77] = 1.0f;
+	verts[77] = -1.0f;
 	verts[78] = 0.0f;
 	verts[79] = 0.0f;
-	verts[80] = 1.0f;
+	verts[80] = -1.0f;
 
 	verts[81] = 0.0f;
 	verts[82] = 1.0f;
-	verts[83] = 1.0f;
-	verts[84] = 1.0f;
+	verts[83] = -1.0f;
+	verts[84] = -1.0f;
 	verts[85] = 1.0f;
-	verts[86] = 1.0f;
-	verts[87] = 1.0f;
+	verts[86] = -1.0f;
+	verts[87] = -1.0f;
 	verts[88] = 0.0f;
-	verts[89] = 1.0f;
-	//yz
-	verts[90] = 1.0f;
+	verts[89] = -1.0f;
+	// yz
+	verts[90] = -1.0f;
 	verts[91] = 1.0f;
-	verts[92] = 0.0f;
-	verts[93] = 1.0f;
-	verts[94] = 0.0f;
+	verts[92] = -1.0f;
+	verts[93] = -1.0f;
+	verts[94] = 1.0f;
 	verts[95] = 0.0f;
-	verts[96] = 1.0f;
+	verts[96] = -1.0f;
 	verts[97] = 0.0f;
-	verts[98] = 1.0f;
+	verts[98] = 0.0f;
 
-	verts[99] = 1.0f;
-	verts[100] = 1.0f;
+	verts[99] = -1.0f;
+	verts[100] = 0.0f;
 	verts[101] = 0.0f;
-	verts[102] = 1.0f;
-	verts[103] = 1.0f;
-	verts[104] = 1.0f;
-	verts[105] = 1.0f;
-	verts[106] = 0.0f;
-	verts[107] = 1.0f;
+	verts[102] = -1.0f;
+	verts[103] = 0.0f;
+	verts[104] = -1.0f;
+	verts[105] = -1.0f;
+	verts[106] = 1.0f;
+	verts[107] = -1.0f;
 
 
 	// Create the vertex array to record buffer assignments.
@@ -392,7 +405,7 @@ void A1::draw()
 		// Draw the cubes
 		initCube();
 		glBindVertexArray( m_cube_vao );
-		glUniform3f( col_uni, 0.1, 1, 1 );
+		glUniform3f( col_uni, 1, 1, 1 );
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		// Highlight the active square.
@@ -512,19 +525,13 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 		if (key == GLFW_KEY_EQUAL) {
 			cout << "+ key pressed" << endl;
 			projection_distance -= 1.0f;
-			proj = glm::perspective( 
-					glm::radians( projection_distance ),
-					float( m_framebufferWidth ) / float( m_framebufferHeight ),
-					1.0f, 1000.0f );
+			
 			eventHandled = true;
 		}
 		if (key == GLFW_KEY_MINUS) {
 			cout << "- key pressed" << endl;
 			projection_distance += 1.0f;
-			proj = glm::perspective( 
-					glm::radians( projection_distance ),
-					float( m_framebufferWidth ) / float( m_framebufferHeight ),
-					1.0f, 1000.0f );
+			
 			eventHandled = true;
 		}
 		if (key == GLFW_KEY_Q ) {
@@ -543,8 +550,23 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 			old_x_position = 0;
 			old_y_position = 0;
 			mouse_state = 0;
+			cursor_x = 0;
+			cursor_y = 0;
 			eventHandled = true;
-		}	
+
+		}
+		if ( key == GLFW_KEY_SPACE ){
+			cout << "space key pressed" << endl;
+			Number_of_Block[cursor_x][cursor_y]++;
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_DELETE ){
+			cout << "delete key pressed" << endl;
+			if ( Number_of_Block[cursor_x][cursor_y] != 0 ){
+				Number_of_Block[cursor_x][cursor_y]--;
+			}
+			eventHandled = true;
+		}
 	}
 
 	return eventHandled;

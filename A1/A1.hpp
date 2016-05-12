@@ -40,7 +40,7 @@ private:
 
 	// Fields related to grid geometry.
 	GLuint m_grid_vao; // Vertex Array Object
-	GLuint m_grid_vbo; // Vertex qqq Object
+	GLuint m_grid_vbo; // Vertex Object
 	// Fields related to cube geometry.
 	GLuint m_cube_vao; // Vertex Array Object
 	GLuint m_cube_vbo; // Vertex Buffer Object
@@ -52,10 +52,14 @@ private:
 	// float colour[3];
 	int current_col;
 	float current_col_array [27];
+	int * Number_of_Block[18];
+	int * Colour_id[18];
 
 	float projection_distance;
 	float degrees;
 	float old_x_position;
 	float old_y_position;
 	int mouse_state;
+	int cursor_x;
+	int cursor_y;
 };
