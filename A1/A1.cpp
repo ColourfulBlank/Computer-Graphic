@@ -18,7 +18,7 @@ const float PI = 3.14159265f;
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
-	: current_col( 0 ), projection_distance( 45.0f ), degrees(0.0f), old_x_position( 0 ), old_y_position( 0 ), mouse_state( 0 ), cursor_x( 0 ), cursor_y( 0 )
+	: current_col( 0 ), projection_distance( 45.0f ), degrees(0.0f), old_x_position( 0 ), old_y_position( 0 ), mouse_state( 0 ), cursor_z( 0 ), cursor_x( 0 ), total_blocks( 1 )
 {
 	// colour[0] = 0.0f;
 	// colour[1] = 0.0f;
@@ -138,144 +138,46 @@ void A1::initGrid()
 
 	CHECK_GL_ERRORS;
 }
+void A1::initPointer(){
+	size_t sz = 3 * 3 * 5;
 
-void A1::initCube(){
-
-	size_t sz = 3 * 3 * 2 * 6;
 	float *verts = new float[ sz ];
 
-	//xz
-	verts[0] = 0.0f;
-	verts[1] = 0.0f;
-	verts[2] = 0.0f;
-	verts[3] = -1.0f;
-	verts[4] = 0.0f;
-	verts[5] = 0.0f;
-	verts[6] = 0.0f;
-	verts[7] = 0.0f;
-	verts[8] = -1.0f;
+	float base_pointer[3 * 3 * 5] = {
+		-0.5f, 0.0f, -0.5f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, -1.0f,
 
-	verts[9] = 0.0f;
-	verts[10] = 0.0f;
-	verts[11] = -1.0f;
-	verts[12] = -1.0f;
-	verts[13] = 0.0f;
-	verts[14] = -1.0f;
-	verts[15] = -1.0f;
-	verts[16] = 0.0f;
-	verts[17] = 0.0f;
-	//xy
-	verts[18] = 0.0f;
-	verts[19] = 0.0f;
-	verts[20] = 0.0f;
-	verts[21] = 0.0f;
-	verts[22] = 1.0f;
-	verts[23] = 0.0f;
-	verts[24] = -1.0f;
-	verts[25] = 0.0f;
-	verts[26] = 0.0f;
+		-0.5f, 0.0f, -0.5f,
+		-1.0f, 1.0f, 0.0f,
+		-1.0f, 1.0f, -1.0f,
 
-	verts[27] = 0.0f;
-	verts[28] = 1.0f;
-	verts[29] = 0.0f;
-	verts[30] = -1.0f;
-	verts[31] = 1.0f;
-	verts[32] = 0.0f;
-	verts[33] = -1.0f;
-	verts[34] = 0.0f;
-	verts[35] = 0.0f;
-	// //yz
-	verts[36] = 0.0f;
-	verts[37] = 1.0f;
-	verts[38] = 0.0f;
-	verts[39] = 0.0f;
-	verts[40] = 0.0f;
-	verts[41] = 0.0f;
-	verts[42] = 0.0f;
-	verts[43] = 1.0f;
-	verts[44] = -1.0f;
+		-0.5f, 0.0f, -0.5f,
+		-1.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
 
-	verts[45] = 0.0f;
-	verts[46] = 1.0f;
-	verts[47] = -1.0f;
-	verts[48] = 0.0f;
-	verts[49] = 0.0f;
-	verts[50] = 0.0f;
-	verts[51] = 0.0f;
-	verts[52] = 0.0f;
-	verts[53] = -1.0f;
-	//rest three
-	//xz
-	verts[54] = 0.0f;
-	verts[55] = 1.0f;
-	verts[56] = 0.0f;
-	verts[57] = 0.0f;
-	verts[58] = 1.0f;
-	verts[59] = -1.0f;
-	verts[60] = -1.0f;
-	verts[61] = 1.0f;
-	verts[62] = 0.0f;
-
-	verts[63] = 0.0f;
-	verts[64] = 1.0f;
-	verts[65] = -1.0f;
-	verts[66] = -1.0f;
-	verts[67] = 1.0f;
-	verts[68] = -1.0f;
-	verts[69] = -1.0f;
-	verts[70] = 1.0f;
-	verts[71] = 0.0f;
-	// xy
-	verts[72] = 0.0f;
-	verts[73] = 1.0f;
-	verts[74] = -1.0f;
-	verts[75] = -1.0f;
-	verts[76] = 0.0f;
-	verts[77] = -1.0f;
-	verts[78] = 0.0f;
-	verts[79] = 0.0f;
-	verts[80] = -1.0f;
-
-	verts[81] = 0.0f;
-	verts[82] = 1.0f;
-	verts[83] = -1.0f;
-	verts[84] = -1.0f;
-	verts[85] = 1.0f;
-	verts[86] = -1.0f;
-	verts[87] = -1.0f;
-	verts[88] = 0.0f;
-	verts[89] = -1.0f;
-	// yz
-	verts[90] = -1.0f;
-	verts[91] = 1.0f;
-	verts[92] = -1.0f;
-	verts[93] = -1.0f;
-	verts[94] = 1.0f;
-	verts[95] = 0.0f;
-	verts[96] = -1.0f;
-	verts[97] = 0.0f;
-	verts[98] = 0.0f;
-
-	verts[99] = -1.0f;
-	verts[100] = 0.0f;
-	verts[101] = 0.0f;
-	verts[102] = -1.0f;
-	verts[103] = 0.0f;
-	verts[104] = -1.0f;
-	verts[105] = -1.0f;
-	verts[106] = 1.0f;
-	verts[107] = -1.0f;
+		-0.5f, 0.0f, -0.5f,
+		0.0f, 1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f
+	};
 
 
+	int blocks_so_far = 0;
+	for ( int i = 0; i < 45; i+=3 ){
+		verts[blocks_so_far ] = base_pointer[i] + cursor_x;
+		verts[blocks_so_far + 1] = base_pointer[i+1] + Number_of_Block[cursor_z][cursor_x] + 1;
+		verts[blocks_so_far + 2] = base_pointer[i+2] + cursor_z;
+		blocks_so_far += 3;
+	}
 	// Create the vertex array to record buffer assignments.
-	glGenVertexArrays( 1, &m_cube_vao );
-	glBindVertexArray( m_cube_vao );
+	glGenVertexArrays( 1, &m_pointer_vao );
+	glBindVertexArray( m_pointer_vao );
 
 	// Create the cube vertex buffer
-	glGenBuffers( 1, &m_cube_vbo );
-	glBindBuffer( GL_ARRAY_BUFFER, m_cube_vbo );
+	glGenBuffers( 1, &m_pointer_vbo );
+	glBindBuffer( GL_ARRAY_BUFFER, m_pointer_vbo );
 	glBufferData( GL_ARRAY_BUFFER, sz*sizeof(float),
-		verts, GL_DYNAMIC_DRAW );// need to change to Dynamic?
+		verts, GL_STATIC_DRAW );// need to change to Dynamic?
 
 
 	// Specify the means of extracting the position values properly.
@@ -292,6 +194,195 @@ void A1::initCube(){
 	// OpenGL has the buffer now, there's no need for us to keep a copy.
 	delete [] verts;
 
+	CHECK_GL_ERRORS;
+
+}
+void A1::initCube(){
+	total_blocks = 0;
+	for (int i = 0; i < 18; i++){
+		for (int j = 0; j < 18; j ++ ){
+			total_blocks += Number_of_Block[i][j];
+		}
+	}
+	size_t sz = 3 * 3 * 2 * 6 * total_blocks;
+	if (sz > 0){
+	float *verts = new float[ sz ];
+	float base_verts[3 * 3 * 2 * 6];
+	//xz
+	base_verts[0] = 0.0f;
+	base_verts[1] = 0.0f;
+	base_verts[2] = 0.0f;
+	base_verts[3] = -1.0f;
+	base_verts[4] = 0.0f;
+	base_verts[5] = 0.0f;
+	base_verts[6] = 0.0f;
+	base_verts[7] = 0.0f;
+	base_verts[8] = -1.0f;
+
+	base_verts[9] = 0.0f;
+	base_verts[10] = 0.0f;
+	base_verts[11] = -1.0f;
+	base_verts[12] = -1.0f;
+	base_verts[13] = 0.0f;
+	base_verts[14] = -1.0f;
+	base_verts[15] = -1.0f;
+	base_verts[16] = 0.0f;
+	base_verts[17] = 0.0f;
+	//xy
+	base_verts[18] = 0.0f;
+	base_verts[19] = 0.0f;
+	base_verts[20] = 0.0f;
+	base_verts[21] = 0.0f;
+	base_verts[22] = 1.0f;
+	base_verts[23] = 0.0f;
+	base_verts[24] = -1.0f;
+	base_verts[25] = 0.0f;
+	base_verts[26] = 0.0f;
+
+	base_verts[27] = 0.0f;
+	base_verts[28] = 1.0f;
+	base_verts[29] = 0.0f;
+	base_verts[30] = -1.0f;
+	base_verts[31] = 1.0f;
+	base_verts[32] = 0.0f;
+	base_verts[33] = -1.0f;
+	base_verts[34] = 0.0f;
+	base_verts[35] = 0.0f;
+	// //yz
+	base_verts[36] = 0.0f;
+	base_verts[37] = 1.0f;
+	base_verts[38] = 0.0f;
+	base_verts[39] = 0.0f;
+	base_verts[40] = 0.0f;
+	base_verts[41] = 0.0f;
+	base_verts[42] = 0.0f;
+	base_verts[43] = 1.0f;
+	base_verts[44] = -1.0f;
+
+	base_verts[45] = 0.0f;
+	base_verts[46] = 1.0f;
+	base_verts[47] = -1.0f;
+	base_verts[48] = 0.0f;
+	base_verts[49] = 0.0f;
+	base_verts[50] = 0.0f;
+	base_verts[51] = 0.0f;
+	base_verts[52] = 0.0f;
+	base_verts[53] = -1.0f;
+	//rest three
+	//xz
+	base_verts[54] = 0.0f;
+	base_verts[55] = 1.0f;
+	base_verts[56] = 0.0f;
+	base_verts[57] = 0.0f;
+	base_verts[58] = 1.0f;
+	base_verts[59] = -1.0f;
+	base_verts[60] = -1.0f;
+	base_verts[61] = 1.0f;
+	base_verts[62] = 0.0f;
+
+	base_verts[63] = 0.0f;
+	base_verts[64] = 1.0f;
+	base_verts[65] = -1.0f;
+	base_verts[66] = -1.0f;
+	base_verts[67] = 1.0f;
+	base_verts[68] = -1.0f;
+	base_verts[69] = -1.0f;
+	base_verts[70] = 1.0f;
+	base_verts[71] = 0.0f;
+	// xy
+	base_verts[72] = 0.0f;
+	base_verts[73] = 1.0f;
+	base_verts[74] = -1.0f;
+	base_verts[75] = -1.0f;
+	base_verts[76] = 0.0f;
+	base_verts[77] = -1.0f;
+	base_verts[78] = 0.0f;
+	base_verts[79] = 0.0f;
+	base_verts[80] = -1.0f;
+
+	base_verts[81] = 0.0f;
+	base_verts[82] = 1.0f;
+	base_verts[83] = -1.0f;
+	base_verts[84] = -1.0f;
+	base_verts[85] = 1.0f;
+	base_verts[86] = -1.0f;
+	base_verts[87] = -1.0f;
+	base_verts[88] = 0.0f;
+	base_verts[89] = -1.0f;
+	// yz
+	base_verts[90] = -1.0f;
+	base_verts[91] = 1.0f;
+	base_verts[92] = -1.0f;
+	base_verts[93] = -1.0f;
+	base_verts[94] = 1.0f;
+	base_verts[95] = 0.0f;
+	base_verts[96] = -1.0f;
+	base_verts[97] = 0.0f;
+	base_verts[98] = 0.0f;
+
+	base_verts[99] = -1.0f;
+	base_verts[100] = 0.0f;
+	base_verts[101] = 0.0f;
+	base_verts[102] = -1.0f;
+	base_verts[103] = 0.0f;
+	base_verts[104] = -1.0f;
+	base_verts[105] = -1.0f;
+	base_verts[106] = 1.0f;
+	base_verts[107] = -1.0f;
+
+	
+
+	int blocks_so_far = 0;
+	for ( int z = 0; z < 18; ++z ){
+		for ( int x = 0; x < 18; ++x ){
+			for ( int y = 0; y < Number_of_Block[z][x]; ++y ){
+				for (int l = 0; l < 108; l += 3){
+					verts[blocks_so_far ] = base_verts[l] + x;
+					verts[blocks_so_far + 1] = base_verts[l+1] + y;
+					verts[blocks_so_far + 2] = base_verts[l+2] + z;
+					blocks_so_far += 3;
+				}
+				
+			}
+			
+		}
+	}
+	// Create the vertex array to record buffer assignments.
+	glGenVertexArrays( 1, &m_cube_vao );
+	glBindVertexArray( m_cube_vao );
+
+	// Create the cube vertex buffer
+	glGenBuffers( 1, &m_cube_vbo );
+	glBindBuffer( GL_ARRAY_BUFFER, m_cube_vbo );
+	glBufferData( GL_ARRAY_BUFFER, sz*sizeof(float),
+		verts, GL_STATIC_DRAW );// need to change to Dynamic?
+
+
+	// Specify the means of extracting the position values properly.
+	GLint posAttrib = m_shader.getAttribLocation( "position" );
+	glEnableVertexAttribArray( posAttrib );
+	glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
+	//add a colour buffer
+	sz = 3 * 12 * total_blocks;
+	float colour_verts[sz];
+	for (int i = 0; i < sz; i++){
+		colour_verts[i] = 0.0f;
+	}
+	// GLuint colourBuffer;
+	// glGenBuffers( 1, &colourBuffer );
+	// glBindBuffer( GL_ARRAY_BUFFER, colourBuffer );
+	// glBufferData( GL_ARRAY_BUFFER, sz*sizeof(float),
+	// 	verts, GL_STATIC_DRAW );
+	// glEnableVertexAttribArray( posAttrib );
+	// glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
+	// Reset state to prevent rogue code from messing with *my* 
+	// stuff!
+	glBindVertexArray( 0 );
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+	// OpenGL has the buffer now, there's no need for us to keep a copy.
+	delete [] verts;
+}
 	CHECK_GL_ERRORS;
 }
 
@@ -352,7 +443,7 @@ void A1::guiLogic()
 			ImGui::SameLine();
 			if( ImGui::RadioButton( "##Col", &current_col, i ) ) {
 				// Select this colour.
-				std::cout << i << " colour picked" << std::endl;
+				std::cout << current_col << " colour picked" << std::endl;
 			}
 			ImGui::PopID();
 		}
@@ -360,9 +451,9 @@ void A1::guiLogic()
 		// demonstration window right in your application.  Very handy for
 		// browsing around to get the widget you want.  Then look in 
 		// shared/imgui/imgui_demo.cpp to see how it's done.
-		if( ImGui::Button( "Test Window" ) ) {
-			showTestWindow = !showTestWindow;
-		}
+		// if( ImGui::Button( "Test Window" ) ) {
+		// 	showTestWindow = !showTestWindow;
+		// }
 
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
@@ -404,11 +495,17 @@ void A1::draw()
 
 		// Draw the cubes
 		initCube();
-		glBindVertexArray( m_cube_vao );
-		glUniform3f( col_uni, 1, 1, 1 );
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		if (total_blocks > 0){
+			glBindVertexArray( m_cube_vao );
+			glUniform3f( col_uni, 1, 1, 1 );
+			glDrawArrays(GL_TRIANGLES, 0, 36 * total_blocks);
+		}
 
 		// Highlight the active square.
+		initPointer();
+		glBindVertexArray( m_pointer_vao );
+		glUniform3f( col_uni, 1, 1, 1 );
+		glDrawArrays(GL_TRIANGLES, 0, 15);
 
 
 	m_shader.disable();
@@ -550,22 +647,57 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 			old_x_position = 0;
 			old_y_position = 0;
 			mouse_state = 0;
+			cursor_z = 0;
 			cursor_x = 0;
-			cursor_y = 0;
 			eventHandled = true;
 
 		}
 		if ( key == GLFW_KEY_SPACE ){
 			cout << "space key pressed" << endl;
-			Number_of_Block[cursor_x][cursor_y]++;
+			Number_of_Block[cursor_z][cursor_x]++;
 			eventHandled = true;
 		}
-		if ( key == GLFW_KEY_DELETE ){
-			cout << "delete key pressed" << endl;
-			if ( Number_of_Block[cursor_x][cursor_y] != 0 ){
-				Number_of_Block[cursor_x][cursor_y]--;
+		if ( key == GLFW_KEY_BACKSPACE ){
+			cout << "BACKSPACE key pressed" << endl;
+			if ( Number_of_Block[cursor_z][cursor_x] > 0 ){
+				Number_of_Block[cursor_z][cursor_x]--;
+				cout << Number_of_Block[cursor_z][cursor_x] << endl;
 			}
 			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_RIGHT ){
+			cout << "-> key pressed" << endl;
+			if (cursor_x < 18){
+				cursor_x++;
+			}
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_LEFT ){
+			cout << "<- key pressed" << endl;
+			if (cursor_x > 0){
+				cursor_x--;
+			}
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_UP ){
+			cout << "^ key pressed" << endl;
+			if (cursor_z > 0){
+				cursor_z--;
+			}
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_DOWN ){
+			cout << "\\/ key pressed" << endl;
+			if (cursor_z < 18){
+				cursor_z++;
+			}
+			eventHandled = true;
+		}
+		for (int i = 0; i < 18; i++){
+			for (int j = 0; j < 18; j++){
+				cout << Number_of_Block[i][j]<<" ";
+			}
+			cout << endl;
 		}
 	}
 

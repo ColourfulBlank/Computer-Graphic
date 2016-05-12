@@ -31,6 +31,7 @@ private:
 	void initGrid();
 	// added 
 	void initCube();
+	void initPointer();
 	// Fields related to the shader and uniforms.
 	ShaderProgram m_shader;
 	GLint P_uni; // Uniform location for Projection matrix.
@@ -44,6 +45,9 @@ private:
 	// Fields related to cube geometry.
 	GLuint m_cube_vao; // Vertex Array Object
 	GLuint m_cube_vbo; // Vertex Buffer Object
+	// Fields related to pointer geometry.
+	GLuint m_pointer_vao; // Vertex Array Object
+	GLuint m_pointer_vbo; // Vertex Buffer Object
 
 	// Matrices controlling the camera and projection.
 	glm::mat4 proj;
@@ -61,5 +65,6 @@ private:
 	float old_y_position;
 	int mouse_state;
 	int cursor_x;
-	int cursor_y;
+	int cursor_z;
+	int total_blocks;
 };
