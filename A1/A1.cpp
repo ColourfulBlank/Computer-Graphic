@@ -18,13 +18,10 @@ const float PI = 3.14159265f;
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
-	: current_col( 0 ), projection_distance( 45.0f ), degrees(0.0f), old_x_position( 0 ), old_y_position( 0 ), mouse_state( 0 ), cursor_z( 0 ), cursor_x( 0 ), total_blocks( 1 )
+	: current_col( 0 ), projection_distance( 45.0f ), degrees(0.0f), old_x_position( 0 ), old_y_position( 0 ), mouse_state( 0 ), cursor_z( 0 ), cursor_x( 0 ), total_blocks( 1 ), copy_info_number_blocks( 1 ), copy_info_colour_number ( current_col )
 {
-	// colour[0] = 0.0f;
-	// colour[1] = 0.0f;
-	// colour[2] = 0.0f;
-	for (int i = 0; i < 27; i++){
-		current_col_array[i] = 0.0f;
+	for (int i = 0; i < 36; i++){
+		current_col_array[i] = 1.0f;
 	}
 	for (int i = 0; i < 18; i++){
 		Number_of_Block[i] = new int[18];
@@ -197,11 +194,13 @@ void A1::initPointer(){
 	CHECK_GL_ERRORS;
 
 }
-void A1::initCube(){
+void A1::initCube(int colour_number){
 	total_blocks = 0;
 	for (int i = 0; i < 18; i++){
 		for (int j = 0; j < 18; j ++ ){
-			total_blocks += Number_of_Block[i][j];
+			if (Colour_id[i][j] == colour_number){
+				total_blocks += Number_of_Block[i][j];
+			}
 		}
 	}
 	size_t sz = 3 * 3 * 2 * 6 * total_blocks;
@@ -335,16 +334,17 @@ void A1::initCube(){
 	int blocks_so_far = 0;
 	for ( int z = 0; z < 18; ++z ){
 		for ( int x = 0; x < 18; ++x ){
-			for ( int y = 0; y < Number_of_Block[z][x]; ++y ){
-				for (int l = 0; l < 108; l += 3){
-					verts[blocks_so_far ] = base_verts[l] + x;
-					verts[blocks_so_far + 1] = base_verts[l+1] + y;
-					verts[blocks_so_far + 2] = base_verts[l+2] + z;
-					blocks_so_far += 3;
+			if (Colour_id[z][x] == colour_number){
+				for ( int y = 0; y < Number_of_Block[z][x]; ++y ){
+					for (int l = 0; l < 108; l += 3){
+						verts[blocks_so_far ] = base_verts[l] + x;
+						verts[blocks_so_far + 1] = base_verts[l+1] + y;
+						verts[blocks_so_far + 2] = base_verts[l+2] + z;
+						blocks_so_far += 3;
+					}
+					
 				}
-				
 			}
-			
 		}
 	}
 	// Create the vertex array to record buffer assignments.
@@ -420,8 +420,14 @@ void A1::guiLogic()
 		ImGui::SameLine();
 		if( ImGui::Button( "Reset Application" ) ) {
 			current_col = 0; 
-			for (int i = 0; i < 27; i++){
-				current_col_array[i] = 0.0f;
+			for (int i = 0; i < 36; i++){
+				current_col_array[i] = 1.0f;
+			}
+			for (int i = 0; i < 18; i++){
+				for (int j = 0; j < 18; j++){
+					Number_of_Block[i][j] = 0;
+					Colour_id[i][j] = 0;
+				}
 			}
 			projection_distance = 45.0f;
 			degrees = 0.0f;
@@ -437,13 +443,14 @@ void A1::guiLogic()
 
 		// Prefixing a widget name with "##" keeps it from being
 		// displayed.
-		for (int i = 0; i < 9; i++){
+		for (int i = 0; i < 12; i++){
 			ImGui::PushID( i );
 			ImGui::ColorEdit3( "##Colour", &current_col_array[i*3] );
 			ImGui::SameLine();
 			if( ImGui::RadioButton( "##Col", &current_col, i ) ) {
 				// Select this colour.
 				std::cout << current_col << " colour picked" << std::endl;
+				copy_info_colour_number = current_col;
 			}
 			ImGui::PopID();
 		}
@@ -494,17 +501,19 @@ void A1::draw()
 		glDrawArrays( GL_LINES, 0, (3+DIM)*4 );
 
 		// Draw the cubes
-		initCube();
-		if (total_blocks > 0){
-			glBindVertexArray( m_cube_vao );
-			glUniform3f( col_uni, 1, 1, 1 );
-			glDrawArrays(GL_TRIANGLES, 0, 36 * total_blocks);
+		for (int i = 0; i < 12; i++){
+			initCube(i);
+			if (total_blocks > 0){
+				glBindVertexArray( m_cube_vao );
+				glUniform3f( col_uni, current_col_array[i*3], current_col_array[i*3 + 1], current_col_array[i*3 + 2] );
+				glDrawArrays(GL_TRIANGLES, 0, 36 * total_blocks);
+			}
 		}
 
 		// Highlight the active square.
 		initPointer();
 		glBindVertexArray( m_pointer_vao );
-		glUniform3f( col_uni, 1, 1, 1 );
+		glUniform3f( col_uni, current_col_array[current_col*3], current_col_array[current_col * 3 + 1], current_col_array[current_col * 3 + 2] );
 		glDrawArrays(GL_TRIANGLES, 0, 15);
 
 
@@ -639,8 +648,14 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 		if (key == GLFW_KEY_R ) {
 			cout << "r key pressed" << endl;
 			current_col = 0; 
-			for (int i = 0; i < 27; i++){
-				current_col_array[i] = 0.0f;
+			for (int i = 0; i < 18; i++){
+				for (int j = 0; j < 18; j++){
+					Number_of_Block[i][j] = 0;
+					Colour_id[i][j] = 0;
+				}
+			}
+			for (int i = 0; i < 36; i++){
+				current_col_array[i] = 1.0f;
 			}
 			projection_distance = 45.0f;
 			degrees = 0.0f;
@@ -654,7 +669,8 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 		}
 		if ( key == GLFW_KEY_SPACE ){
 			cout << "space key pressed" << endl;
-			Number_of_Block[cursor_z][cursor_x]++;
+			Number_of_Block[cursor_z][cursor_x] += copy_info_number_blocks;
+			Colour_id[cursor_z][cursor_x] = copy_info_colour_number;
 			eventHandled = true;
 		}
 		if ( key == GLFW_KEY_BACKSPACE ){
@@ -693,6 +709,14 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 			}
 			eventHandled = true;
 		}
+		if ( key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT ){
+			cout << "shift key pressed" << endl;
+
+			copy_info_number_blocks = Number_of_Block[cursor_z][cursor_x];
+			copy_info_colour_number = Colour_id[cursor_z][cursor_x];
+
+			eventHandled = true;
+		}
 		for (int i = 0; i < 18; i++){
 			for (int j = 0; j < 18; j++){
 				cout << Number_of_Block[i][j]<<" ";
@@ -700,6 +724,14 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 			cout << endl;
 		}
 	}
+	if (action == GLFW_RELEASE){
+		if ( key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT ){
+			copy_info_number_blocks = 1;
+			copy_info_colour_number = current_col;
+		}
+	}
+	
+
 
 	return eventHandled;
 }

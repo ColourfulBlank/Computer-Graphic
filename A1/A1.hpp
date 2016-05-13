@@ -30,7 +30,7 @@ protected:
 private:
 	void initGrid();
 	// added 
-	void initCube();
+	void initCube(int colour_number);
 	void initPointer();
 	// Fields related to the shader and uniforms.
 	ShaderProgram m_shader;
@@ -53,9 +53,9 @@ private:
 	glm::mat4 proj;
 	glm::mat4 view;
 
-	// float colour[3];
+	float colour[3];
 	int current_col;
-	float current_col_array [27];
+	float current_col_array [36];
 	int * Number_of_Block[18];
 	int * Colour_id[18];
 
@@ -67,4 +67,6 @@ private:
 	int cursor_x;
 	int cursor_z;
 	int total_blocks;
+	int copy_info_number_blocks;
+	int copy_info_colour_number;
 };
