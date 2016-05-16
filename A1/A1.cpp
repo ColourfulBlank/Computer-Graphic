@@ -9,6 +9,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+
+
 using namespace glm;
 using namespace std;
 
@@ -18,7 +20,7 @@ const float PI = 3.14159265f;
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
-	: current_col( 0 ), projection_distance( 45.0f ), degrees(0.0f), old_x_position( 0 ), old_y_position( 0 ), mouse_state( 0 ), cursor_z( 0 ), cursor_x( 0 ), total_blocks( 1 ), copy_info_number_blocks( 1 ), copy_info_colour_number ( current_col )
+	: current_col( 0 ), projection_distance( 45.0f ), degrees_xz(0.0f), old_x_position( 0 ), old_y_position( 0 ), mouse_state( 0 ), cursor_z( 0 ), cursor_x( 0 ), total_blocks( 1 ), copy_info_number_blocks( 1 ), copy_info_colour_number ( current_col ), fly_x(0.0f), fly_z(0.0f)
 {
 	for (int i = 0; i < 36; i++){
 		current_col_array[i] = 1.0f;
@@ -50,8 +52,13 @@ A1::~A1()
  */
 void A1::init()
 {
+	// GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+ //  	GLfloat mat_shininess[] = { 50.0 };	
+	// GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
 	// Set the background colour.
 	glClearColor( 0.3, 0.5, 0.7, 1.0 );
+
+
 
 	// Build the shader
 	m_shader.generateProgramObject();
@@ -368,13 +375,6 @@ void A1::initCube(int colour_number){
 	for (int i = 0; i < sz; i++){
 		colour_verts[i] = 0.0f;
 	}
-	// GLuint colourBuffer;
-	// glGenBuffers( 1, &colourBuffer );
-	// glBindBuffer( GL_ARRAY_BUFFER, colourBuffer );
-	// glBufferData( GL_ARRAY_BUFFER, sz*sizeof(float),
-	// 	verts, GL_STATIC_DRAW );
-	// glEnableVertexAttribArray( posAttrib );
-	// glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
 	// Reset state to prevent rogue code from messing with *my* 
 	// stuff!
 	glBindVertexArray( 0 );
@@ -430,7 +430,7 @@ void A1::guiLogic()
 				}
 			}
 			projection_distance = 45.0f;
-			degrees = 0.0f;
+			degrees_xz = 0.0f;
 			old_x_position = 0;
 			old_y_position = 0;
 			mouse_state = 0;
@@ -481,9 +481,12 @@ void A1::draw()
 	// Create a global transformation for the model (centre it).
 	mat4 W;
 	vec3 y_axis(0.0f,1.0f,0.0f);
-	W = glm::rotate( W, degrees, y_axis);
+	W = glm::rotate( W, degrees_xz, y_axis);
 
 	W = glm::translate( W, vec3( -float(DIM)/2.0f, 0, -float(DIM)/2.0f ) );
+	view = glm::translate( view, vec3(fly_x, 0, fly_z));
+	fly_x = 0;
+	fly_z = 0;
 	proj = glm::perspective( 
 			glm::radians( projection_distance ),
 			float( m_framebufferWidth ) / float( m_framebufferHeight ),
@@ -562,7 +565,7 @@ bool A1::mouseMoveEvent(double xPos, double yPos)
 		// rotation amount, and maybe the previous X position (so 
 		// that you can rotate relative to the *change* in X.
 		if (ImGui::IsMouseDragging()){
-			degrees += (xPos - old_x_position) *  PI / m_windowWidth;//xPos difference
+			degrees_xz += (xPos - old_x_position) *  PI / m_windowWidth;//xPos difference
 		}
 			
 	}
@@ -658,7 +661,7 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 				current_col_array[i] = 1.0f;
 			}
 			projection_distance = 45.0f;
-			degrees = 0.0f;
+			degrees_xz = 0.0f;
 			old_x_position = 0;
 			old_y_position = 0;
 			mouse_state = 0;
@@ -717,12 +720,34 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 
 			eventHandled = true;
 		}
+		if ( key == GLFW_KEY_W ){
+			cout << "w key pressed" << endl;
+			fly_z--;
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_S ){
+			cout << "s key pressed" << endl;
+			fly_z++;
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_A ){
+			cout << "a key pressed" << endl;
+			fly_x--;
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_D ){
+			cout << "d key pressed" << endl;
+			fly_x++;
+			eventHandled = true;
+		}
 		for (int i = 0; i < 18; i++){
 			for (int j = 0; j < 18; j++){
 				cout << Number_of_Block[i][j]<<" ";
 			}
 			cout << endl;
 		}
+
+
 	}
 	if (action == GLFW_RELEASE){
 		if ( key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT ){

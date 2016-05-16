@@ -32,6 +32,7 @@ private:
 	// added 
 	void initCube(int colour_number);
 	void initPointer();
+
 	// Fields related to the shader and uniforms.
 	ShaderProgram m_shader;
 	GLint P_uni; // Uniform location for Projection matrix.
@@ -60,7 +61,7 @@ private:
 	int * Colour_id[18];
 
 	float projection_distance;
-	float degrees;
+	float degrees_xz;
 	float old_x_position;
 	float old_y_position;
 	int mouse_state;
@@ -69,4 +70,6 @@ private:
 	int total_blocks;
 	int copy_info_number_blocks;
 	int copy_info_colour_number;
+	float fly_x;
+	float fly_z;
 };
