@@ -16,6 +16,8 @@ using namespace std;
 
 static const size_t DIM = 16;
 const float PI = 3.14159265f;
+int fly_dest_x = 0;
+int fly_dest_z = 0;
 
 //----------------------------------------------------------------------------------------
 // Constructor
@@ -433,6 +435,10 @@ void A1::guiLogic()
 			degrees_xz = 0.0f;
 			old_x_position = 0;
 			old_y_position = 0;
+			fly_z = -fly_dest_z;
+			fly_x = -fly_dest_x;
+			fly_dest_x = 0;
+			fly_dest_z = 0;
 			mouse_state = 0;
 		}
 		// Eventually you'll create multiple colour widgets with
@@ -667,6 +673,10 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 			mouse_state = 0;
 			cursor_z = 0;
 			cursor_x = 0;
+			fly_z = -fly_dest_z;
+			fly_x = -fly_dest_x;
+			fly_dest_x = 0;
+			fly_dest_z = 0;
 			eventHandled = true;
 
 		}
@@ -723,21 +733,25 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 		if ( key == GLFW_KEY_W ){
 			cout << "w key pressed" << endl;
 			fly_z--;
+			fly_dest_z--;
 			eventHandled = true;
 		}
 		if ( key == GLFW_KEY_S ){
 			cout << "s key pressed" << endl;
 			fly_z++;
+			fly_dest_z++;
 			eventHandled = true;
 		}
 		if ( key == GLFW_KEY_A ){
 			cout << "a key pressed" << endl;
 			fly_x--;
+			fly_dest_x--;
 			eventHandled = true;
 		}
 		if ( key == GLFW_KEY_D ){
 			cout << "d key pressed" << endl;
 			fly_x++;
+			fly_dest_x++;
 			eventHandled = true;
 		}
 		for (int i = 0; i < 18; i++){
