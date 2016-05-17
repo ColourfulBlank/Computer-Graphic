@@ -111,17 +111,6 @@ install/fast: preinstall/fast
 	/opt/local/bin/cmake -P cmake_install.cmake
 .PHONY : install/fast
 
-# Special rule for the target install/strip
-install/strip: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
-	/opt/local/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
-.PHONY : install/strip
-
-# Special rule for the target install/strip
-install/strip/fast: install/strip
-
-.PHONY : install/strip/fast
-
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build/CMakeFiles /Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build/CMakeFiles/progress.marks
@@ -181,19 +170,6 @@ glfw/fast:
 .PHONY : glfw/fast
 
 #=============================================================================
-# Target rules for targets named Wave
-
-# Build rule for target.
-Wave: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 Wave
-.PHONY : Wave
-
-# fast build rule for target.
-Wave/fast:
-	$(MAKE) -f examples/CMakeFiles/Wave.dir/build.make examples/CMakeFiles/Wave.dir/build
-.PHONY : Wave/fast
-
-#=============================================================================
 # Target rules for targets named Simple
 
 # Build rule for target.
@@ -205,6 +181,19 @@ Simple: cmake_check_build_system
 Simple/fast:
 	$(MAKE) -f examples/CMakeFiles/Simple.dir/build.make examples/CMakeFiles/Simple.dir/build
 .PHONY : Simple/fast
+
+#=============================================================================
+# Target rules for targets named Wave
+
+# Build rule for target.
+Wave: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Wave
+.PHONY : Wave
+
+# fast build rule for target.
+Wave/fast:
+	$(MAKE) -f examples/CMakeFiles/Wave.dir/build.make examples/CMakeFiles/Wave.dir/build
+.PHONY : Wave/fast
 
 #=============================================================================
 # Target rules for targets named SplitView
@@ -542,11 +531,10 @@ help:
 	@echo "... install/local"
 	@echo "... list_install_components"
 	@echo "... install"
-	@echo "... install/strip"
 	@echo "... uninstall"
 	@echo "... glfw"
-	@echo "... Wave"
 	@echo "... Simple"
+	@echo "... Wave"
 	@echo "... SplitView"
 	@echo "... Particles"
 	@echo "... Gears"

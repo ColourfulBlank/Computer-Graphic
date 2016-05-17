@@ -150,8 +150,8 @@ clean: src/CMakeFiles/glfw.dir/clean
 # Directory level rules for directory examples
 
 # Convenience name for "all" pass in the directory.
-examples/all: examples/CMakeFiles/Wave.dir/all
 examples/all: examples/CMakeFiles/Simple.dir/all
+examples/all: examples/CMakeFiles/Wave.dir/all
 examples/all: examples/CMakeFiles/SplitView.dir/all
 examples/all: examples/CMakeFiles/Particles.dir/all
 examples/all: examples/CMakeFiles/Gears.dir/all
@@ -161,8 +161,8 @@ examples/all: examples/CMakeFiles/Boing.dir/all
 .PHONY : examples/all
 
 # Convenience name for "clean" pass in the directory.
-examples/clean: examples/CMakeFiles/Wave.dir/clean
 examples/clean: examples/CMakeFiles/Simple.dir/clean
+examples/clean: examples/CMakeFiles/Wave.dir/clean
 examples/clean: examples/CMakeFiles/SplitView.dir/clean
 examples/clean: examples/CMakeFiles/Particles.dir/clean
 examples/clean: examples/CMakeFiles/Gears.dir/clean
@@ -175,43 +175,6 @@ examples/clean: examples/CMakeFiles/Boing.dir/clean
 examples/preinstall:
 
 .PHONY : examples/preinstall
-
-#=============================================================================
-# Target rules for target examples/CMakeFiles/Wave.dir
-
-# All Build rule for target.
-examples/CMakeFiles/Wave.dir/all: src/CMakeFiles/glfw.dir/all
-	$(MAKE) -f examples/CMakeFiles/Wave.dir/build.make examples/CMakeFiles/Wave.dir/depend
-	$(MAKE) -f examples/CMakeFiles/Wave.dir/build.make examples/CMakeFiles/Wave.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build/CMakeFiles --progress-num=15,16 "Built target Wave"
-.PHONY : examples/CMakeFiles/Wave.dir/all
-
-# Include target in all.
-all: examples/CMakeFiles/Wave.dir/all
-
-.PHONY : all
-
-# Build rule for subdir invocation for target.
-examples/CMakeFiles/Wave.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build/CMakeFiles 15
-	$(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/Wave.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build/CMakeFiles 0
-.PHONY : examples/CMakeFiles/Wave.dir/rule
-
-# Convenience name for target.
-Wave: examples/CMakeFiles/Wave.dir/rule
-
-.PHONY : Wave
-
-# clean rule for target.
-examples/CMakeFiles/Wave.dir/clean:
-	$(MAKE) -f examples/CMakeFiles/Wave.dir/build.make examples/CMakeFiles/Wave.dir/clean
-.PHONY : examples/CMakeFiles/Wave.dir/clean
-
-# clean rule for target.
-clean: examples/CMakeFiles/Wave.dir/clean
-
-.PHONY : clean
 
 #=============================================================================
 # Target rules for target examples/CMakeFiles/Simple.dir
@@ -247,6 +210,43 @@ examples/CMakeFiles/Simple.dir/clean:
 
 # clean rule for target.
 clean: examples/CMakeFiles/Simple.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target examples/CMakeFiles/Wave.dir
+
+# All Build rule for target.
+examples/CMakeFiles/Wave.dir/all: src/CMakeFiles/glfw.dir/all
+	$(MAKE) -f examples/CMakeFiles/Wave.dir/build.make examples/CMakeFiles/Wave.dir/depend
+	$(MAKE) -f examples/CMakeFiles/Wave.dir/build.make examples/CMakeFiles/Wave.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build/CMakeFiles --progress-num=15,16 "Built target Wave"
+.PHONY : examples/CMakeFiles/Wave.dir/all
+
+# Include target in all.
+all: examples/CMakeFiles/Wave.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+examples/CMakeFiles/Wave.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build/CMakeFiles 15
+	$(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/Wave.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build/CMakeFiles 0
+.PHONY : examples/CMakeFiles/Wave.dir/rule
+
+# Convenience name for target.
+Wave: examples/CMakeFiles/Wave.dir/rule
+
+.PHONY : Wave
+
+# clean rule for target.
+examples/CMakeFiles/Wave.dir/clean:
+	$(MAKE) -f examples/CMakeFiles/Wave.dir/build.make examples/CMakeFiles/Wave.dir/clean
+.PHONY : examples/CMakeFiles/Wave.dir/clean
+
+# clean rule for target.
+clean: examples/CMakeFiles/Wave.dir/clean
 
 .PHONY : clean
 

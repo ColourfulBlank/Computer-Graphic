@@ -18,6 +18,7 @@ static const size_t DIM = 16;
 const float PI = 3.14159265f;
 int fly_dest_x = 0;
 int fly_dest_z = 0;
+int shift = 0;
 
 //----------------------------------------------------------------------------------------
 // Constructor
@@ -419,7 +420,7 @@ void A1::guiLogic()
 		if( ImGui::Button( "Quit Application" ) ) {
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
 		}
-		ImGui::SameLine();
+		
 		if( ImGui::Button( "Reset Application" ) ) {
 			current_col = 0; 
 			for (int i = 0; i < 36; i++){
@@ -431,6 +432,20 @@ void A1::guiLogic()
 					Colour_id[i][j] = 0;
 				}
 			}
+			projection_distance = 45.0f;
+			degrees_xz = 0.0f;
+			old_x_position = 0;
+			old_y_position = 0;
+			fly_z = -fly_dest_z;
+			fly_x = -fly_dest_x;
+			fly_dest_x = 0;
+			fly_dest_z = 0;
+			mouse_state = 0;
+			cursor_z = 0;
+			cursor_x = 0;
+		}
+		ImGui::SameLine();
+		if( ImGui::Button( "Reset Camera" ) ) {
 			projection_distance = 45.0f;
 			degrees_xz = 0.0f;
 			old_x_position = 0;
@@ -682,7 +697,7 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 		}
 		if ( key == GLFW_KEY_SPACE ){
 			cout << "space key pressed" << endl;
-			Number_of_Block[cursor_z][cursor_x] += copy_info_number_blocks;
+			Number_of_Block[cursor_z][cursor_x] += 1;
 			Colour_id[cursor_z][cursor_x] = copy_info_colour_number;
 			eventHandled = true;
 		}
@@ -696,8 +711,13 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 		}
 		if ( key == GLFW_KEY_RIGHT ){
 			cout << "-> key pressed" << endl;
-			if (cursor_x < 18){
+			if (cursor_x < 17){
 				cursor_x++;
+				if (shift == 1){
+					Number_of_Block[cursor_z][cursor_x] = copy_info_number_blocks;
+					Colour_id[cursor_z][cursor_x] = copy_info_colour_number;
+					cout << "z: " << cursor_z << " x: " << cursor_x <<" num: " << Number_of_Block[cursor_z][cursor_x] <<  endl;
+				}
 			}
 			eventHandled = true;
 		}
@@ -705,27 +725,46 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 			cout << "<- key pressed" << endl;
 			if (cursor_x > 0){
 				cursor_x--;
+				if (shift == 1){
+					Number_of_Block[cursor_z][cursor_x] = copy_info_number_blocks;
+					Colour_id[cursor_z][cursor_x] = copy_info_colour_number;
+					cout << "z: " << cursor_z << " x: " << cursor_x <<" num: " << Number_of_Block[cursor_z][cursor_x] <<  endl;
+				}
 			}
+			
 			eventHandled = true;
 		}
 		if ( key == GLFW_KEY_UP ){
 			cout << "^ key pressed" << endl;
 			if (cursor_z > 0){
 				cursor_z--;
+				if (shift == 1){
+					Number_of_Block[cursor_z][cursor_x] = copy_info_number_blocks;
+					Colour_id[cursor_z][cursor_x] = copy_info_colour_number;
+					cout << "z: " << cursor_z << " x: " << cursor_x <<" num: " << Number_of_Block[cursor_z][cursor_x] <<  endl;
+				}
 			}
+			
 			eventHandled = true;
 		}
 		if ( key == GLFW_KEY_DOWN ){
 			cout << "\\/ key pressed" << endl;
-			if (cursor_z < 18){
+			if (cursor_z < 17){
 				cursor_z++;
+				if (shift == 1){
+					Number_of_Block[cursor_z][cursor_x] = copy_info_number_blocks;
+					Colour_id[cursor_z][cursor_x] = copy_info_colour_number;
+					cout << "z: " << cursor_z << " x: " << cursor_x <<" num: " << Number_of_Block[cursor_z][cursor_x] <<  endl;
+				}
 			}
+			
 			eventHandled = true;
 		}
 		if ( key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT ){
 			cout << "shift key pressed" << endl;
-
+			shift = 1;
 			copy_info_number_blocks = Number_of_Block[cursor_z][cursor_x];
+			cout << copy_info_number_blocks << endl;
 			copy_info_colour_number = Colour_id[cursor_z][cursor_x];
 
 			eventHandled = true;
@@ -765,6 +804,7 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 	}
 	if (action == GLFW_RELEASE){
 		if ( key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT ){
+			shift = 0;
 			copy_info_number_blocks = 1;
 			copy_info_colour_number = current_col;
 		}

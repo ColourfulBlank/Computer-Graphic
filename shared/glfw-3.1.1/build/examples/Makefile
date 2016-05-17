@@ -67,17 +67,6 @@ edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
 
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/opt/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
 # Special rule for the target install
 install: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
@@ -89,17 +78,6 @@ install/fast: preinstall/fast
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
 	/opt/local/bin/cmake -P cmake_install.cmake
 .PHONY : install/fast
-
-# Special rule for the target install/strip
-install/strip: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
-	/opt/local/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
-.PHONY : install/strip
-
-# Special rule for the target install/strip
-install/strip/fast: install/strip
-
-.PHONY : install/strip/fast
 
 # Special rule for the target install/local
 install/local: preinstall
@@ -121,6 +99,17 @@ list_install_components:
 list_install_components/fast: list_install_components
 
 .PHONY : list_install_components/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/opt/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -155,21 +144,6 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-examples/CMakeFiles/Wave.dir/rule:
-	cd /Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/Wave.dir/rule
-.PHONY : examples/CMakeFiles/Wave.dir/rule
-
-# Convenience name for target.
-Wave: examples/CMakeFiles/Wave.dir/rule
-
-.PHONY : Wave
-
-# fast build rule for target.
-Wave/fast:
-	cd /Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build && $(MAKE) -f examples/CMakeFiles/Wave.dir/build.make examples/CMakeFiles/Wave.dir/build
-.PHONY : Wave/fast
-
-# Convenience name for target.
 examples/CMakeFiles/Simple.dir/rule:
 	cd /Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/Simple.dir/rule
 .PHONY : examples/CMakeFiles/Simple.dir/rule
@@ -183,6 +157,21 @@ Simple: examples/CMakeFiles/Simple.dir/rule
 Simple/fast:
 	cd /Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build && $(MAKE) -f examples/CMakeFiles/Simple.dir/build.make examples/CMakeFiles/Simple.dir/build
 .PHONY : Simple/fast
+
+# Convenience name for target.
+examples/CMakeFiles/Wave.dir/rule:
+	cd /Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/Wave.dir/rule
+.PHONY : examples/CMakeFiles/Wave.dir/rule
+
+# Convenience name for target.
+Wave: examples/CMakeFiles/Wave.dir/rule
+
+.PHONY : Wave
+
+# fast build rule for target.
+Wave/fast:
+	cd /Users/weichengwang/Desktop/spring2016/cs488/shared/glfw-3.1.1/build && $(MAKE) -f examples/CMakeFiles/Wave.dir/build.make examples/CMakeFiles/Wave.dir/build
+.PHONY : Wave/fast
 
 # Convenience name for target.
 examples/CMakeFiles/SplitView.dir/rule:
@@ -509,15 +498,14 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
-	@echo "... rebuild_cache"
 	@echo "... install"
-	@echo "... Wave"
-	@echo "... install/strip"
 	@echo "... Simple"
 	@echo "... install/local"
+	@echo "... Wave"
 	@echo "... list_install_components"
 	@echo "... SplitView"
 	@echo "... Particles"
+	@echo "... rebuild_cache"
 	@echo "... Gears"
 	@echo "... Heightmap"
 	@echo "... Boing"
