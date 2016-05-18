@@ -585,10 +585,16 @@ bool A1::mouseMoveEvent(double xPos, double yPos)
 		// Probably need some instance variables to track the current
 		// rotation amount, and maybe the previous X position (so 
 		// that you can rotate relative to the *change* in X.
-		if (ImGui::IsMouseDragging()){
-			degrees_xz += (xPos - old_x_position) *  PI / m_windowWidth;//xPos difference
-		}
+		if (ImGui::GetIO().MouseDown[1]){
+			cout << "aooo" << endl;
+		// if ( ImGui::IsMouseDragging() ){
+			cout << "dragging" << endl;
+					
+			degrees_xz += (xPos - old_x_position) *  PI / m_windowWidth;//xPos difference		
+			// }
+		
 			
+		}	
 	}
 	old_x_position = xPos;
 	old_y_position = yPos;
@@ -604,9 +610,12 @@ bool A1::mouseMoveEvent(double xPos, double yPos)
 bool A1::mouseButtonInputEvent(int button, int actions, int mods) {
 	bool eventHandled(false);
 
+
+
 	if (!ImGui::IsMouseHoveringAnyWindow()) {
 		// The user clicked in the window.  If it's the left
 		// mouse button, initiate a rotation.
+
 		cout << "Mouse Is Not Hovering Any Window" <<endl;
 		eventHandled = true;
 	}
