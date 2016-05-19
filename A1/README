@@ -1,0 +1,14 @@
+Compilation:
+same as the instructions as provided
+but may be need to rm libglfw3.a and other cache files because I built and tested on
+my Mac laptop
+
+Manual
+everything as required
+Rotation use the right mouse
+added coloured indicator to show current 
+added camera fly using WASD
+added camera reset button, without clean up bars and colour info
+
+
+If there are further problems, email: w257wang@uwaterloo.ca

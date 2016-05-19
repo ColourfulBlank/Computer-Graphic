@@ -472,6 +472,7 @@ void A1::guiLogic()
 				// Select this colour.
 				std::cout << current_col << " colour picked" << std::endl;
 				copy_info_colour_number = current_col;
+				Colour_id[cursor_z][cursor_x] = copy_info_colour_number;
 			}
 			ImGui::PopID();
 		}
@@ -707,7 +708,7 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 		if ( key == GLFW_KEY_SPACE ){
 			cout << "space key pressed" << endl;
 			Number_of_Block[cursor_z][cursor_x] += 1;
-			Colour_id[cursor_z][cursor_x] = copy_info_colour_number;
+			Colour_id[cursor_z][cursor_x] = current_col;
 			eventHandled = true;
 		}
 		if ( key == GLFW_KEY_BACKSPACE ){
