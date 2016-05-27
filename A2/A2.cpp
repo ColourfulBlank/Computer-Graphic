@@ -11,6 +11,30 @@ using namespace std;
 #include <glm/gtx/io.hpp>
 using namespace glm;
 
+int current_mode = 0;
+const float PI = 3.14159265f;
+
+float view_delta_x = 0;
+float view_delta_y = 0;
+float view_delta_z = 0;
+float model_delta_x = 0;
+float model_delta_y = 0;
+float model_delta_z = 0;
+float sx = 1;
+float sy = 1;
+float sz = 1;
+float view_theta_z = 0;
+float view_theta_x = 0;
+float view_theta_y = 0;
+float model_theta_z = 0;
+float model_theta_x = 0;
+float model_theta_y = 0;
+
+mat4x4 I = mat4x4(vec4(1, 0, 0, 0),
+				  vec4(0, 1, 0, 0),
+				  vec4(0, 0, 1, 0),
+				  vec4(0, 0, 0, 1));
+
 //----------------------------------------------------------------------------------------
 // Constructor
 VertexData::VertexData()
@@ -25,8 +49,50 @@ VertexData::VertexData()
 //----------------------------------------------------------------------------------------
 // Constructor
 A2::A2()
-	: m_currentLineColour(vec3(0.0f))
-{
+	: m_currentLineColour(vec3(0.0f)), delta_right(0), old_x_position(0), old_y_position(0)
+{	
+	//set cube 
+	cube_structure = new vec4 * [12];
+	for (int i = 0; i < 12; ++i){
+		cube_structure[i] = new vec4[2];
+	}
+	cube_structure[0][0] = vec4(-0.25f, -0.25f, -0.25f, 1.0f);
+	cube_structure[0][1] = vec4(-0.25f, -0.25f, 0.25f, 1.0f);
+	cube_structure[1][0] = vec4(-0.25f, -0.25f, -0.25f, 1.0f);
+	cube_structure[1][1] = vec4(-0.25f, 0.25f, -0.25f, 1.0f);
+	cube_structure[2][0] = vec4(-0.25f, -0.25f, -0.25f, 1.0f);
+	cube_structure[2][1] = vec4(0.25f, -0.25f, -0.25f, 1.0f);
+	cube_structure[3][0] = vec4(0.25f, 0.25f, 0.25f, 1.0f);
+	cube_structure[3][1] = vec4(-0.25f, 0.25f, 0.25f, 1.0f);
+	cube_structure[4][0] = vec4(0.25f, 0.25f, 0.25f, 1.0f);
+	cube_structure[4][1] = vec4(0.25f, -0.25f, 0.25f, 1.0f);
+	cube_structure[5][0] = vec4(0.25f, 0.25f, 0.25f, 1.0f);
+	cube_structure[5][1] = vec4(0.25f, 0.25f, -0.25f, 1.0f);
+	cube_structure[6][0] = vec4(-0.25f, 0.25f, -0.25f, 1.0f);
+	cube_structure[6][1] = vec4(-0.25f, 0.25f, 0.25f, 1.0f);
+	cube_structure[7][0] = vec4(-0.25f, 0.25f, -0.25f, 1.0f);
+	cube_structure[7][1] = vec4(0.25f, 0.25f, -0.25f, 1.0f);
+	cube_structure[8][0] = vec4(0.25f, -0.25f, -0.25f, 1.0f);
+	cube_structure[8][1] = vec4(0.25f, 0.25f, -0.25f, 1.0f);
+	cube_structure[9][0] = vec4(0.25f, -0.25f, -0.25f, 1.0f);
+	cube_structure[9][1] = vec4(0.25f, -0.25f, 0.25f, 1.0f);
+	cube_structure[10][0] = vec4(-0.25f, -0.25f, 0.25f, 1.0f);
+	cube_structure[10][1] = vec4(-0.25f, 0.25f, 0.25f, 1.0f);
+	cube_structure[11][0] = vec4(-0.25f, -0.25f, 0.25f, 1.0f);
+	cube_structure[11][1] = vec4(0.25f, -0.25f, 0.25f, 1.0f);
+	
+	//cood
+	x_axis[0] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	x_axis[1] = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	y_axis[0] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	y_axis[1] = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+	z_axis[0] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	z_axis[1] = vec4(0.0f, 0.0f, 1.0f, 1.0f);
+
+
+	M = I;
+	V = I;
+	P = I;
 
 }
 
@@ -34,6 +100,12 @@ A2::A2()
 // Destructor
 A2::~A2()
 {
+	//set cube 
+	
+	for (int i = 0; i < 12; ++i){
+		delete [] cube_structure[i];
+	}
+	delete [] cube_structure;
 
 }
 
@@ -59,6 +131,8 @@ void A2::init()
 	generateVertexBuffers();
 
 	mapVboDataToVertexAttributeLocation();
+ 
+
 }
 
 //----------------------------------------------------------------------------------------
@@ -192,22 +266,131 @@ void A2::appLogic()
 
 	// Call at the beginning of frame, before drawing lines:
 	initLineData();
+	// set up transformed data
+	vec4 changed_cube_structure[12][2];
+	vec4 changed_x[2] = { x_axis[0], x_axis[1] };
+	vec4 changed_y[2] = { y_axis[0], y_axis[1] };
+	vec4 changed_z[2] = { z_axis[0], z_axis[1] };
+	//init Transformations
 
-	// Draw outer square:
-	setLineColour(vec3(1.0f, 0.7f, 0.8f));
-	drawLine(vec2(-0.5f, -0.5f), vec2(0.5f, -0.5f));
-	drawLine(vec2(0.5f, -0.5f), vec2(0.5f, 0.5f));
-	drawLine(vec2(0.5f, 0.5f), vec2(-0.5f, 0.5f));
-	drawLine(vec2(-0.5f, 0.5f), vec2(-0.5f, -0.5f));
 
+	mat4x4 viewTranslation = mat4x4( vec4(1, 0, 0, 0), 
+									 vec4(0, 1, 0, 0), 
+									 vec4(0, 0, 1, 0), 
+									 vec4(view_delta_x, view_delta_y, view_delta_z, 1));
 
-	// Draw inner square:
+	mat4x4 modelTranslation = mat4x4( vec4(1, 0, 0, 0), 
+									  vec4(0, 1, 0, 0), 
+									  vec4(0, 0, 1, 0), 
+									  vec4(model_delta_x, model_delta_y, model_delta_z, 1));
+
+	mat4x4 modelScale = mat4x4( vec4(sx, 0, 0, 0),
+							    vec4(0, sy, 0, 0),
+							    vec4(0, 0, sz, 0),
+							    vec4(0, 0, 0, 1) );
+
+	mat4x4 viewRotation_z = mat4x4 (vec4(cos(view_theta_z), sin(view_theta_z),0 ,0),
+									vec4(-sin(view_theta_z), cos(view_theta_z), 0, 0),
+									vec4(0,0,1,0),
+									vec4(0,0,0,1) );
+	mat4x4 modelRotation_z = mat4x4(vec4(cos(model_theta_z), sin(model_theta_z),0 ,0),
+									vec4(-sin(model_theta_z), cos(model_theta_z), 0, 0),
+									vec4(0,0,1,0),
+									vec4(0,0,0,1) );
+
+	mat4x4 viewRotation_x = mat4x4 (vec4(1, 0, 0, 0),
+									vec4(0, cos(view_theta_x), sin(view_theta_x), 0),
+									vec4(0, -sin(view_theta_x), cos(view_theta_x), 0),
+									vec4(0,0,0,1) );
+	mat4x4 modelRotation_x = mat4x4 (vec4(1, 0, 0, 0),
+									vec4(0, cos(model_theta_x), sin(model_theta_x), 0),
+									vec4(0, -sin(model_theta_x), cos(model_theta_x), 0),
+									vec4(0,0,0,1) );
+
+	mat4x4 viewRotation_y = mat4x4 (vec4(cos(view_theta_y), 0, -sin(view_theta_y), 0),
+									vec4(0, 1, 0, 0),
+									vec4(sin(view_theta_y), 0, cos(view_theta_y), 0),
+									vec4(0,0,0,1) );
+	mat4x4 modelRotation_y = mat4x4 (vec4(cos(model_theta_y), 0, -sin(model_theta_y), 0),
+									vec4(0, 1, 0, 0),
+									vec4(sin(model_theta_y), 0, cos(model_theta_y), 0),
+									vec4(0,0,0,1) );
+	
+	// M = modelScale * M; 
+	
+	// M = modelRotation_z * M;
+	// M = modelRotation_x * M;
+	// M = modelRotation_y * M;
+
+	// M = modelTranslation * M;
+	// // V = viewScale * V;
+	// V = V * viewTranslation;
+	// V = viewRotation_z * V;
+	// V = viewRotation_x * V;
+	// V = viewRotation_y * V;
+	M = M * modelTranslation;
+	M = M * modelRotation_y;
+	M = M * modelRotation_x;
+	M = M * modelRotation_z;
+	M = M * modelScale; 
+	// V = viewScale * V;
+	V = V * viewTranslation;
+	V = V * viewRotation_y;
+	V = V * viewRotation_x;
+	V = V * viewRotation_z;
+	
+	
+	// cout <<"before "<< V << endl;
+	
+	// cout <<"after "<< V << endl;
+	// cout << changed_x[0] << endl;
+	// cout << viewTranslation * changed_x[0] * V  << endl;
+	// cout << V * changed_x[1] * viewTranslation << endl;
+
+	for (int i = 0; i < 12; ++i){
+		// changed_cube_structure[i][0] = cube_structure[i][0] * M * V * P; 
+		// changed_cube_structure[i][1] = cube_structure[i][1] * M * V * P; 
+		changed_cube_structure[i][0] = P * V * M * cube_structure[i][0]; 
+		changed_cube_structure[i][1] = P * V * M * cube_structure[i][1]; 
+	}
+	
+
+	//draw
+	setLineColour(vec3(0.0f, 0.0f, 1.0f));
+	drawLine( vec2(P * V * changed_x[0]), 
+			vec2(P * V * changed_x[1] ) );
+	setLineColour(vec3(0.0f, 1.0f, 0.0f));
+	drawLine( vec2(P * V * changed_y[0] ), 
+			vec2(P * V * changed_y[1] ) );
+	setLineColour(vec3(1.0f, 0.0f, 0.0f));
+	drawLine( vec2(P * V * changed_z[0] ), 
+			vec2(P * V * changed_z[1] ) );
+
 	setLineColour(vec3(0.2f, 1.0f, 1.0f));
-	drawLine(vec2(-0.25f, -0.25f), vec2(0.25f, -0.25f));
-	drawLine(vec2(0.25f, -0.25f), vec2(0.25f, 0.25f));
-	drawLine(vec2(0.25f, 0.25f), vec2(-0.25f, 0.25f));
-	drawLine(vec2(-0.25f, 0.25f), vec2(-0.25f, -0.25f));
+	for (int i = 0; i < 12; ++i){
+		drawLine( vec2(changed_cube_structure[i][0]), 
+			vec2(changed_cube_structure[i][1]) );
+	}
+	//reset 
+	view_theta_x = 0;
+	view_theta_y = 0;
+	view_theta_z = 0;
+	model_theta_x = 0;
+	model_theta_y = 0;
+	model_theta_z = 0;
+	view_delta_x = 0;
+	view_delta_y = 0;
+	view_delta_z = 0;
+	model_delta_x = 0;
+	model_delta_y = 0;
+	model_delta_z = 0;
+
+	sx = 1;
+	sz = 1;
+	sy = 1;
+
 }
+
 
 //----------------------------------------------------------------------------------------
 /*
@@ -233,9 +416,52 @@ void A2::guiLogic()
 
 
 		// Create Button, and check if it was clicked:
+		//quit button short cut Q
 		if( ImGui::Button( "Quit Application" ) ) {
+			cout << "Goodbye!" << endl;
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
 		}
+		//reset button short cut R
+		if( ImGui::Button( "Reset Application" ) ) {
+			cout << "Application reseted" << endl;
+			M = I;
+			V = I;
+			P = I;
+			current_mode = 0;
+
+		}
+	
+		if( ImGui::RadioButton( "Rotate View", &current_mode, 0 ) ) {
+			cout << "Rotate View" << current_mode << endl;
+		}
+
+		if( ImGui::RadioButton( "Translate View", &current_mode, 1 ) ) {
+			cout << "Translate View" << current_mode << endl;
+		}
+
+		if( ImGui::RadioButton( "Perspective", &current_mode, 2 ) ) {
+			cout << "Perspective" << current_mode << endl;
+		}
+
+		if( ImGui::RadioButton( "Rotate Model", &current_mode, 3 ) ) {
+			cout << "Rotate Model" << current_mode << endl;	
+		}
+
+		if( ImGui::RadioButton( "Translate Model", &current_mode, 4 ) ) {
+			cout << "Translate Model" << current_mode << endl;
+		}
+
+		if( ImGui::RadioButton( "Scale Model", &current_mode, 5 ) ) {
+			cout << "Scale Model" << current_mode << endl;	
+		}
+
+		if( ImGui::RadioButton( "Viewport", &current_mode, 6 ) ) {
+			cout << "Viewport" << current_mode << endl;
+		}
+
+
+
+
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
 
@@ -320,6 +546,105 @@ bool A2::mouseMoveEvent (
 	bool eventHandled(false);
 
 	// Fill in with event handling code...
+	if (!ImGui::IsMouseHoveringAnyWindow()) {
+		if (ImGui::GetIO().MouseDown[0] 
+			|| ImGui::GetIO().MouseDown[1] 
+			|| ImGui::GetIO().MouseDown[2]
+		){ 
+			//some mouse(s) dragging
+			cout << "some mouse(s) dragging: "<< ImGui::GetIO().MouseDown[0] + ImGui::GetIO().MouseDown[1] + ImGui::GetIO().MouseDown[2] << endl;
+			
+			if (current_mode == 0){
+				//rotate view
+				delta_right = 5 * (xPos - old_x_position) *  PI / m_windowWidth;//xPos difference		
+				if ( ImGui::GetIO().MouseDown[0] ){
+					view_theta_x = delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[1] ){
+					view_theta_z = delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[2] ){
+					view_theta_y = delta_right;
+				}
+			} else if (current_mode == 1){
+				//translate view
+				delta_right = 5 * (xPos - old_x_position) / m_windowWidth;//xPos difference		
+				if ( ImGui::GetIO().MouseDown[0] ){
+					view_delta_x = delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[1] ){
+					view_delta_z = delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[2] ){
+					view_delta_y = delta_right;
+				}
+			} else if (current_mode == 2){
+				//Perspective
+				// delta_right += (xPos - old_x_position) *  PI / m_windowWidth;//xPos difference		
+				if ( ImGui::GetIO().MouseDown[0] ){
+					// view_theta_x = delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[1] ){
+					// view_theta_z = delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[2] ){
+					// view_theta_y = delta_right;
+				}
+			} else if (current_mode == 3){
+				//Rotate Model
+				delta_right = 5 * (xPos - old_x_position) *  PI / m_windowWidth;//xPos difference		
+				if ( ImGui::GetIO().MouseDown[0] ){
+					model_theta_x = delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[1] ){
+					model_theta_z = delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[2] ){
+					model_theta_y = delta_right;
+				}
+			} else if (current_mode == 4){
+				//Translate Model
+				delta_right = 5 * (xPos - old_x_position) / m_windowWidth;//xPos difference		
+				if ( ImGui::GetIO().MouseDown[0] ){
+					model_delta_x += delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[1] ){
+					model_delta_z += delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[2] ){
+					model_delta_y += delta_right;
+				}
+			} else if (current_mode == 5){
+				//Scale Model
+				delta_right = (xPos - old_x_position) /m_windowWidth;//xPos difference		
+				if ( ImGui::GetIO().MouseDown[0] ){
+					sx += delta_right;
+					cout << sx << endl;
+				}
+				if ( ImGui::GetIO().MouseDown[1] ){
+					sz += delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[2] ){
+					sy += delta_right;
+				}
+			} else if (current_mode == 6){
+				//ViewPort
+				delta_right = 5 * (xPos - old_x_position) *  PI / m_windowWidth;//xPos difference		
+				if ( ImGui::GetIO().MouseDown[0] ){
+					model_theta_x = delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[1] ){
+					model_theta_z = delta_right;
+				}
+				if ( ImGui::GetIO().MouseDown[2] ){
+					model_theta_y = delta_right;
+				}
+			}
+			
+		}	
+	}
+	old_x_position = xPos;
+	old_y_position = yPos;
 
 	return eventHandled;
 }
@@ -381,7 +706,18 @@ bool A2::keyInputEvent (
 ) {
 	bool eventHandled(false);
 
+	if( action == GLFW_PRESS ) {
+		if (key == GLFW_KEY_Q ) {
+			cout << "Q Keyboard pressed" << endl;
+			glfwSetWindowShouldClose(m_window, GL_TRUE);
+			eventHandled = true;
+		}
+
+	}
+
 	// Fill in with event handling code...
 
 	return eventHandled;
 }
+
+

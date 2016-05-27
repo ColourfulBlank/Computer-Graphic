@@ -69,5 +69,17 @@ protected:
 	VertexData m_vertexData;
 
 	glm::vec3 m_currentLineColour;
+	glm::vec4 ** cube_structure;
+	glm::vec4 x_axis[2]; 
+	glm::vec4 y_axis[2]; 
+	glm::vec4 z_axis[2];
+	
+	glm::mat4x4 M;
+	glm::mat4x4 V;
+	glm::mat4x4 P;
+
+	float delta_right;
+	float old_x_position;
+	float old_y_position; 
 
 };
