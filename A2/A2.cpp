@@ -11,24 +11,10 @@ using namespace std;
 #include <glm/gtx/io.hpp>
 using namespace glm;
 
-int current_mode = 0;
+int current_mode = 3;
 const float PI = 3.14159265f;
 
-float view_delta_x = 0;
-float view_delta_y = 0;
-float view_delta_z = 0;
-float model_delta_x = 0;
-float model_delta_y = 0;
-float model_delta_z = 0;
-float sx = 1;
-float sy = 1;
-float sz = 1;
-float view_theta_z = 0;
-float view_theta_x = 0;
-float view_theta_y = 0;
-float model_theta_z = 0;
-float model_theta_x = 0;
-float model_theta_y = 0;
+
 
 mat4x4 I = mat4x4(vec4(1, 0, 0, 0),
 				  vec4(0, 1, 0, 0),
@@ -51,6 +37,28 @@ VertexData::VertexData()
 A2::A2()
 	: m_currentLineColour(vec3(0.0f)), delta_right(0), old_x_position(0), old_y_position(0)
 {	
+	//init
+	view_delta_x = 0;
+	view_delta_y = 0;
+	view_delta_z = 0;
+	model_delta_x = 0;
+	model_delta_y = 0;
+	model_delta_z = 0;
+	sx = 1;
+	sy = 1;
+	sz = 1;
+	view_theta_z = 0;
+	view_theta_x = 0;
+	view_theta_y = 0;
+	model_theta_z = 0;
+	model_theta_x = 0;
+	model_theta_y = 0;
+	theta = PI/3;
+	aspect = 1;
+	far = -20;
+	near = -1;
+
+
 	//set cube 
 	cube_structure = new vec4 * [12];
 	for (int i = 0; i < 12; ++i){
@@ -93,6 +101,16 @@ A2::A2()
 	M = I;
 	V = I;
 	P = I;
+
+	//view port
+	viewPort_top[0] = vec2(-0.9,-0.9);
+	viewPort_bot[0] = vec2(-0.9,-0.9);
+	viewPort_left[0] = vec2(0.9,-0.9);
+	viewPort_right[0] = vec2(-0.9,0.9);
+	viewPort_top[1] = vec2(0.9, -0.9);
+	viewPort_bot[1] = vec2(-0.9, 0.9);
+	viewPort_left[1] = vec2(0.9, 0.9);
+	viewPort_right[1] = vec2(0.9, 0.9);
 
 }
 
@@ -298,79 +316,121 @@ void A2::appLogic()
 									vec4(0,0,1,0),
 									vec4(0,0,0,1) );
 
-	mat4x4 viewRotation_x = mat4x4 (vec4(1, 0, 0, 0),
-									vec4(0, cos(view_theta_x), sin(view_theta_x), 0),
-									vec4(0, -sin(view_theta_x), cos(view_theta_x), 0),
-									vec4(0,0,0,1) );
+	mat4x4 viewRotation_x = mat4x4 ( vec4(1, 0, 0, 0),
+									 vec4(0, cos(view_theta_x), sin(view_theta_x), 0),
+									 vec4(0, -sin(view_theta_x), cos(view_theta_x), 0),
+									 vec4(0,0,0,1) );
 	mat4x4 modelRotation_x = mat4x4 (vec4(1, 0, 0, 0),
-									vec4(0, cos(model_theta_x), sin(model_theta_x), 0),
-									vec4(0, -sin(model_theta_x), cos(model_theta_x), 0),
-									vec4(0,0,0,1) );
+									 vec4(0, cos(model_theta_x), sin(model_theta_x), 0),
+									 vec4(0, -sin(model_theta_x), cos(model_theta_x), 0),
+									 vec4(0,0,0,1) );
 
-	mat4x4 viewRotation_y = mat4x4 (vec4(cos(view_theta_y), 0, -sin(view_theta_y), 0),
-									vec4(0, 1, 0, 0),
-									vec4(sin(view_theta_y), 0, cos(view_theta_y), 0),
-									vec4(0,0,0,1) );
-	mat4x4 modelRotation_y = mat4x4 (vec4(cos(model_theta_y), 0, -sin(model_theta_y), 0),
-									vec4(0, 1, 0, 0),
-									vec4(sin(model_theta_y), 0, cos(model_theta_y), 0),
-									vec4(0,0,0,1) );
-	
-	// M = modelScale * M; 
-	
-	// M = modelRotation_z * M;
-	// M = modelRotation_x * M;
-	// M = modelRotation_y * M;
+	mat4x4 viewRotation_y = mat4x4 ( vec4(cos(view_theta_y), 0, -sin(view_theta_y), 0),
+									 vec4(0, 1, 0, 0),
+									 vec4(sin(view_theta_y), 0, cos(view_theta_y), 0),
+									 vec4(0,0,0,1) );
+	mat4x4 modelRotation_y = mat4x4 ( vec4(cos(model_theta_y), 0, -sin(model_theta_y), 0),
+									  vec4(0, 1, 0, 0),
+									  vec4(sin(model_theta_y), 0, cos(model_theta_y), 0),
+									  vec4(0,0,0,1) );
+	aspect = m_windowWidth/m_windowHeight;
+	mat4x4 projection_z_plus = mat4x4 ( vec4((1/tan(theta/2.0f))/aspect, 0, 0, 0),
+								   		vec4(0, (1/tan(theta/2.0f)), 0, 0),
+								   		vec4(0, 0, (far + near)/(far - near), 1),
+								   		vec4(0, 0, -2 * far * near / (far - near), 0)
+								 );
+	mat4x4 projection_z_minus = mat4x4 ( vec4((1/tan(theta/2.0f))/aspect, 0, 0, 0),
+								   		 vec4(0, (1/tan(theta/2.0f)), 0, 0),
+								   		 vec4(0, 0, -1 * (far + near)/(far - near), -1),
+								   		 vec4(0, 0, -2 * far * near / (far - near), 0)
+								 );
+	// cout << "----" << P * V * changed_x[0] << endl;
+	// cout << "----" << P * changed_x[1] << endl;
 
-	// M = modelTranslation * M;
-	// // V = viewScale * V;
-	// V = V * viewTranslation;
-	// V = viewRotation_z * V;
-	// V = viewRotation_x * V;
-	// V = viewRotation_y * V;
+	P = projection_z_plus;
+
+	// cout << P * V * changed_x[0] << endl;
+	// vec4 temp = P * cube_structure[0][0];
+	// cout << temp << endl;
+	// temp.x = temp.x/temp.z;
+	// temp.y = temp.y/temp.z;
+	// cout << temp << endl;
+
+	// cout << m_windowWidth << endl;
+	// cout << m_windowHeight << endl;
+	// cout << P << endl;
+
 	M = M * modelTranslation;
 	M = M * modelRotation_y;
 	M = M * modelRotation_x;
 	M = M * modelRotation_z;
 	M = M * modelScale; 
-	// V = viewScale * V;
+
 	V = V * viewTranslation;
 	V = V * viewRotation_y;
 	V = V * viewRotation_x;
 	V = V * viewRotation_z;
 	
-	
-	// cout <<"before "<< V << endl;
-	
-	// cout <<"after "<< V << endl;
-	// cout << changed_x[0] << endl;
-	// cout << viewTranslation * changed_x[0] * V  << endl;
-	// cout << V * changed_x[1] * viewTranslation << endl;
 
 	for (int i = 0; i < 12; ++i){
-		// changed_cube_structure[i][0] = cube_structure[i][0] * M * V * P; 
-		// changed_cube_structure[i][1] = cube_structure[i][1] * M * V * P; 
-		changed_cube_structure[i][0] = P * V * M * cube_structure[i][0]; 
+		changed_cube_structure[i][0] = P * V * M * cube_structure[i][0];
+
 		changed_cube_structure[i][1] = P * V * M * cube_structure[i][1]; 
 	}
 	
 
 	//draw
+	vec4 point_i;
+	vec4 point_e;
+
 	setLineColour(vec3(0.0f, 0.0f, 1.0f));
-	drawLine( vec2(P * V * changed_x[0]), 
-			vec2(P * V * changed_x[1] ) );
+	point_i = P * V * changed_x[0];
+	point_e = P * V * changed_x[1];
+	point_e.x = point_e.x/ point_e.z;
+	point_e.y = point_e.y/ point_e.z;
+	point_i.x = point_i.x/ point_i.z;
+	point_i.y = point_i.y/ point_i.z;
+	drawLine( vec2(point_i), vec2(point_e) );
+
 	setLineColour(vec3(0.0f, 1.0f, 0.0f));
-	drawLine( vec2(P * V * changed_y[0] ), 
-			vec2(P * V * changed_y[1] ) );
+	point_i = P * V * changed_y[0];
+	point_e = P * V * changed_y[1];
+	point_e.x = point_e.x/ point_e.z;
+	point_e.y = point_e.y/ point_e.z;
+	point_i.x = point_i.x/ point_i.z;
+	point_i.y = point_i.y/ point_i.z;
+	drawLine( vec2(point_i), vec2(point_e) );
+
 	setLineColour(vec3(1.0f, 0.0f, 0.0f));
-	drawLine( vec2(P * V * changed_z[0] ), 
-			vec2(P * V * changed_z[1] ) );
+	point_i = P * V * changed_z[0];
+	point_e = P * V * changed_z[1];
+	point_e.x = point_e.x/ point_e.z;
+	point_e.y = point_e.y/ point_e.z;
+	point_i.x = point_i.x/ point_i.z;
+	point_i.y = point_i.y/ point_i.z;
+	drawLine( vec2(point_i), vec2(point_e) );
 
 	setLineColour(vec3(0.2f, 1.0f, 1.0f));
 	for (int i = 0; i < 12; ++i){
-		drawLine( vec2(changed_cube_structure[i][0]), 
-			vec2(changed_cube_structure[i][1]) );
+		point_i = changed_cube_structure[i][0];
+		point_e = changed_cube_structure[i][1];
+		point_e.x = point_e.x/ point_e.z;
+		point_e.y = point_e.y/ point_e.z;
+		point_i.x = point_i.x/ point_i.z;
+		point_i.y = point_i.y/ point_i.z;
+		drawLine( vec2(point_i), 
+			vec2(point_e) );
 	}
+
+	setLineColour(vec3(1.0f, 1.0f, 1.0f));
+	// viewPort_top[2] = { vec2(-0.9,-0.9), vec2(0.9. -0.9) };
+	// viewPort_bot[2] = { vec2(-0.9,-0.9), vec2(-0.9. 0.9) };
+	// viewPort_left[2] = { vec2(0.9,-0.9), vec2(0.9. 0.9) };
+	// viewPort_right[2] = { vec2(-0.9,0.9), vec2(0.9. 0.9) };
+	drawLine( viewPort_top[0], viewPort_top[1]);
+	drawLine( viewPort_bot[0], viewPort_bot[1]);
+	drawLine( viewPort_left[0], viewPort_left[1]);
+	drawLine( viewPort_right[0], viewPort_right[1]);
 	//reset 
 	view_theta_x = 0;
 	view_theta_y = 0;
@@ -427,7 +487,7 @@ void A2::guiLogic()
 			M = I;
 			V = I;
 			P = I;
-			current_mode = 0;
+			current_mode = 3;
 
 		}
 	
@@ -580,15 +640,19 @@ bool A2::mouseMoveEvent (
 				}
 			} else if (current_mode == 2){
 				//Perspective
-				// delta_right += (xPos - old_x_position) *  PI / m_windowWidth;//xPos difference		
+				delta_right = (xPos - old_x_position);//xPos difference		
 				if ( ImGui::GetIO().MouseDown[0] ){
 					// view_theta_x = delta_right;
+					theta += delta_right * PI / m_windowWidth;
+					cout << "theta: "<< theta << endl;
 				}
 				if ( ImGui::GetIO().MouseDown[1] ){
-					// view_theta_z = delta_right;
+					far += 5 * delta_right / m_windowWidth;
+					cout << "far: " << far << endl;
 				}
 				if ( ImGui::GetIO().MouseDown[2] ){
-					// view_theta_y = delta_right;
+					near += 5 * delta_right / m_windowWidth;
+					cout << "near: " << near << endl;
 				}
 			} else if (current_mode == 3){
 				//Rotate Model
@@ -691,6 +755,8 @@ bool A2::windowResizeEvent (
 	bool eventHandled(false);
 
 	// Fill in with event handling code...
+	m_windowWidth = width;
+	m_windowHeight = height;
 
 	return eventHandled;
 }

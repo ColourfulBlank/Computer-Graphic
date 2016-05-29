@@ -73,6 +73,10 @@ protected:
 	glm::vec4 x_axis[2]; 
 	glm::vec4 y_axis[2]; 
 	glm::vec4 z_axis[2];
+	glm::vec2 viewPort_top[2];
+	glm::vec2 viewPort_bot[2];
+	glm::vec2 viewPort_left[2];
+	glm::vec2 viewPort_right[2];
 	
 	glm::mat4x4 M;
 	glm::mat4x4 V;
@@ -81,5 +85,25 @@ protected:
 	float delta_right;
 	float old_x_position;
 	float old_y_position; 
+
+	float view_delta_x;
+	float view_delta_y;
+	float view_delta_z;
+	float model_delta_x;
+	float model_delta_y;
+	float model_delta_z;
+	float sx;
+	float sy;
+	float sz;
+	float view_theta_z;
+	float view_theta_x;
+	float view_theta_y;
+	float model_theta_z;
+	float model_theta_x;
+	float model_theta_y;
+	float theta;
+	float aspect;
+	float far;
+	float near;
 
 };
