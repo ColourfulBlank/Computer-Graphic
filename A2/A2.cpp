@@ -53,9 +53,9 @@ A2::A2()
 	model_theta_z = 0;
 	model_theta_x = 0;
 	model_theta_y = 0;
-	theta = PI/3;
+	theta = PI/6;
 	aspect = 1;
-	far = -20;
+	far = 10;
 	near = -1;
 
 
@@ -99,18 +99,22 @@ A2::A2()
 
 
 	M = I;
-	V = I;
+	V = inverse(mat4x4( vec4(1, 0, 0, 0), vec4(0, 1, 0, 0), vec4(0, 0, -1, 0), vec4(0, 0, 5, 1)));
 	P = I;
 
 	//view port
-	viewPort_top[0] = vec2(-0.95,-0.95);
+	viewPort_top[0] = vec2(-0.95,0.95);
+	viewPort_top[1] = vec2(0.95, 0.95);
 	viewPort_bot[0] = vec2(-0.95,-0.95);
-	viewPort_left[0] = vec2(0.95,-0.95);
-	viewPort_right[0] = vec2(-0.95,0.95);
-	viewPort_top[1] = vec2(0.95, -0.95);
-	viewPort_bot[1] = vec2(-0.95, 0.95);
-	viewPort_left[1] = vec2(0.95, 0.95);
-	viewPort_right[1] = vec2(0.95, 0.95);
+	viewPort_bot[1] = vec2(0.95,-0.95);
+	viewPort_left[0] = vec2(-0.95,0.95);
+	viewPort_left[1] = vec2(-0.95, -0.95);
+	viewPort_right[0] = vec2(0.95, 0.95);
+	viewPort_right[1] = vec2(0.95, -0.95);
+	m_width = 768;
+	m_height = 689;
+	m_width_aspect = (viewPort_top[1].x + 1) * m_width / 2 - (viewPort_top[0].x + 1) * m_width / 2;
+	m_height_aspect = (viewPort_top[1].y + 1) * m_height / 2 - (viewPort_bot[1].y + 1) * m_height / 2;
 
 }
 
@@ -286,9 +290,15 @@ void A2::appLogic()
 	initLineData();
 	// set up transformed data
 	vec4 changed_cube_structure[12][2];
+	for (int i = 0; i < 12; ++i){ 
+		changed_cube_structure[i][0] = cube_structure[i][0];
+		changed_cube_structure[i][1] = cube_structure[i][1];
+	}
 	vec4 changed_x[2] = { x_axis[0], x_axis[1] };
 	vec4 changed_y[2] = { y_axis[0], y_axis[1] };
 	vec4 changed_z[2] = { z_axis[0], z_axis[1] };
+
+	aspect = m_width_aspect/m_height_aspect;
 	//init Transformations
 
 
@@ -333,85 +343,43 @@ void A2::appLogic()
 									  vec4(0, 1, 0, 0),
 									  vec4(sin(model_theta_y), 0, cos(model_theta_y), 0),
 									  vec4(0,0,0,1) );
-	aspect = m_framebufferWidth/m_framebufferHeight;
+	
 	mat4x4 projection_z_plus = mat4x4 ( vec4((1/tan(theta/2.0f))/aspect, 0, 0, 0),
 								   		vec4(0, (1/tan(theta/2.0f)), 0, 0),
-								   		vec4(0, 0, (far + near)/(far - near), 1),
-								   		vec4(0, 0, -2 * far * near / (far - near), 0)
+								   		vec4(0, 0, 1, 1),
+								   		vec4(0, 0, 1, 0)
 								 );
-	mat4x4 projection_z_minus = mat4x4 ( vec4((1/tan(theta/2.0f))/aspect, 0, 0, 0),
-								   		 vec4(0, (1/tan(theta/2.0f)), 0, 0),
-								   		 vec4(0, 0, -1 * (far + near)/(far - near), -1),
-								   		 vec4(0, 0, -2 * far * near / (far - near), 0)
-								 );
-	// cout << "----" << P * V * changed_x[0] << endl;
-	// cout << "----" << P * changed_x[1] << endl;
 
+	
 	P = projection_z_plus;
 
-	M = M * modelTranslation;
+	M = M * modelScale;
+	
 	M = M * modelRotation_y;
 	M = M * modelRotation_x;
 	M = M * modelRotation_z;
-	M = M * modelScale; 
+	M = M * modelTranslation; 
 
-	// V = V * viewTranslation;
-	// V = V * viewRotation_y;
-	// V = V * viewRotation_x;
-	// V = V * viewRotation_z;
-	V = V * inverse(viewTranslation);// * V;
-	V = V * inverse(viewRotation_y);
-	V = V * inverse(viewRotation_x);
-	V = V * inverse(viewRotation_z);
+	V = inverse(viewRotation_y) * V;
+	V = inverse(viewRotation_x) * V;
+	V = inverse(viewRotation_z) * V;
+	V = inverse(viewTranslation) * V;
 	
 
-	for (int i = 0; i < 12; ++i){
-		changed_cube_structure[i][0] = P * V * M * cube_structure[i][0];
-		changed_cube_structure[i][1] = P * V * M * cube_structure[i][1]; 
-	}
 	
-
-	//draw
-	vec4 point_i;
-	vec4 point_e;
-
 	setLineColour(vec3(0.0f, 0.0f, 1.0f));
-	point_i = P * V * M * changed_x[0];
-	point_e = P * V * M * changed_x[1];
-	point_e.x = point_e.x/ point_e.z;
-	point_e.y = point_e.y/ point_e.z;
-	point_i.x = point_i.x/ point_i.z;
-	point_i.y = point_i.y/ point_i.z;
-	drawLine( vec2(point_i), vec2(point_e) );
+	draw_points(changed_x[0], changed_x[1]);
 
 	setLineColour(vec3(0.0f, 1.0f, 0.0f));
-	point_i = P * V * M *changed_y[0];
-	point_e = P * V * M *changed_y[1];
-	point_e.x = point_e.x/ point_e.z;
-	point_e.y = point_e.y/ point_e.z;
-	point_i.x = point_i.x/ point_i.z;
-	point_i.y = point_i.y/ point_i.z;
-	drawLine( vec2(point_i), vec2(point_e) );
+	draw_points(changed_y[0], changed_y[1]);
 
 	setLineColour(vec3(1.0f, 0.0f, 0.0f));
-	point_i = P * V * M *changed_z[0];
-	point_e = P * V * M *changed_z[1];
-	point_e.x = point_e.x/ point_e.z;
-	point_e.y = point_e.y/ point_e.z;
-	point_i.x = point_i.x/ point_i.z;
-	point_i.y = point_i.y/ point_i.z;
-	drawLine( vec2(point_i), vec2(point_e) );
+	draw_points(changed_z[0], changed_z[1]);
+
 
 	setLineColour(vec3(0.2f, 1.0f, 1.0f));
 	for (int i = 0; i < 12; ++i){
-		point_i = changed_cube_structure[i][0];
-		point_e = changed_cube_structure[i][1];
-		point_e.x = point_e.x/ point_e.z;
-		point_e.y = point_e.y/ point_e.z;
-		point_i.x = point_i.x/ point_i.z;
-		point_i.y = point_i.y/ point_i.z;
-		drawLine( vec2(point_i), 
-			vec2(point_e) );
+		draw_points(changed_cube_structure[i][0], changed_cube_structure[i][1]);
 	}
 
 	setLineColour(vec3(1.0f, 1.0f, 1.0f));
@@ -438,7 +406,148 @@ void A2::appLogic()
 	sy = 1;
 
 }
+void A2::draw_points(glm::vec4 i, glm::vec4 e){
+	vec4 point[2];
+	point[0] = V * M * i;
+	point[1] = V * M * e;
+	// if (near_cliping(point) && far_cliping(point)) {
+		
+		point[0] = P * point[0];
+		point[1] = P * point[1];
+		point[0].x = point[0].x/point[0].z;
+		point[0].y = point[0].y/point[0].z;
+		point[1].x = point[1].x/point[1].z;
+		point[1].y = point[1].y/point[1].z;
+		point[0].x = viewPort_reDraw(point[0].x, 0);
+		point[0].y = viewPort_reDraw(point[0].y, 1);
+		point[1].x = viewPort_reDraw(point[1].x, 0);
+		point[1].y = viewPort_reDraw(point[1].y, 1);
+		
+		drawLine(vec2(point[0]), vec2(point[1]));
+		// viewPort_cliping(vec2(point[0]), vec2(point[1]));
+	// }
 
+}
+bool A2::near_cliping(glm::vec4 * p){
+
+	vec4 i = p[0];
+	vec4 e = p[1];
+
+	vec4 line[2] = {
+		vec4(0, 0, near, 0), vec4(0, 0, 1, 1)
+	};
+
+	vec4 dif_IP = (i - line[0]);
+	vec4 dif_EP = (e - line[0]);
+	float wecI = dif_IP.x * line[1].x + dif_IP.y * line[1].y + dif_IP.z * line[1].z;
+	float wecE = dif_EP.x * line[1].x + dif_EP.y * line[1].y + dif_EP.z * line[1].z;
+
+	if (wecI < 0 && wecE < 0) return false;
+	if (wecI >= 0 && wecE >= 0) return true;
+	float t = wecI/(wecI - wecE);
+	if ( wecI < 0 ) {
+		i = i + t * (e - i);
+	} else {
+		e = i + t * (e - i);
+	}
+	p[0] = i;
+	p[1] = e;
+	return true;
+
+}
+bool A2::far_cliping(glm::vec4 * p){
+	
+	vec4 i = p[0];
+	vec4 e = p[1];
+
+	vec4 line[2] = {
+		vec4(0, 0, far, 0), vec4(0, 0, -1, 1)
+	};
+
+	
+	// for (int j = 0; j < 4; ++j){
+	vec4 dif_IP = (i - line[0]);
+	vec4 dif_EP = (e - line[0]);
+	float wecI = dif_IP.x * line[1].x + dif_IP.y * line[1].y + dif_IP.z * line[1].z;
+	float wecE = dif_EP.x * line[1].x + dif_EP.y * line[1].y + dif_EP.z * line[1].z;
+
+	if (wecI < 0 && wecE < 0) return false;
+	if (wecI >= 0 && wecE >= 0) return true;
+	float t = wecI/(wecI - wecE);
+	if ( wecI < 0 ) {
+		i = i + t * (e - i);
+	} else {
+		e = i + t * (e - i);
+	}
+	p[0] = i;
+	p[1] = e;
+	return true;
+
+}
+
+float A2::viewPort_reDraw(float xy, int coord){
+	float ret = 0;
+	vec2 firstPoint = viewPort_top[0];
+	int Xwl = -1;
+	int Ywl = 1;
+	// if (m_width_aspect >= 0){
+	// 	if (m_height_aspect >= 0){
+	// 		firstPoint = viewPort_top[0];
+	// 		Xwl = -1;
+	// 		Ywl = 1;
+	// 	} else {
+	// 		firstPoint = viewPort_bot[0];
+	// 		Xwl = -1;
+	// 		Ywl = -1;
+	// 	}
+		
+	// } else {
+	// 	if (m_height_aspect >= 0){
+	// 		firstPoint = viewPort_top[1];
+	// 		Xwl = 1;
+	// 		Ywl = 1;
+	// 	} else {
+	// 		firstPoint = viewPort_top[0];
+	// 		Xwl = 1;
+	// 		Ywl = -1;
+	// 	}
+		
+	// }
+	if ( coord == 0 ) {
+			ret = (xy - Xwl) * abs(m_width_aspect/m_width) + firstPoint.x;	
+		} else {
+			ret = (xy - Ywl) * abs(m_height_aspect/m_height) + firstPoint.y;
+		}
+	return ret;
+	
+}
+
+void A2::viewPort_cliping(vec2 i, vec2 e){
+
+	vec2 lineSegments[4][2] = {
+		{ viewPort_top[1], vec2(0, -1)},
+		{ viewPort_top[1], vec2(-1, 0)},
+		{ viewPort_bot[0], vec2(0, 1)},
+		{ viewPort_bot[0], vec2(1, 0)}
+	};
+	for (int j = 0; j < 4; ++j){
+		vec2 dif_IP = (i - lineSegments[j][0]);
+		vec2 dif_EP = (e - lineSegments[j][0]);
+		float wecI = dif_IP.x * lineSegments[j][1].x + dif_IP.y * lineSegments[j][1].y;
+		float wecE = dif_EP.x * lineSegments[j][1].x + dif_EP.y * lineSegments[j][1].y;
+
+		if (wecI < 0 && wecE < 0) return;
+		if (wecI >= 0 && wecE >= 0) continue;
+		float t = wecI/(wecI - wecE);
+		if ( wecI < 0 ) {
+			i = i + t * (e - i);
+		} else {
+			e = i + t * (e - i);
+		}
+	}
+
+	drawLine(i, e);
+}
 
 //----------------------------------------------------------------------------------------
 /*
@@ -458,11 +567,6 @@ void A2::guiLogic()
 
 	ImGui::Begin("Properties", &showDebugWindow, ImVec2(100,100), opacity,
 			windowFlags);
-
-
-		// Add more gui elements here here ...
-
-
 		// Create Button, and check if it was clicked:
 		//quit button short cut Q
 		if( ImGui::Button( "Quit Application" ) ) {
@@ -473,37 +577,51 @@ void A2::guiLogic()
 		if( ImGui::Button( "Reset Application" ) ) {
 			cout << "Application reseted" << endl;
 			M = I;
-			V = I;
+			V = inverse(mat4x4( vec4(1, 0, 0, 0), vec4(0, 1, 0, 0), vec4(0, 0, -1, 0), vec4(0, 0, 5, 1)));
 			P = I;
 			current_mode = 3;
+			viewPort_top[0] = vec2(-0.95,0.95);
+			viewPort_top[1] = vec2(0.95, 0.95);
+			viewPort_bot[0] = vec2(-0.95,-0.95);
+			viewPort_bot[1] = vec2(0.95,-0.95);
+			viewPort_left[0] = vec2(-0.95,0.95);
+			viewPort_left[1] = vec2(-0.95, -0.95);
+			viewPort_right[0] = vec2(0.95, 0.95);
+			viewPort_right[1] = vec2(0.95, -0.95);
+			m_width = 768;
+			m_height = 689;
+			m_width_aspect = (viewPort_top[1].x + 1) * m_width / 2 - (viewPort_top[0].x + 1) * m_width / 2;
+			m_height_aspect = (viewPort_top[1].y + 1) * m_height / 2 - (viewPort_bot[1].y + 1) * m_height / 2;
+			theta = PI/6;
+			aspect = 1;
+			far = 10;
+			near = -1;
 
 		}
-	
-		if( ImGui::RadioButton( "Rotate View", &current_mode, 0 ) ) {
-			cout << "Rotate View" << current_mode << endl;
-		}
-
-		if( ImGui::RadioButton( "Translate View", &current_mode, 1 ) ) {
-			cout << "Translate View" << current_mode << endl;
-		}
-
-		if( ImGui::RadioButton( "Perspective", &current_mode, 2 ) ) {
-			cout << "Perspective" << current_mode << endl;
-		}
-
-		if( ImGui::RadioButton( "Rotate Model", &current_mode, 3 ) ) {
+		if( ImGui::RadioButton( "Rotate Model (R)", &current_mode, 3 ) ) {
 			cout << "Rotate Model" << current_mode << endl;	
 		}
 
-		if( ImGui::RadioButton( "Translate Model", &current_mode, 4 ) ) {
+		if( ImGui::RadioButton( "Translate Model(T)", &current_mode, 4 ) ) {
 			cout << "Translate Model" << current_mode << endl;
 		}
 
-		if( ImGui::RadioButton( "Scale Model", &current_mode, 5 ) ) {
+		if( ImGui::RadioButton( "Scale Model (S)", &current_mode, 5 ) ) {
 			cout << "Scale Model" << current_mode << endl;	
 		}
+		if( ImGui::RadioButton( "Rotate View (O)", &current_mode, 0 ) ) {
+			cout << "Rotate View" << current_mode << endl;
+		}
 
-		if( ImGui::RadioButton( "Viewport", &current_mode, 6 ) ) {
+		if( ImGui::RadioButton( "Translate View (N)", &current_mode, 1 ) ) {
+			cout << "Translate View" << current_mode << endl;
+		}
+
+		if( ImGui::RadioButton( "Perspective (P)", &current_mode, 2 ) ) {
+			cout << "Perspective" << current_mode << endl;
+		}
+
+		if( ImGui::RadioButton( "Viewport (V)", &current_mode, 6 ) ) {
 			cout << "Viewport" << current_mode << endl;
 		}
 
@@ -600,11 +718,11 @@ bool A2::mouseMoveEvent (
 			|| ImGui::GetIO().MouseDown[2]
 		){ 
 			//some mouse(s) dragging
-			cout << "some mouse(s) dragging: "<< ImGui::GetIO().MouseDown[0] + ImGui::GetIO().MouseDown[1] + ImGui::GetIO().MouseDown[2] << endl;
+			// cout << "some mouse(s) dragging: "<< ImGui::GetIO().MouseDown[0] + ImGui::GetIO().MouseDown[1] + ImGui::GetIO().MouseDown[2] << endl;
 			
 			if (current_mode == 0){
 				//rotate view
-				delta_right = 5 * (xPos - old_x_position) *  PI / m_framebufferWidth;//xPos difference		
+				delta_right = (xPos - old_x_position) *  PI / m_framebufferWidth;//xPos difference		
 				if ( ImGui::GetIO().MouseDown[0] ){
 					view_theta_x = delta_right;
 				}
@@ -644,7 +762,7 @@ bool A2::mouseMoveEvent (
 				}
 			} else if (current_mode == 3){
 				//Rotate Model
-				delta_right = 5 * (xPos - old_x_position) *  PI / m_framebufferWidth;//xPos difference		
+				delta_right = 2 * (xPos - old_x_position) *  PI / m_framebufferWidth;//xPos difference		
 				if ( ImGui::GetIO().MouseDown[0] ){
 					model_theta_x = delta_right;
 				}
@@ -668,7 +786,7 @@ bool A2::mouseMoveEvent (
 				}
 			} else if (current_mode == 5){
 				//Scale Model
-				delta_right = (xPos - old_x_position) /m_framebufferWidth;//xPos difference		
+				delta_right = 3 * (xPos - old_x_position) /m_framebufferWidth;//xPos difference		
 				if ( ImGui::GetIO().MouseDown[0] ){
 					sx += delta_right;
 					cout << sx << endl;
@@ -681,9 +799,10 @@ bool A2::mouseMoveEvent (
 				}
 			} else if (current_mode == 6){
 				//ViewPort
-				float xPos_w = (xPos/m_framebufferWidth - 1) ;
-				float yPos_w = -(yPos/m_framebufferHeight - 1);//wrong
+				float xPos_w = 2*xPos/m_width - 1;
+				float yPos_w = -(2*yPos/m_height -1);
 				if ( ImGui::GetIO().MouseDown[0] ){
+					cout << m_windowWidth << " " << m_windowHeight << endl;
 					cout << "X: " << xPos <<" Y: "<<yPos<<endl;
 					cout << "X: " << xPos_w <<" Y: "<<yPos_w<<endl;
 					if (draw_new_view_port == 0){
@@ -697,14 +816,51 @@ bool A2::mouseMoveEvent (
 						viewPort_right[0] = vec2(xPos_w, yPos_w); 
 						viewPort_right[1] = vec2(xPos_w, yPos_w);
 					} else {
-						viewPort_top[1].x = xPos_w;
-						viewPort_bot[0].y = yPos_w;
-						viewPort_bot[1].x = xPos_w;
-						viewPort_bot[1].y = yPos_w;
-						viewPort_left[1].y = yPos_w;
-						viewPort_right[0].x = xPos_w;
-						viewPort_right[1].x = xPos_w;
-						viewPort_right[1].y = yPos_w;
+						//left top -> right bottom
+						if (xPos_w >= viewPort_top[0].x && yPos_w <= viewPort_top[0].y){
+							cout <<"apple" << endl;
+							viewPort_top[1].x = xPos_w;
+							viewPort_bot[0].y = yPos_w;
+							viewPort_bot[1].x = xPos_w;
+							viewPort_bot[1].y = yPos_w;
+							viewPort_left[1].y = yPos_w;
+							viewPort_right[0].x = xPos_w;
+							viewPort_right[1].x = xPos_w;
+							viewPort_right[1].y = yPos_w;
+						} else if (xPos_w >= viewPort_top[0].x && yPos_w > viewPort_top[0].y){
+							cout <<"banana" << endl;
+							viewPort_top[0].y = yPos_w;
+							viewPort_top[1].x = xPos_w;
+							viewPort_top[1].y = yPos_w;
+							viewPort_bot[1].x = xPos_w;
+							viewPort_left[1].y = yPos_w;
+							viewPort_right[0].x = xPos_w;
+							viewPort_right[1].x = xPos_w;
+							viewPort_right[1].y = yPos_w;
+						} else if (xPos_w < viewPort_top[0].x && yPos_w <= viewPort_top[0].y){
+							cout <<"coconut" << endl;
+							viewPort_top[0].x = xPos_w;
+							viewPort_bot[0].x = xPos_w;
+							viewPort_bot[0].y = yPos_w;
+							viewPort_bot[1].y = yPos_w;
+							viewPort_left[0].x = xPos_w;
+							viewPort_left[1].x = xPos_w;
+							viewPort_left[1].y = yPos_w;
+							viewPort_right[1].y = yPos_w;
+						} else if (xPos_w < viewPort_top[0].x && yPos_w > viewPort_top[0].y){
+							cout <<"doge" << endl;
+							viewPort_bot[0].x = xPos_w;
+							viewPort_top[0].x = xPos_w;
+							viewPort_top[0].y = yPos_w;
+							viewPort_top[1].y = yPos_w;
+							viewPort_right[1].y = yPos_w;
+							viewPort_left[0].x = xPos_w;
+							viewPort_left[0].y = yPos_w;
+							viewPort_left[1].x = xPos_w;
+						}
+
+						m_width_aspect = (viewPort_top[1].x + 1) * m_width / 2 - (viewPort_top[0].x + 1) * m_width / 2;
+						m_height_aspect = (viewPort_top[1].y + 1) * m_height / 2 - (viewPort_bot[1].y + 1) * m_height / 2;
 					}
 				}
 			}
@@ -760,8 +916,9 @@ bool A2::windowResizeEvent (
 	bool eventHandled(false);
 
 	// Fill in with event handling code...
-	m_framebufferWidth = width;
-	m_framebufferHeight = height;
+	cout << "width: " << width << " height: " << height << endl;
+	m_width = width;
+	m_height = height;
 
 	return eventHandled;
 }
@@ -778,18 +935,44 @@ bool A2::keyInputEvent (
 	bool eventHandled(false);
 
 	if( action == GLFW_PRESS ) {
-		if (key == GLFW_KEY_Q ) {
+		if ( key == GLFW_KEY_Q ) {
 			cout << "Q Keyboard pressed" << endl;
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
 			eventHandled = true;
 		}
-		if (key == GLFW_KEY_R ) {
+		if ( key == GLFW_KEY_O ) {
+			cout << "O Keyboard pressed" << endl;
+			current_mode = 0;
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_N ) {
+			cout << "N Keyboard pressed" << endl;
+			current_mode = 1;
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_P ) {
+			cout << "P Keyboard pressed" << endl;
+			current_mode = 2;
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_R ) {
 			cout << "R Keyboard pressed" << endl;
-			cout << "Application reseted" << endl;
-			M = I;
-			V = I;
-			P = I;
 			current_mode = 3;
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_T ) {
+			cout << "T Keyboard pressed" << endl;
+			current_mode = 4;
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_S ) {
+			cout << "S Keyboard pressed" << endl;
+			current_mode = 5;
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_V ) {
+			cout << "V Keyboard pressed" << endl;
+			current_mode = 6;
 			eventHandled = true;
 		}
 		

@@ -59,7 +59,11 @@ protected:
 			const glm::vec2 & v0,
 			const glm::vec2 & v1
 	);
-
+	void viewPort_cliping(glm::vec2 i, glm::vec2 e);
+	bool near_cliping(glm::vec4 * p);
+	bool far_cliping(glm::vec4 * p);
+	float viewPort_reDraw(float xy, int coord);
+	void draw_points(glm::vec4 i, glm::vec4 e);
 	ShaderProgram m_shader;
 
 	GLuint m_vao;            // Vertex Array Object
@@ -69,7 +73,7 @@ protected:
 	VertexData m_vertexData;
 
 	glm::vec3 m_currentLineColour;
-	glm::vec4 ** cube_structure;
+	glm::vec4 **cube_structure;
 	glm::vec4 x_axis[2]; 
 	glm::vec4 y_axis[2]; 
 	glm::vec4 z_axis[2];
@@ -105,5 +109,9 @@ protected:
 	float aspect;
 	float far;
 	float near;
+	float m_width;
+	float m_height;
+	float m_width_aspect;
+	float m_height_aspect;
 
 };
