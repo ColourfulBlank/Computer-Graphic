@@ -299,7 +299,8 @@ void A2::appLogic()
 	vec4 changed_y[2] = { y_axis[0], y_axis[1] };
 	vec4 changed_z[2] = { z_axis[0], z_axis[1] };
 
-	aspect = m_width_aspect/m_height_aspect;
+	// aspect = m_width_aspect/m_height_aspect;
+	aspect = m_width/m_height;
 	//init Transformations
 
 
@@ -425,10 +426,10 @@ void A2::draw_points(glm::vec4 i, glm::vec4 e){
 		point[0].y = point[0].y/point[0].z;
 		point[1].x = point[1].x/point[1].z;
 		point[1].y = point[1].y/point[1].z;
-		point[0].x = viewPort_reDraw(point[0].x, 0);
-		point[0].y = viewPort_reDraw(point[0].y, 1);
-		point[1].x = viewPort_reDraw(point[1].x, 0);
-		point[1].y = viewPort_reDraw(point[1].y, 1);
+		point[0].x = viewPort_reDraw_x(point[0].x);
+		point[0].y = viewPort_reDraw_y(point[0].y);
+		point[1].x = viewPort_reDraw_x(point[1].x);
+		point[1].y = viewPort_reDraw_y(point[1].y);
 		viewPort_cliping(vec2(point[0]), vec2(point[1]));
 	}
 }
@@ -443,10 +444,10 @@ void A2::draw_points_view(glm::vec4 i, glm::vec4 e){
 		point[0].y = point[0].y/point[0].z;
 		point[1].x = point[1].x/point[1].z;
 		point[1].y = point[1].y/point[1].z;
-		point[0].x = viewPort_reDraw(point[0].x, 0);
-		point[0].y = viewPort_reDraw(point[0].y, 1);
-		point[1].x = viewPort_reDraw(point[1].x, 0);
-		point[1].y = viewPort_reDraw(point[1].y, 1);
+		point[0].x = viewPort_reDraw_x(point[0].x);
+		point[0].y = viewPort_reDraw_y(point[0].y);
+		point[1].x = viewPort_reDraw_x(point[1].x);
+		point[1].y = viewPort_reDraw_y(point[1].y);
 		viewPort_cliping(vec2(point[0]), vec2(point[1]));
 	}
 }
@@ -507,18 +508,16 @@ bool A2::far_cliping(glm::vec4 * p){
 
 }
 
-float A2::viewPort_reDraw(float xy, int coord){
-	float ret = 0;
+float A2::viewPort_reDraw_x(float x){
 	int Xwl = -1;
+	return (x - Xwl) * abs(m_width_aspect/m_width) + viewPort_bot[0].x;	
+	// return x;
+	
+}
+float A2::viewPort_reDraw_y(float y){
 	int Ywl = -1;
-	
-	if ( coord == 0 ) {
-			ret = (xy - Xwl) * abs(m_width_aspect/m_width) + viewPort_bot[0].x;	
-		} else {
-			ret = (xy - Ywl) * abs(m_height_aspect/m_height) + viewPort_bot[0].y;
-		}
-	return ret;
-	
+	return (y - Ywl) * abs(m_height_aspect/m_height) + viewPort_bot[0].y;
+	// return y;
 }
 
 void A2::viewPort_cliping(vec2 i, vec2 e){
@@ -802,9 +801,9 @@ bool A2::mouseMoveEvent (
 				float xPos_w = 2*xPos/m_width - 1;
 				float yPos_w = -(2*yPos/m_height -1);
 				if ( ImGui::GetIO().MouseDown[0] ){
-					cout << m_windowWidth << " " << m_windowHeight << endl;
-					cout << "X: " << xPos <<" Y: "<<yPos<<endl;
-					cout << "X: " << xPos_w <<" Y: "<<yPos_w<<endl;
+					// cout << m_windowWidth << " " << m_windowHeight << endl;
+					// cout << "X: " << xPos <<" Y: "<<yPos<<endl;
+					// cout << "X: " << xPos_w <<" Y: "<<yPos_w<<endl;
 					if (draw_new_view_port == 0){
 						draw_new_view_port = 1;
 						viewPort_startPoint = vec2(xPos_w, yPos_w);
@@ -819,7 +818,6 @@ bool A2::mouseMoveEvent (
 					} else {
 						//left top -> right bottom
 						if (xPos_w >= viewPort_startPoint.x && yPos_w <= viewPort_startPoint.y){
-							cout <<"apple" << endl;
 							viewPort_top[0].x = viewPort_startPoint.x;
 							viewPort_top[0].y = viewPort_startPoint.y;
 							viewPort_top[1].x = xPos_w;
@@ -837,7 +835,6 @@ bool A2::mouseMoveEvent (
 							viewPort_right[1].x = xPos_w;
 							viewPort_right[1].y = yPos_w;
 						} else if (xPos_w >= viewPort_startPoint.x && yPos_w > viewPort_startPoint.y){
-							cout <<"banana" << endl;
 							viewPort_top[0].x = viewPort_startPoint.x;
 							viewPort_top[0].y = yPos_w;
 							viewPort_top[1].x = xPos_w;
@@ -855,7 +852,6 @@ bool A2::mouseMoveEvent (
 							viewPort_right[1].x = xPos_w;
 							viewPort_right[1].y = yPos_w;
 						} else if (xPos_w < viewPort_startPoint.x && yPos_w <= viewPort_startPoint.y){
-							cout <<"coconut" << endl;
 							viewPort_top[0].x = xPos_w;
 							viewPort_top[0].y = viewPort_startPoint.y;
 							viewPort_top[1].x = viewPort_startPoint.x;
@@ -874,7 +870,6 @@ bool A2::mouseMoveEvent (
 							viewPort_right[1].y = yPos_w;
 
 						} else if (xPos_w < viewPort_startPoint.x && yPos_w > viewPort_startPoint.y){
-							cout <<"doge" << endl;
 							viewPort_top[0].x = xPos_w;
 							viewPort_top[0].y = yPos_w;
 							viewPort_top[1].x = viewPort_startPoint.x;

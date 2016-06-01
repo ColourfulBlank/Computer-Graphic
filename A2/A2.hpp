@@ -62,7 +62,8 @@ protected:
 	void viewPort_cliping(glm::vec2 i, glm::vec2 e);
 	bool near_cliping(glm::vec4 * p);
 	bool far_cliping(glm::vec4 * p);
-	float viewPort_reDraw(float xy, int coord);
+	float viewPort_reDraw_x(float x);
+	float viewPort_reDraw_y(float y);
 	void draw_points(glm::vec4 i, glm::vec4 e);
 	void draw_points_view(glm::vec4 i, glm::vec4 e);
 	ShaderProgram m_shader;
