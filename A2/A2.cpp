@@ -367,14 +367,14 @@ void A2::appLogic()
 	V = inverse(viewRotation_z) * V;
 	V = inverse(viewTranslation) * V;
 	
-	// setLineColour(vec3(0.0f, 0.0f, 1.0f));
-	// draw_points_view(changed_x[0], changed_x[1]);
+	setLineColour(vec3(0.0f, 0.0f, 1.0f));
+	draw_points_view(changed_x[0], changed_x[1]);
 
-	// setLineColour(vec3(0.0f, 1.0f, 0.0f));
-	// draw_points_view(changed_y[0], changed_y[1]);
+	setLineColour(vec3(0.0f, 1.0f, 0.0f));
+	draw_points_view(changed_y[0], changed_y[1]);
 
-	// setLineColour(vec3(1.0f, 0.0f, 0.0f));
-	// draw_points_view(changed_z[0], changed_z[1]);
+	setLineColour(vec3(1.0f, 0.0f, 0.0f));
+	draw_points_view(changed_z[0], changed_z[1]);
 	
 	setLineColour(vec3(0.0f, 0.0f, 1.0f));
 	draw_points(changed_x[0], changed_x[1]);
