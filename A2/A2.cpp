@@ -112,8 +112,12 @@ A2::A2()
 	viewPort_left[1] = vec2(-0.95, -0.95);
 	viewPort_right[0] = vec2(0.95, 0.95);
 	viewPort_right[1] = vec2(0.95, -0.95);
+	//mac
+	// m_width = 768;
+	// m_height = 689;
+	//linux
 	m_width = 768;
-	m_height = 689;
+	m_height = 768;
 	m_width_aspect = (viewPort_top[1].x + 1) * m_width / 2 - (viewPort_top[0].x + 1) * m_width / 2;
 	m_height_aspect = (viewPort_top[1].y + 1) * m_height / 2 - (viewPort_bot[1].y + 1) * m_height / 2;
 
@@ -800,6 +804,10 @@ bool A2::mouseMoveEvent (
 				//ViewPort
 				float xPos_w = 2*xPos/m_width - 1;
 				float yPos_w = -(2*yPos/m_height -1);
+				if (xPos_w > 1) xPos_w = 1;
+				if (xPos_w < -1) xPos_w = -1;
+				if (yPos_w > 1) yPos_w = 1;
+				if (yPos_w < -1) yPos_w = -1;
 				if ( ImGui::GetIO().MouseDown[0] ){
 					// cout << m_windowWidth << " " << m_windowHeight << endl;
 					// cout << "X: " << xPos <<" Y: "<<yPos<<endl;
