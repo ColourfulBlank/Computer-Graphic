@@ -509,36 +509,13 @@ bool A2::far_cliping(glm::vec4 * p){
 
 float A2::viewPort_reDraw(float xy, int coord){
 	float ret = 0;
-	vec2 firstPoint = viewPort_top[0];
 	int Xwl = -1;
-	int Ywl = 1;
-	// if (m_width_aspect >= 0){
-	// 	if (m_height_aspect >= 0){
-	// 		firstPoint = viewPort_top[0];
-	// 		Xwl = -1;
-	// 		Ywl = 1;
-	// 	} else {
-	// 		firstPoint = viewPort_bot[0];
-	// 		Xwl = -1;
-	// 		Ywl = -1;
-	// 	}
-		
-	// } else {
-	// 	if (m_height_aspect >= 0){
-	// 		firstPoint = viewPort_top[1];
-	// 		Xwl = 1;
-	// 		Ywl = 1;
-	// 	} else {
-	// 		firstPoint = viewPort_top[0];
-	// 		Xwl = 1;
-	// 		Ywl = -1;
-	// 	}
-		
-	// }
+	int Ywl = -1;
+	
 	if ( coord == 0 ) {
-			ret = (xy - Xwl) * abs(m_width_aspect/m_width) + firstPoint.x;	
+			ret = (xy - Xwl) * abs(m_width_aspect/m_width) + viewPort_bot[0].x;	
 		} else {
-			ret = (xy - Ywl) * abs(m_height_aspect/m_height) + firstPoint.y;
+			ret = (xy - Ywl) * abs(m_height_aspect/m_height) + viewPort_bot[0].y;
 		}
 	return ret;
 	
@@ -595,7 +572,7 @@ void A2::guiLogic()
 			cout << "Goodbye!" << endl;
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
 		}
-		//reset button short cut R
+		//reset button
 		if( ImGui::Button( "Reset Application" ) ) {
 			cout << "Application reseted" << endl;
 			M = I;
@@ -843,44 +820,77 @@ bool A2::mouseMoveEvent (
 						//left top -> right bottom
 						if (xPos_w >= viewPort_startPoint.x && yPos_w <= viewPort_startPoint.y){
 							cout <<"apple" << endl;
+							viewPort_top[0].x = viewPort_startPoint.x;
+							viewPort_top[0].y = viewPort_startPoint.y;
 							viewPort_top[1].x = xPos_w;
+							viewPort_top[1].y = viewPort_startPoint.y;
+							viewPort_bot[0].x = viewPort_startPoint.x;
 							viewPort_bot[0].y = yPos_w;
 							viewPort_bot[1].x = xPos_w;
 							viewPort_bot[1].y = yPos_w;
+							viewPort_left[0].x = viewPort_startPoint.x;
+							viewPort_left[0].y = viewPort_startPoint.y;
+							viewPort_left[1].x = viewPort_startPoint.x;
 							viewPort_left[1].y = yPos_w;
 							viewPort_right[0].x = xPos_w;
+							viewPort_right[0].y = viewPort_startPoint.y;
 							viewPort_right[1].x = xPos_w;
 							viewPort_right[1].y = yPos_w;
 						} else if (xPos_w >= viewPort_startPoint.x && yPos_w > viewPort_startPoint.y){
 							cout <<"banana" << endl;
+							viewPort_top[0].x = viewPort_startPoint.x;
 							viewPort_top[0].y = yPos_w;
 							viewPort_top[1].x = xPos_w;
 							viewPort_top[1].y = yPos_w;
+							viewPort_bot[0].x = viewPort_startPoint.x;
+							viewPort_bot[0].y = viewPort_startPoint.y;
 							viewPort_bot[1].x = xPos_w;
+							viewPort_bot[1].y = viewPort_startPoint.y;
+							viewPort_left[0].x = viewPort_startPoint.x;
+							viewPort_left[0].y = viewPort_startPoint.y;
+							viewPort_left[1].x = viewPort_startPoint.x;
 							viewPort_left[1].y = yPos_w;
 							viewPort_right[0].x = xPos_w;
+							viewPort_right[0].y = viewPort_startPoint.y;
 							viewPort_right[1].x = xPos_w;
 							viewPort_right[1].y = yPos_w;
 						} else if (xPos_w < viewPort_startPoint.x && yPos_w <= viewPort_startPoint.y){
 							cout <<"coconut" << endl;
 							viewPort_top[0].x = xPos_w;
+							viewPort_top[0].y = viewPort_startPoint.y;
+							viewPort_top[1].x = viewPort_startPoint.x;
+							viewPort_top[1].y = viewPort_startPoint.y;
 							viewPort_bot[0].x = xPos_w;
 							viewPort_bot[0].y = yPos_w;
+							viewPort_bot[1].x = viewPort_startPoint.x;
 							viewPort_bot[1].y = yPos_w;
 							viewPort_left[0].x = xPos_w;
+							viewPort_left[0].y = viewPort_startPoint.y;
 							viewPort_left[1].x = xPos_w;
 							viewPort_left[1].y = yPos_w;
+							viewPort_right[0].x = viewPort_startPoint.x;
+							viewPort_right[0].y = viewPort_startPoint.y;
+							viewPort_right[1].x = viewPort_startPoint.x;
 							viewPort_right[1].y = yPos_w;
+
 						} else if (xPos_w < viewPort_startPoint.x && yPos_w > viewPort_startPoint.y){
 							cout <<"doge" << endl;
-							viewPort_bot[0].x = xPos_w;
 							viewPort_top[0].x = xPos_w;
 							viewPort_top[0].y = yPos_w;
+							viewPort_top[1].x = viewPort_startPoint.x;
 							viewPort_top[1].y = yPos_w;
-							viewPort_right[1].y = yPos_w;
+							viewPort_bot[0].x = xPos_w;
+							viewPort_bot[0].y = viewPort_startPoint.y;
+							viewPort_bot[1].x = viewPort_startPoint.x;
+							viewPort_bot[1].y = viewPort_startPoint.y;
 							viewPort_left[0].x = xPos_w;
 							viewPort_left[0].y = yPos_w;
 							viewPort_left[1].x = xPos_w;
+							viewPort_left[1].y = viewPort_startPoint.y;
+							viewPort_right[0].x = viewPort_startPoint.x;
+							viewPort_right[0].t = viewPort_startPoint.y;
+							viewPort_right[1].x = viewPort_startPoint.x;
+							viewPort_right[1].y = yPos_w;
 						}
 
 						m_width_aspect = (viewPort_top[1].x + 1) * m_width / 2 - (viewPort_top[0].x + 1) * m_width / 2;
