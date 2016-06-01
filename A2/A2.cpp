@@ -21,6 +21,7 @@ mat4x4 I = mat4x4(vec4(1, 0, 0, 0),
 				  vec4(0, 0, 1, 0),
 				  vec4(0, 0, 0, 1));
 
+vec2 viewPort_startPoint;
 //----------------------------------------------------------------------------------------
 // Constructor
 VertexData::VertexData()
@@ -365,7 +366,14 @@ void A2::appLogic()
 	V = inverse(viewRotation_z) * V;
 	V = inverse(viewTranslation) * V;
 	
+	// setLineColour(vec3(0.0f, 0.0f, 1.0f));
+	// draw_points_view(changed_x[0], changed_x[1]);
 
+	// setLineColour(vec3(0.0f, 1.0f, 0.0f));
+	// draw_points_view(changed_y[0], changed_y[1]);
+
+	// setLineColour(vec3(1.0f, 0.0f, 0.0f));
+	// draw_points_view(changed_z[0], changed_z[1]);
 	
 	setLineColour(vec3(0.0f, 0.0f, 1.0f));
 	draw_points(changed_x[0], changed_x[1]);
@@ -410,8 +418,7 @@ void A2::draw_points(glm::vec4 i, glm::vec4 e){
 	vec4 point[2];
 	point[0] = V * M * i;
 	point[1] = V * M * e;
-	// if (near_cliping(point) && far_cliping(point)) {
-		
+	if (near_cliping(point) && far_cliping(point)) {
 		point[0] = P * point[0];
 		point[1] = P * point[1];
 		point[0].x = point[0].x/point[0].z;
@@ -422,11 +429,26 @@ void A2::draw_points(glm::vec4 i, glm::vec4 e){
 		point[0].y = viewPort_reDraw(point[0].y, 1);
 		point[1].x = viewPort_reDraw(point[1].x, 0);
 		point[1].y = viewPort_reDraw(point[1].y, 1);
-		
-		drawLine(vec2(point[0]), vec2(point[1]));
-		// viewPort_cliping(vec2(point[0]), vec2(point[1]));
-	// }
-
+		viewPort_cliping(vec2(point[0]), vec2(point[1]));
+	}
+}
+void A2::draw_points_view(glm::vec4 i, glm::vec4 e){
+	vec4 point[2];
+	point[0] = V * i;
+	point[1] = V * e;
+	if (near_cliping(point) && far_cliping(point)) {
+		point[0] = P * point[0];
+		point[1] = P * point[1];
+		point[0].x = point[0].x/point[0].z;
+		point[0].y = point[0].y/point[0].z;
+		point[1].x = point[1].x/point[1].z;
+		point[1].y = point[1].y/point[1].z;
+		point[0].x = viewPort_reDraw(point[0].x, 0);
+		point[0].y = viewPort_reDraw(point[0].y, 1);
+		point[1].x = viewPort_reDraw(point[1].x, 0);
+		point[1].y = viewPort_reDraw(point[1].y, 1);
+		viewPort_cliping(vec2(point[0]), vec2(point[1]));
+	}
 }
 bool A2::near_cliping(glm::vec4 * p){
 
@@ -626,9 +648,8 @@ void A2::guiLogic()
 		}
 
 
-
-
-
+		ImGui::Text( "Near: %0.001f", near );
+		ImGui::Text( "Far: %0.001f", far );
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
 
 	ImGui::End();
@@ -750,15 +771,17 @@ bool A2::mouseMoveEvent (
 				if ( ImGui::GetIO().MouseDown[0] ){
 					// view_theta_x = delta_right;
 					theta += delta_right * PI / m_framebufferWidth;
-					cout << "theta: "<< theta << endl;
+					// cout << "theta: "<< theta << endl;
+					if (theta <= PI/36) theta = PI/36;
+					if (theta >= 8*PI/9) theta = 8*PI/9;
 				}
 				if ( ImGui::GetIO().MouseDown[1] ){
 					far += 5 * delta_right / m_framebufferWidth;
-					cout << "far: " << far << endl;
+					// cout << "far: " << far << endl;
 				}
 				if ( ImGui::GetIO().MouseDown[2] ){
 					near += 5 * delta_right / m_framebufferWidth;
-					cout << "near: " << near << endl;
+					// cout << "near: " << near << endl;
 				}
 			} else if (current_mode == 3){
 				//Rotate Model
@@ -807,6 +830,7 @@ bool A2::mouseMoveEvent (
 					cout << "X: " << xPos_w <<" Y: "<<yPos_w<<endl;
 					if (draw_new_view_port == 0){
 						draw_new_view_port = 1;
+						viewPort_startPoint = vec2(xPos_w, yPos_w);
 						viewPort_top[0] = vec2(xPos_w, yPos_w);
 						viewPort_top[1] = vec2(xPos_w, yPos_w);
 						viewPort_bot[0] = vec2(xPos_w, yPos_w);
@@ -817,7 +841,7 @@ bool A2::mouseMoveEvent (
 						viewPort_right[1] = vec2(xPos_w, yPos_w);
 					} else {
 						//left top -> right bottom
-						if (xPos_w >= viewPort_top[0].x && yPos_w <= viewPort_top[0].y){
+						if (xPos_w >= viewPort_startPoint.x && yPos_w <= viewPort_startPoint.y){
 							cout <<"apple" << endl;
 							viewPort_top[1].x = xPos_w;
 							viewPort_bot[0].y = yPos_w;
@@ -827,7 +851,7 @@ bool A2::mouseMoveEvent (
 							viewPort_right[0].x = xPos_w;
 							viewPort_right[1].x = xPos_w;
 							viewPort_right[1].y = yPos_w;
-						} else if (xPos_w >= viewPort_top[0].x && yPos_w > viewPort_top[0].y){
+						} else if (xPos_w >= viewPort_startPoint.x && yPos_w > viewPort_startPoint.y){
 							cout <<"banana" << endl;
 							viewPort_top[0].y = yPos_w;
 							viewPort_top[1].x = xPos_w;
@@ -837,7 +861,7 @@ bool A2::mouseMoveEvent (
 							viewPort_right[0].x = xPos_w;
 							viewPort_right[1].x = xPos_w;
 							viewPort_right[1].y = yPos_w;
-						} else if (xPos_w < viewPort_top[0].x && yPos_w <= viewPort_top[0].y){
+						} else if (xPos_w < viewPort_startPoint.x && yPos_w <= viewPort_startPoint.y){
 							cout <<"coconut" << endl;
 							viewPort_top[0].x = xPos_w;
 							viewPort_bot[0].x = xPos_w;
@@ -847,7 +871,7 @@ bool A2::mouseMoveEvent (
 							viewPort_left[1].x = xPos_w;
 							viewPort_left[1].y = yPos_w;
 							viewPort_right[1].y = yPos_w;
-						} else if (xPos_w < viewPort_top[0].x && yPos_w > viewPort_top[0].y){
+						} else if (xPos_w < viewPort_startPoint.x && yPos_w > viewPort_startPoint.y){
 							cout <<"doge" << endl;
 							viewPort_bot[0].x = xPos_w;
 							viewPort_top[0].x = xPos_w;

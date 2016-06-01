@@ -64,6 +64,7 @@ protected:
 	bool far_cliping(glm::vec4 * p);
 	float viewPort_reDraw(float xy, int coord);
 	void draw_points(glm::vec4 i, glm::vec4 e);
+	void draw_points_view(glm::vec4 i, glm::vec4 e);
 	ShaderProgram m_shader;
 
 	GLuint m_vao;            // Vertex Array Object
