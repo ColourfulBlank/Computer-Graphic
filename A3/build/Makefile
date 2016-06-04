@@ -20,19 +20,19 @@ ifndef AR
 endif
 
 ifeq ($(config),debug)
-  OBJDIR     = Debug/cs488-framework
-  TARGETDIR  = ../lib
-  TARGET     = $(TARGETDIR)/libcs488-framework.a
+  OBJDIR     = Debug
+  TARGETDIR  = ..
+  TARGET     = $(TARGETDIR)/A3
   DEFINES   += -DDEBUG
-  INCLUDES  += -I../shared -I../shared/gl3w -I../shared/imgui -I../shared/include
+  INCLUDES  += -I../../shared -I../../shared/include -I../../shared/gl3w -I../../shared/imgui
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
   CFLAGS    += $(CPPFLAGS) $(ARCH) -g -std=c++11
   CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += 
-  LIBS      += 
+  LDFLAGS   += -framework IOKit -framework Cocoa -framework CoreVideo -framework OpenGL -L../../lib
+  LIBS      += -lcs488-framework -limgui -lglfw3 -llua
   RESFLAGS  += $(DEFINES) $(INCLUDES) 
   LDDEPS    += 
-  LINKCMD    = $(AR) -rcs $(TARGET) $(OBJECTS)
+  LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(ARCH) $(LIBS)
   define PREBUILDCMDS
   endef
   define PRELINKCMDS
@@ -42,19 +42,19 @@ ifeq ($(config),debug)
 endif
 
 ifeq ($(config),release)
-  OBJDIR     = Release/cs488-framework
-  TARGETDIR  = ../lib
-  TARGET     = $(TARGETDIR)/libcs488-framework.a
+  OBJDIR     = Release
+  TARGETDIR  = ..
+  TARGET     = $(TARGETDIR)/A3
   DEFINES   += -DNDEBUG
-  INCLUDES  += -I../shared -I../shared/gl3w -I../shared/imgui -I../shared/include
+  INCLUDES  += -I../../shared -I../../shared/include -I../../shared/gl3w -I../../shared/imgui
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
   CFLAGS    += $(CPPFLAGS) $(ARCH) -O2 -std=c++11
   CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -Wl,-x
-  LIBS      += 
+  LDFLAGS   += -Wl,-x -framework IOKit -framework Cocoa -framework CoreVideo -framework OpenGL -L../../lib
+  LIBS      += -lcs488-framework -limgui -lglfw3 -llua
   RESFLAGS  += $(DEFINES) $(INCLUDES) 
   LDDEPS    += 
-  LINKCMD    = $(AR) -rcs $(TARGET) $(OBJECTS)
+  LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(ARCH) $(LIBS)
   define PREBUILDCMDS
   endef
   define PRELINKCMDS
@@ -64,11 +64,12 @@ ifeq ($(config),release)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/CS488Window.o \
-	$(OBJDIR)/GlErrorCheck.o \
-	$(OBJDIR)/MeshConsolidator.o \
-	$(OBJDIR)/ObjFileDecoder.o \
-	$(OBJDIR)/ShaderProgram.o \
+	$(OBJDIR)/A3.o \
+	$(OBJDIR)/GeometryNode.o \
+	$(OBJDIR)/JointNode.o \
+	$(OBJDIR)/Main.o \
+	$(OBJDIR)/scene_lua.o \
+	$(OBJDIR)/SceneNode.o \
 
 RESOURCES := \
 
@@ -86,7 +87,7 @@ all: $(TARGETDIR) $(OBJDIR) prebuild prelink $(TARGET)
 	@:
 
 $(TARGET): $(GCH) $(OBJECTS) $(LDDEPS) $(RESOURCES)
-	@echo Linking cs488-framework
+	@echo Linking A3
 	$(SILENT) $(LINKCMD)
 	$(POSTBUILDCMDS)
 
@@ -107,7 +108,7 @@ else
 endif
 
 clean:
-	@echo Cleaning cs488-framework
+	@echo Cleaning A3
 ifeq (posix,$(SHELLTYPE))
 	$(SILENT) rm -f  $(TARGET)
 	$(SILENT) rm -rf $(OBJDIR)
@@ -129,19 +130,22 @@ $(GCH): $(PCH)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 endif
 
-$(OBJDIR)/CS488Window.o: ../shared/cs488-framework/CS488Window.cpp
+$(OBJDIR)/A3.o: ../A3.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/GlErrorCheck.o: ../shared/cs488-framework/GlErrorCheck.cpp
+$(OBJDIR)/GeometryNode.o: ../GeometryNode.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/MeshConsolidator.o: ../shared/cs488-framework/MeshConsolidator.cpp
+$(OBJDIR)/JointNode.o: ../JointNode.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/ObjFileDecoder.o: ../shared/cs488-framework/ObjFileDecoder.cpp
+$(OBJDIR)/Main.o: ../Main.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/ShaderProgram.o: ../shared/cs488-framework/ShaderProgram.cpp
+$(OBJDIR)/scene_lua.o: ../scene_lua.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+$(OBJDIR)/SceneNode.o: ../SceneNode.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
