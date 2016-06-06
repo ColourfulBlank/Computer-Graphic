@@ -254,7 +254,7 @@ void A3::initPerspectiveMatrix()
 
 //----------------------------------------------------------------------------------------
 void A3::initViewMatrix() {
-	m_view = glm::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f),
+	m_view = glm::lookAt(vec3(3.0f, 0.0f, 10.0f), vec3(0.0f, 0.0f, -1.0f),
 			vec3(0.0f, 1.0f, 0.0f));
 }
 // 
@@ -263,7 +263,6 @@ void A3::initViewMatrix() {
 void A3::initLightSources() {
 	// World-space position
 	m_light.position = vec3(-2.0f, 5.0f, 0.5f);
-	// m_light.position = vec3(0.0f, 0.0f, 0.0f);
 	m_light.rgbIntensity = vec3(0.8f); // White light
 }
 
@@ -437,8 +436,10 @@ static void updateShaderUniforms(
 void A3::draw() {
 
 	glEnable( GL_DEPTH_TEST );
+	glBindVertexArray(m_vao_meshData);
 	renderSceneGraph(*m_rootNode);
-
+	glBindVertexArray(0);
+	CHECK_GL_ERRORS;
 
 	glDisable( GL_DEPTH_TEST );
 	renderArcCircle();
@@ -448,7 +449,7 @@ void A3::draw() {
 void A3::renderSceneGraph(const SceneNode & root) {
 
 	// Bind the VAO once here, and reuse for all GeometryNode rendering below.
-	glBindVertexArray(m_vao_meshData);
+	// glBindVertexArray(m_vao_meshData);
 
 	// This is emphatically *not* how you should be drawing the scene graph in
 	// your final implementation.  This is a non-hierarchical demonstration
@@ -462,14 +463,27 @@ void A3::renderSceneGraph(const SceneNode & root) {
 	// subclasses, that renders the subtree rooted at every node.  Or you
 	// could put a set of mutually recursive functions in this class, which
 	// walk down the tree from nodes of different types.
+	// cout << root;
+	// for (const SceneNode * node : root.children) {  // Loop though all the children in the list because it is only one layer
+	// 	// cout << *node;
+	// 	if (node->m_nodeType != NodeType::GeometryNode)
+	// 		continue;
 
-	for (const SceneNode * node : root.children) {
+	// 	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(node);
 
-		if (node->m_nodeType != NodeType::GeometryNode)
-			continue;
+	// 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 
+	// 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
+	// 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
+
+	// 	//-- Now render the mesh:
+	// 	m_shader.enable();
+	// 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
+	// 	m_shader.disable();
+	// }
+	const SceneNode * node = &root;
+	if (node->m_nodeType == NodeType::GeometryNode) {
 		const GeometryNode * geometryNode = static_cast <const GeometryNode *>(node);
-
 		updateShaderUniforms(m_shader, *geometryNode, m_view);
 
 		// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
@@ -480,9 +494,14 @@ void A3::renderSceneGraph(const SceneNode & root) {
 		glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
 		m_shader.disable();
 	}
+	if (!node->children.empty()){
+		for (const SceneNode * child : node->children){
+			renderSceneGraph(*child);
+		}
+	}
 
-	glBindVertexArray(0);
-	CHECK_GL_ERRORS;
+	// glBindVertexArray(0);
+	// CHECK_GL_ERRORS;
 }
 
 //----------------------------------------------------------------------------------------
@@ -490,7 +509,6 @@ void A3::renderSceneGraph(const SceneNode & root) {
 void A3::renderArcCircle() {
 	if (circle_enable == true){
 		glBindVertexArray(m_vao_arcCircle);
-
 		m_shader_arcCircle.enable();
 			GLint m_location = m_shader_arcCircle.getUniformLocation( "M" );
 			float aspect = float(m_framebufferWidth)/float(m_framebufferHeight);
