@@ -62,6 +62,8 @@ protected:
 	//edit
 	void redo();
 	void undo();
+	//options
+	void pickingMode();
 
 	glm::mat4 m_perpsective;
 	glm::mat4 m_view;

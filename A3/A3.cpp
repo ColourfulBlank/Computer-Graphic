@@ -381,9 +381,11 @@ void A3::guiLogic()
 		ImGui::Checkbox( "Frontface culling (F)", &Frontface_culling_enable );
 		if( ImGui::RadioButton( "Position/Orientation (P)", &current_mode, 0 ) ) {
 			cout << "Position/Orientation: " << current_mode << endl;	
+			pickingMode();
 		}
 		if( ImGui::RadioButton( "Joints (J)", &current_mode, 1 ) ) {
 			cout << "Joints: " << current_mode << endl;	
+			pickingMode();
 		}
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
@@ -575,14 +577,14 @@ bool A3::mouseMoveEvent (
 
 	// Fill in with event handling code...
 	if (mouseState[0] == 1){
-		if (current_mode == 0){
-			double deltaX = (xPos - last_xPos) / m_windowWidth;
-			double deltaY = (yPos - last_yPos) / m_windowHeight;
-			float apple;
-			cout << xPos << ", " << yPos << endl;
-			glReadPixels(xPos, yPos, 1, 1, GL_RGB, GL_FLOAT, &apple);
-			cout << apple << endl;
-		}
+		// if (current_mode == 0){
+		// 	double deltaX = (xPos - last_xPos) / m_windowWidth;
+		// 	double deltaY = (yPos - last_yPos) / m_windowHeight;
+		// 	float apple;
+		// 	// cout << xPos << ", " << yPos << endl;
+		// 	// glReadPixels(xPos, yPos, 1, 1, GL_RGB, GL_FLOAT, &apple);
+		// 	// cout << apple << endl;
+		// }
 	}
 	last_xPos = xPos;
 	last_yPos = yPos;
@@ -600,7 +602,14 @@ bool A3::mouseButtonInputEvent (
 ) {
 	bool eventHandled(false);
 	mouseState[button] = actions;
-
+	if (mouseState[0] == 1){
+		if (current_mode == 1){
+			float apple;
+			// cout << xPos << ", " << yPos << endl;
+			glReadPixels(last_xPos, last_yPos, 1, 1, GL_RGB, GL_FLOAT, &apple);
+			cout << apple << endl;
+		}	
+	}
 	// Fill in with event handling code...
 
 	return eventHandled;
@@ -683,4 +692,12 @@ void A3::redo(){
 }
 void A3::undo(){
 
+}
+
+void A3::pickingMode(){
+	m_shader.enable();
+	GLint joint = m_shader.getUniformLocation("joint");
+	glUniform1i(joint, current_mode);
+	CHECK_GL_ERRORS;
+	m_shader.disable();
 }
