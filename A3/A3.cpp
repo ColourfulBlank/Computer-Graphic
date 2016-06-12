@@ -620,6 +620,14 @@ bool A3::mouseButtonInputEvent (
 			pickingMode(1);
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
+			// pickingMode(0);
+		}	
+	}
+	if (mouseState[0] == 0){
+		if (current_mode == 1){
+			// pickingMode(1);
+			// glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
+			// cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
 			pickingMode(0);
 		}	
 	}
