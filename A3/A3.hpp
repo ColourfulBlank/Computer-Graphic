@@ -49,6 +49,19 @@ protected:
 	void uploadCommonSceneUniforms();
 	void renderSceneGraph(const SceneNode &node);
 	void renderArcCircle();
+	//triverse the tree 
+	void renderSceneNode(const SceneNode & root);
+	void renderGeomeNode(const SceneNode & root);
+	void renderJointNode(const SceneNode & root);
+	//gui functions
+	//applications
+	void resetPosition();
+	void resetOrientation();
+	void resetJoints();
+	void resetAll();
+	//edit
+	void redo();
+	void undo();
 
 	glm::mat4 m_perpsective;
 	glm::mat4 m_view;
@@ -84,4 +97,8 @@ protected:
 	bool Backface_culling_enable;
 	bool Frontface_culling_enable;
 	int current_mode;
+	glm::mat4 initRootTrans;
+	int mouseState[3];
+	double last_xPos;
+	double last_yPos;
 };

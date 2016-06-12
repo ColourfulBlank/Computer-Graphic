@@ -92,6 +92,7 @@ void SceneNode::rotate(char axis, float angle) {
 	}
 	mat4 rot_matrix = glm::rotate(degreesToRadians(angle), rot_axis);
 	trans = rot_matrix * trans;
+	trans_without_scale = rot_matrix * trans_without_scale;
 }
 
 //---------------------------------------------------------------------------------------
@@ -102,6 +103,7 @@ void SceneNode::scale(const glm::vec3 & amount) {
 //---------------------------------------------------------------------------------------
 void SceneNode::translate(const glm::vec3& amount) {
 	trans = glm::translate(amount) * trans;
+	trans_without_scale = glm::translate(amount) * trans_without_scale;
 }
 
 
@@ -133,3 +135,22 @@ std::ostream & operator << (std::ostream & os, const SceneNode & node) {
 	os << "]\n";
 	return os;
 }
+//---------------------------------------------------------------------------------------
+void SceneNode::set_transform_from_parent(glm::mat4 m){
+
+}
+
+//---------------------------------------------------------------------------------------
+// void SceneNode::draw_parent(){
+// 	for (const SceneNode * node : root.children) { 
+// 		if (node->m_nodeType != NodeType::GeometryNode)
+// 			continue;
+// 		node->GeometryNode::set_transform_from_parent(trans);
+// 		node->GeometryNode::draw_parent();
+// 	}
+// }
+
+
+
+
+

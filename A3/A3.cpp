@@ -36,6 +36,9 @@ A3::A3(const std::string & luaSceneFile)
 	Backface_culling_enable = false; 
 	Frontface_culling_enable = false;
 	current_mode = 0;
+	mouseState[0] = 0;
+	mouseState[1] = 0;
+	mouseState[2] = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -108,6 +111,7 @@ void A3::processLuaSceneFile(const std::string & filename) {
 	if (!m_rootNode) {
 		std::cerr << "Could not open " << filename << std::endl;
 	}
+	initRootTrans = m_rootNode->get_transform();
 }
 
 //----------------------------------------------------------------------------------------
@@ -254,7 +258,7 @@ void A3::initPerspectiveMatrix()
 
 //----------------------------------------------------------------------------------------
 void A3::initViewMatrix() {
-	m_view = glm::lookAt(vec3(3.0f, 0.0f, 10.0f), vec3(0.0f, 0.0f, -1.0f),
+	m_view = glm::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f),
 			vec3(0.0f, 1.0f, 0.0f));
 }
 // 
@@ -332,15 +336,19 @@ void A3::guiLogic()
 
 		if( ImGui::Button( "Reset Position (I)" ) ) {
 			cout << "Reset Position" << endl;
-		}
+			resetPosition();
+		}	
 		if( ImGui::Button( "Reset Orientation (O)" ) ) {
 			cout << "Reset Orientation" << endl;
+			resetOrientation();
 		}
 		if( ImGui::Button( "Reset Joints (N)" ) ) {
 			cout << "Reset Joints" << endl;
+			resetJoints();
 		}
 		if( ImGui::Button( "Reset All (A)" ) ) {
 			cout << "Reset All" << endl;
+			resetAll();
 		}
 		if( ImGui::Button( "Quit Application (Q)" ) ) {
 			cout << "Quit Application" << endl;
@@ -378,11 +386,6 @@ void A3::guiLogic()
 			cout << "Joints: " << current_mode << endl;	
 		}
 
-		// Create Button, and check if it was clicked:
-		if( ImGui::Button( "Quit Application" ) ) {
-			glfwSetWindowShouldClose(m_window, GL_TRUE);
-		}
-
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
 
 	ImGui::End();
@@ -390,11 +393,9 @@ void A3::guiLogic()
 
 //----------------------------------------------------------------------------------------
 // Update mesh specific shader uniforms:
-static void updateShaderUniforms(
-		const ShaderProgram & shader,
-		const GeometryNode & node,
-		const glm::mat4 & viewMatrix
-) {
+static void updateShaderUniforms( const ShaderProgram & shader,
+								  const GeometryNode & node,
+							      const glm::mat4 & viewMatrix ) {
 
 	shader.enable();
 	{
@@ -412,17 +413,19 @@ static void updateShaderUniforms(
 
 
 		//-- Set Material values:
-		location = shader.getUniformLocation("material.kd");
-		vec3 kd = node.material.kd;
-		glUniform3fv(location, 1, value_ptr(kd));
-		CHECK_GL_ERRORS;
-		location = shader.getUniformLocation("material.ks");
-		vec3 ks = node.material.ks;
-		glUniform3fv(location, 1, value_ptr(ks));
-		CHECK_GL_ERRORS;
-		location = shader.getUniformLocation("material.shininess");
-		glUniform1f(location, node.material.shininess);
-		CHECK_GL_ERRORS;
+		if (node.m_nodeType == NodeType::GeometryNode){
+			location = shader.getUniformLocation("material.kd");
+			vec3 kd = node.material.kd;
+			glUniform3fv(location, 1, value_ptr(kd));
+			CHECK_GL_ERRORS;
+			location = shader.getUniformLocation("material.ks");
+			vec3 ks = node.material.ks;
+			glUniform3fv(location, 1, value_ptr(ks));
+			CHECK_GL_ERRORS;
+			location = shader.getUniformLocation("material.shininess");
+			glUniform1f(location, node.material.shininess);
+			CHECK_GL_ERRORS;
+		}
 
 	}
 	shader.disable();
@@ -436,10 +439,8 @@ static void updateShaderUniforms(
 void A3::draw() {
 
 	glEnable( GL_DEPTH_TEST );
-	glBindVertexArray(m_vao_meshData);
+
 	renderSceneGraph(*m_rootNode);
-	glBindVertexArray(0);
-	CHECK_GL_ERRORS;
 
 	glDisable( GL_DEPTH_TEST );
 	renderArcCircle();
@@ -449,7 +450,7 @@ void A3::draw() {
 void A3::renderSceneGraph(const SceneNode & root) {
 
 	// Bind the VAO once here, and reuse for all GeometryNode rendering below.
-	// glBindVertexArray(m_vao_meshData);
+	glBindVertexArray(m_vao_meshData);
 
 	// This is emphatically *not* how you should be drawing the scene graph in
 	// your final implementation.  This is a non-hierarchical demonstration
@@ -463,47 +464,59 @@ void A3::renderSceneGraph(const SceneNode & root) {
 	// subclasses, that renders the subtree rooted at every node.  Or you
 	// could put a set of mutually recursive functions in this class, which
 	// walk down the tree from nodes of different types.
-	// cout << root;
-	// for (const SceneNode * node : root.children) {  // Loop though all the children in the list because it is only one layer
-	// 	// cout << *node;
-	// 	if (node->m_nodeType != NodeType::GeometryNode)
-	// 		continue;
+	renderSceneNode(root);
 
-	// 	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(node);
-
-	// 	updateShaderUniforms(m_shader, *geometryNode, m_view);
-
-	// 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
-	// 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
-
-	// 	//-- Now render the mesh:
-	// 	m_shader.enable();
-	// 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
-	// 	m_shader.disable();
-	// }
-	const SceneNode * node = &root;
-	if (node->m_nodeType == NodeType::GeometryNode) {
-		const GeometryNode * geometryNode = static_cast <const GeometryNode *>(node);
-		updateShaderUniforms(m_shader, *geometryNode, m_view);
-
-		// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
-		BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
-
-		//-- Now render the mesh:
-		m_shader.enable();
-		glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
-		m_shader.disable();
-	}
-	if (!node->children.empty()){
-		for (const SceneNode * child : node->children){
-			renderSceneGraph(*child);
-		}
-	}
-
-	// glBindVertexArray(0);
-	// CHECK_GL_ERRORS;
+	glBindVertexArray(0);
+	CHECK_GL_ERRORS;
 }
 
+void A3::renderSceneNode(const SceneNode & root){
+	
+
+	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
+	updateShaderUniforms(m_shader, *geometryNode, m_view);
+
+
+	for (SceneNode * node : root.children){
+		if (node->m_nodeType == NodeType::GeometryNode){
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform());
+			renderGeomeNode(*node);
+		} else if (node->m_nodeType == NodeType::JointNode){
+			((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform());
+			renderJointNode(*node);
+		}
+	}
+}
+void A3::renderGeomeNode(const SceneNode & root){
+	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
+	updateShaderUniforms(m_shader, *geometryNode, m_view);
+	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
+	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
+	//-- Now render the mesh:
+	m_shader.enable();
+	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
+	m_shader.disable();
+	for (SceneNode * node : root.children){
+		if (node->m_nodeType == NodeType::GeometryNode){
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform());
+			renderGeomeNode(*node);
+		} else {
+			((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform());
+			renderJointNode(*node);
+		}
+	}
+}
+void A3::renderJointNode(const SceneNode & root){
+	for (SceneNode * node : root.children){
+		if (node->m_nodeType == NodeType::GeometryNode){
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform());
+			renderGeomeNode(*node);
+		} else if (node->m_nodeType == NodeType::JointNode){
+			((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform());
+			renderJointNode(*node);
+		}
+	}
+}
 //----------------------------------------------------------------------------------------
 // Draw the trackball circle.
 void A3::renderArcCircle() {
@@ -561,7 +574,18 @@ bool A3::mouseMoveEvent (
 	bool eventHandled(false);
 
 	// Fill in with event handling code...
-
+	if (mouseState[0] == 1){
+		if (current_mode == 0){
+			double deltaX = (xPos - last_xPos) / m_windowWidth;
+			double deltaY = (yPos - last_yPos) / m_windowHeight;
+			float apple;
+			cout << xPos << ", " << yPos << endl;
+			glReadPixels(xPos, yPos, 1, 1, GL_RGB, GL_FLOAT, &apple);
+			cout << apple << endl;
+		}
+	}
+	last_xPos = xPos;
+	last_yPos = yPos;
 	return eventHandled;
 }
 
@@ -575,6 +599,7 @@ bool A3::mouseButtonInputEvent (
 		int mods
 ) {
 	bool eventHandled(false);
+	mouseState[button] = actions;
 
 	// Fill in with event handling code...
 
@@ -634,4 +659,28 @@ bool A3::keyInputEvent (
 	// Fill in with event handling code...
 
 	return eventHandled;
+}
+
+//gui functions
+//applications
+void A3::resetPosition(){
+
+}
+void A3::resetOrientation(){
+
+}
+void A3::resetJoints(){
+
+}
+void A3::resetAll(){
+	resetPosition();
+	resetOrientation();
+	resetJoints();
+}
+//edit
+void A3::redo(){
+
+}
+void A3::undo(){
+
 }

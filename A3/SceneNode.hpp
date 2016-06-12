@@ -32,6 +32,10 @@ public:
     void add_child(SceneNode* child);
     
     void remove_child(SceneNode* child);
+// add method want it only be called in subclass?
+
+    void set_transform_from_parent(glm::mat4 m);
+    // void draw_parent();
 
 	//-- Transformations:
     void rotate(char axis, float angle);
@@ -52,6 +56,11 @@ public:
 	NodeType m_nodeType;
 	std::string m_name;
 	unsigned int m_nodeId;
+
+//add field
+    glm::mat4 parent_trans;
+    glm::mat4 parent_invtrans;
+    glm::mat4 trans_without_scale;
 
 
 private:

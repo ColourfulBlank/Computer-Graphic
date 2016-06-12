@@ -24,3 +24,18 @@ void JointNode::set_joint_y(double min, double init, double max) {
 	m_joint_y.init = init;
 	m_joint_y.max = max;
 }
+
+void JointNode::rotate_x(double amount){
+
+}
+void JointNode::rotate_y(double amount){
+
+}
+
+void JointNode::set_transform_from_parent(glm::mat4 m){
+	if (parent_trans != m){
+		parent_trans = m;
+		parent_invtrans = inverse(m);
+		trans = m * trans;
+	}
+}

@@ -9,6 +9,9 @@ public:
 		const std::string & name
 	);
 
+	void set_transform_from_parent(glm::mat4 m);
+	// void draw_parent(); 
+
 	Material material;
 
 	// Mesh Identifier. This must correspond to an object name of
