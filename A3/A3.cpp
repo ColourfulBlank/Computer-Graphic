@@ -605,9 +605,8 @@ bool A3::mouseButtonInputEvent (
 	if (mouseState[0] == 1){
 		if (current_mode == 1){
 			float apple;
-			// cout << xPos << ", " << yPos << endl;
 			glReadPixels(last_xPos, last_yPos, 1, 1, GL_RGB, GL_FLOAT, &apple);
-			cout << apple << endl;
+			cout <<"what I get: " apple << endl;
 		}	
 	}
 	// Fill in with event handling code...
