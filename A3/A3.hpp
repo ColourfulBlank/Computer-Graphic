@@ -103,4 +103,5 @@ protected:
 	int mouseState[3];
 	double last_xPos;
 	double last_yPos;
+	float picked_colour[3];
 };

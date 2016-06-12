@@ -427,6 +427,11 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			location = shader.getUniformLocation("material.shininess");
 			glUniform1f(location, node.material.shininess);
 			CHECK_GL_ERRORS;
+			//
+			GLint id = shader.getUniformLocation("id");
+			// cout << node.m_nodeId <<endl;
+			glUniform1f(id, node.m_nodeId+1);
+			CHECK_GL_ERRORS;
 		}
 
 	}
@@ -604,9 +609,8 @@ bool A3::mouseButtonInputEvent (
 	mouseState[button] = actions;
 	if (mouseState[0] == 1){
 		if (current_mode == 1){
-			float apple[3];
-			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &apple);
-			cout <<"what I get: " << apple[0] <<" "<< apple[1] <<" "<< apple[2] << endl;
+			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
+			cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
 		}	
 	}
 	// Fill in with event handling code...
