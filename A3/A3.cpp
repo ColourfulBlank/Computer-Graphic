@@ -112,6 +112,11 @@ void A3::processLuaSceneFile(const std::string & filename) {
 		std::cerr << "Could not open " << filename << std::endl;
 	}
 	initRootTrans = m_rootNode->get_transform();
+	int totalSceneNodes = m_rootNode->totalSceneNodes();
+	// colour_ids = new vec3[totalSceneNodes];
+	// for (int i = 0; i < totalSceneNodes; ++i){
+	// 	colour_ids[i] = vec3(-1, -1, -1);
+	// }
 }
 
 //----------------------------------------------------------------------------------------
@@ -381,11 +386,11 @@ void A3::guiLogic()
 		ImGui::Checkbox( "Frontface culling (F)", &Frontface_culling_enable );
 		if( ImGui::RadioButton( "Position/Orientation (P)", &current_mode, 0 ) ) {
 			cout << "Position/Orientation: " << current_mode << endl;	
-			pickingMode();
+			// pickingMode();
 		}
 		if( ImGui::RadioButton( "Joints (J)", &current_mode, 1 ) ) {
 			cout << "Joints: " << current_mode << endl;	
-			pickingMode();
+			// pickingMode();
 		}
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
@@ -429,7 +434,6 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			CHECK_GL_ERRORS;
 			//
 			GLint id = shader.getUniformLocation("id");
-			// cout << node.m_nodeId <<endl;
 			glUniform1f(id, node.m_nodeId+1);
 			CHECK_GL_ERRORS;
 		}
@@ -499,6 +503,10 @@ void A3::renderGeomeNode(const SceneNode & root){
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
+	colour_ids[geometryNode->m_nodeId] = vec3(geometryNode->material.kd.x/(geometryNode->m_nodeId + 1),
+	   									      geometryNode->material.kd.y/(geometryNode->m_nodeId + 1),
+											  geometryNode->material.kd.z/(geometryNode->m_nodeId + 1));
+	// cout << geometryNode->m_nodeId <<" " <<colour_ids[geometryNode->m_nodeId] << endl;
 	//-- Now render the mesh:
 	m_shader.enable();
 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
@@ -609,8 +617,10 @@ bool A3::mouseButtonInputEvent (
 	mouseState[button] = actions;
 	if (mouseState[0] == 1){
 		if (current_mode == 1){
+			pickingMode(1);
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
+			pickingMode(0);
 		}	
 	}
 	// Fill in with event handling code...
@@ -697,10 +707,10 @@ void A3::undo(){
 
 }
 
-void A3::pickingMode(){
+void A3::pickingMode(int trager){
 	m_shader.enable();
 	GLint joint = m_shader.getUniformLocation("joint");
-	glUniform1i(joint, current_mode);
+	glUniform1i(joint, trager);
 	CHECK_GL_ERRORS;
 	m_shader.disable();
 }

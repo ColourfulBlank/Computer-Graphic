@@ -10,6 +10,8 @@
 #include <glm/glm.hpp>
 #include <memory>
 
+#include <map>
+
 struct LightSource {
 	glm::vec3 position;
 	glm::vec3 rgbIntensity;
@@ -63,7 +65,7 @@ protected:
 	void redo();
 	void undo();
 	//options
-	void pickingMode();
+	void pickingMode(int trager);
 
 	glm::mat4 m_perpsective;
 	glm::mat4 m_view;
@@ -104,4 +106,5 @@ protected:
 	double last_xPos;
 	double last_yPos;
 	float picked_colour[3];
+	std::map<unsigned int, glm::vec3> colour_ids;
 };
