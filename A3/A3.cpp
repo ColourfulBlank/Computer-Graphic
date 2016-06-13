@@ -19,6 +19,7 @@ static bool show_gui = true;
 
 const size_t CIRCLE_PTS = 48;
 
+int totalNodes;
 //----------------------------------------------------------------------------------------
 // Constructor
 A3::A3(const std::string & luaSceneFile)
@@ -40,6 +41,7 @@ A3::A3(const std::string & luaSceneFile)
 	mouseState[0] = 0;
 	mouseState[1] = 0;
 	mouseState[2] = 0;
+	totalNodes = 1;
 }
 
 //----------------------------------------------------------------------------------------
@@ -113,7 +115,7 @@ void A3::processLuaSceneFile(const std::string & filename) {
 		std::cerr << "Could not open " << filename << std::endl;
 	}
 	initRootTrans = m_rootNode->get_transform();
-	int totalSceneNodes = m_rootNode->totalSceneNodes();
+	totalNodes = m_rootNode->totalSceneNodes();
 	// colour_ids = new vec3[totalSceneNodes];
 	// for (int i = 0; i < totalSceneNodes; ++i){
 	// 	colour_ids[i] = vec3(-1, -1, -1);
@@ -434,9 +436,7 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			glUniform1f(location, node.material.shininess);
 			CHECK_GL_ERRORS;
 			//
-			GLint id = shader.getUniformLocation("id");
-			glUniform1f(id, node.m_nodeId+1);
-			CHECK_GL_ERRORS;
+			
 		}
 
 	}
@@ -516,7 +516,7 @@ void A3::renderSceneGraph(const SceneNode & root) {
 
 void A3::renderSceneNode(const SceneNode & root){
 	
-
+	totalNodes = root.totalSceneNodes();
 	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 
@@ -536,12 +536,18 @@ void A3::renderGeomeNode(const SceneNode & root){
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
-	colour_ids[geometryNode->m_nodeId] = vec3(geometryNode->material.kd.x/(geometryNode->m_nodeId + 1.0f),
-	   									      geometryNode->material.kd.y/(geometryNode->m_nodeId + 1.0f),
-											  geometryNode->material.kd.z/(geometryNode->m_nodeId + 1.0f));
-	// cout <<colour_ids[geometryNode->m_nodeId] << endl;
 	//-- Now render the mesh:
+
 	m_shader.enable();
+	// false colour setting
+	GLint colour = m_shader.getUniformLocation("colour");
+	float r = (geometryNode->m_nodeId  >> 0) / (float)totalNodes;// /255.0f;
+	float g = (geometryNode->m_nodeId  >> 1) / (float)totalNodes;// /255.0f;
+	float b = (geometryNode->m_nodeId  >> 2) / (float)totalNodes;// /255.0f;
+	// cout << r << " " << g << " " << b << endl;
+	glUniform4f(colour, r, g, b, 1.0f);
+	CHECK_GL_ERRORS;
+
 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
 	m_shader.disable();
 	for (SceneNode * node : root.children){
@@ -655,8 +661,9 @@ bool A3::mouseButtonInputEvent (
 				picking_xPos = last_xPos;
 				picking_xPos = last_yPos;
 				glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
-				cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
-				cout << lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) << endl;
+				// cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
+				picked_Id = lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]));
+				cout << picked_Id << endl;
 			// }
 		}	
 	}
@@ -763,27 +770,27 @@ void A3::pickingMode(int trager){
 }
 
 unsigned int A3::lookingUpId(glm::vec3 colour){
-	std::map<unsigned int, glm::vec3>::iterator it;
+	// std::map<unsigned int, glm::vec3>::iterator it;
 
-	for (it = colour_ids.begin(); it != colour_ids.end(); it++){
-		cout << it->second << endl;
-		cout << colour << endl;
-		if (it->second == colour) {
-			return it->first;
-		}
-	}
-	for (int i = 0.001; i < 0.005; i+= 0.001){
-		for (it = colour_ids.begin(); it != colour_ids.end(); it++){
-			cout << it->second << endl;
-			cout << colour << endl;
-			if (abs(it->second.x - colour.x) <= i) {
-				if (abs(it->second.y - colour.y) <= i) {
-					if (abs(it->second.z - colour.z) <= i) {
-						return it->first;
-					}
-				}
-			}
-		}
-	}
-	return 0;
+	// for (it = colour_ids.begin(); it != colour_ids.end(); it++){
+	// 	cout << it->second << endl;
+	// 	cout << colour << endl;
+	// 	if (it->second == colour) {
+	// 		return it->first;
+	// 	}
+	// }
+	// // for (int i = 0.001; i < 0.005; i += 0.001){
+	// 	for (it = colour_ids.begin(); it != colour_ids.end(); it++){
+	// 		cout << it->second << endl;
+	// 		cout << colour << endl;
+	// 		if (abs(it->second.x - colour.x) <= 0.003) {
+	// 			if (abs(it->second.y - colour.y) <= 0.003) {
+	// 				if (abs(it->second.z - colour.z) <= 0.003) {
+	// 					return it->first;
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+	return colour.x * totalNodes;
 }

@@ -112,5 +112,7 @@ protected:
 	double picking_xPos;
 	double picking_yPos;
 	float picked_colour[3];
+	unsigned int picked_Id;
+	int totalNodes;
 	std::map<unsigned int, glm::vec3> colour_ids;
 };

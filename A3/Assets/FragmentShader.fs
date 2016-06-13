@@ -13,9 +13,9 @@ in VsOutFsIn {
 
 
 out vec4 fragColour;
-
-uniform float id;
+uniform vec4 colour;
 uniform int joint;
+
 
 struct Material {
     vec3 kd;
@@ -57,7 +57,7 @@ vec3 phongModel(vec3 fragPosition, vec3 fragNormal) {
 
 void main() {
     if (joint == 1) {
-        fragColour = vec4( material.kd/id , 1.0);
+        fragColour = colour;
     } else {
 	   fragColour = vec4(phongModel(fs_in.position_ES, fs_in.normal_ES), 1.0);
     }
