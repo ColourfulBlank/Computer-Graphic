@@ -552,7 +552,7 @@ void A3::renderGeomeNode(const SceneNode & root){
 	glUniform4f(colour_location, r, g, b, 1.0f);
 	CHECK_GL_ERRORS;
 	
-	if (picked_Id[geometryNode->m_nodeId - 1] == 1){
+	if (picked_Id[geometryNode->m_nodeId] == 1){
 		GLint colour_location = m_shader.getUniformLocation("colour");
 		r = geometryNode->material.kd.x;
 		g = geometryNode->material.kd.y;
@@ -674,7 +674,7 @@ bool A3::mouseButtonInputEvent (
 			picking_xPos = last_xPos;
 			picking_xPos = last_yPos;
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
-			picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] = 1;
+			picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] = abs(picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] - 1);
 			// cout << picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) - 1] << endl;
 			// }
 		}	
