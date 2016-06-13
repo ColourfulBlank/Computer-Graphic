@@ -666,15 +666,17 @@ bool A3::mouseButtonInputEvent (
 		if (current_mode == 1){
 			// if (picking == false){
 				// picking = true;
-			glEnable( GL_DEPTH_TEST );
+			
 			pickingMode(1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// picking_xPos = last_xPos;
 			// picking_xPos = last_yPos;
+			glEnable( GL_DEPTH_TEST );
 			renderSceneGraph(*m_rootNode);
+			glDisable( GL_DEPTH_TEST );
 			// glFlush();
-			glFinish();
+			// glFinish();
 			// glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] = picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] == 1 ? 0 : 1;
@@ -683,7 +685,7 @@ bool A3::mouseButtonInputEvent (
 			// }
 			glFinish();
 			pickingMode(0);
-			glDisable( GL_DEPTH_TEST );
+			
 			// glClear(GL_COLOR_BUFFER_BIT);
 			// renderSceneGraph(*m_rootNode);
 		}	
