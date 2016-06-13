@@ -35,6 +35,7 @@ A3::A3(const std::string & luaSceneFile)
 	z_buffer_enable = false;
 	Backface_culling_enable = false; 
 	Frontface_culling_enable = false;
+	picking = false;
 	current_mode = 0;
 	mouseState[0] = 0;
 	mouseState[1] = 0;
@@ -450,9 +451,29 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 void A3::draw() {
 
 	glEnable( GL_DEPTH_TEST );
+	
+	
 
+	
+	if (picking) {
+		// if (picking){
+		pickingMode(1);
+		glFlush();
+		glFinish(); 
+		// }
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		
+	}
 	renderSceneGraph(*m_rootNode);
-
+	if (picking) {
+		
+		glReadPixels(picking_xPos, m_windowHeight - picking_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
+		cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
+		picking = false;
+		pickingMode(0);
+		// renderSceneGraph(*m_rootNode);
+	}
 	glDisable( GL_DEPTH_TEST );
 	renderArcCircle();
 }
@@ -617,17 +638,16 @@ bool A3::mouseButtonInputEvent (
 	mouseState[button] = actions;
 	if (mouseState[0] == 1){
 		if (current_mode == 1){
-		pickingMode(1);
-		glFlush();
-		glFinish(); 
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
-		cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
-		pickingMode(0);
+			if (picking == false){
+				picking = true;
+				picking_xPos = last_xPos;
+				picking_xPos = last_yPos;
+			}
 		}	
 	}
 	if (mouseState[0] == 0){
 		if (current_mode == 1){
+
 			// pickingMode(1);
 			// glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			// cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
@@ -719,6 +739,7 @@ void A3::undo(){
 }
 
 void A3::pickingMode(int trager){
+
 	m_shader.enable();
 	GLint joint = m_shader.getUniformLocation("joint");
 	glUniform1i(joint, trager);

@@ -1,6 +1,6 @@
 # Blender v2.77 (sub 0) OBJ File: ''
 # www.blender.org
-mtllib clen.mtl
+
 o Cylinder
 v 2.154896 -1.075523 -0.548252
 v 2.154896 0.924477 -0.548252

@@ -100,11 +100,14 @@ protected:
 	bool z_buffer_enable;
 	bool Backface_culling_enable;
 	bool Frontface_culling_enable;
+	bool picking;
 	int current_mode;
 	glm::mat4 initRootTrans;
 	int mouseState[3];
 	double last_xPos;
 	double last_yPos;
+	double picking_xPos;
+	double picking_yPos;
 	float picked_colour[3];
 	std::map<unsigned int, glm::vec3> colour_ids;
 };

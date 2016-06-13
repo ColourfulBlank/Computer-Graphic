@@ -1,7 +1,7 @@
 # Blender v2.77 (sub 0) OBJ File: ''
 # www.blender.org
-mtllib dount.mtl
-o Torus
+
+o dount
 v 2.249958 -0.250994 0.609048
 v 2.216464 -0.125994 0.609048
 v 2.124958 -0.034487 0.609048
