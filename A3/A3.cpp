@@ -539,7 +539,7 @@ void A3::renderGeomeNode(const SceneNode & root){
 	colour_ids[geometryNode->m_nodeId] = vec3(geometryNode->material.kd.x/(geometryNode->m_nodeId + 1),
 	   									      geometryNode->material.kd.y/(geometryNode->m_nodeId + 1),
 											  geometryNode->material.kd.z/(geometryNode->m_nodeId + 1));
-	cout <<colour_ids[geometryNode->m_nodeId] << endl;
+	// cout <<colour_ids[geometryNode->m_nodeId] << endl;
 	//-- Now render the mesh:
 	m_shader.enable();
 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
@@ -769,6 +769,8 @@ unsigned int A3::lookingUpId(glm::vec3 colour){
 			if (abs(it->second.y - colour.y) <= 0.001) {
 				if (abs(it->second.z - colour.z) <= 0.001) {
 					return it->first;
+				}
+			}
 		}
 	}
 	return 0;
