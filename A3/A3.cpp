@@ -666,6 +666,7 @@ bool A3::mouseButtonInputEvent (
 		if (current_mode == 1){
 			// if (picking == false){
 				// picking = true;
+			glEnable( GL_DEPTH_TEST );
 			pickingMode(1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
@@ -682,6 +683,7 @@ bool A3::mouseButtonInputEvent (
 			// }
 			glFinish();
 			pickingMode(0);
+			glDisable( GL_DEPTH_TEST );
 			// glClear(GL_COLOR_BUFFER_BIT);
 			// renderSceneGraph(*m_rootNode);
 		}	
