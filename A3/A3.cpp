@@ -768,10 +768,19 @@ unsigned int A3::lookingUpId(glm::vec3 colour){
 	for (it = colour_ids.begin(); it != colour_ids.end(); it++){
 		cout << it->second << endl;
 		cout << colour << endl;
-		if (abs(it->second.x - colour.x) <= 0.005) {
-			if (abs(it->second.y - colour.y) <= 0.005) {
-				if (abs(it->second.z - colour.z) <= 0.005) {
-					return it->first;
+		if (it->second == colour) {
+			return it->first;
+		}
+	}
+	for (int i = 0.001; i < 0.005; i+= 0.001){
+		for (it = colour_ids.begin(); it != colour_ids.end(); it++){
+			cout << it->second << endl;
+			cout << colour << endl;
+			if (abs(it->second.x - colour.x) <= i) {
+				if (abs(it->second.y - colour.y) <= i) {
+					if (abs(it->second.z - colour.z) <= i) {
+						return it->first;
+					}
 				}
 			}
 		}
