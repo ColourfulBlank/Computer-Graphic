@@ -678,6 +678,7 @@ bool A3::mouseButtonInputEvent (
 			// }
 			pickingMode(0);
 			glClear(GL_COLOR_BUFFER_BIT);
+			renderSceneGraph(*m_rootNode);
 		}	
 	}
 	if (mouseState[0] == 0){
