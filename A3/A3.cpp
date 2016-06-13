@@ -387,11 +387,11 @@ void A3::guiLogic()
 		ImGui::Checkbox( "Frontface culling (F)", &Frontface_culling_enable );
 		if( ImGui::RadioButton( "Position/Orientation (P)", &current_mode, 0 ) ) {
 			cout << "Position/Orientation: " << current_mode << endl;	
-			// pickingMode();
+			pickingMode(0);
 		}
 		if( ImGui::RadioButton( "Joints (J)", &current_mode, 1 ) ) {
 			cout << "Joints: " << current_mode << endl;	
-			// pickingMode();
+			pickingMode(1);
 		}
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
@@ -455,25 +455,25 @@ void A3::draw() {
 	
 
 	
-	if (picking) {
-		// if (picking){
-		pickingMode(1);
-		glFlush();
-		glFinish(); 
-		// }
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	// if (picking) {
+	// 	// if (picking){
+	// 	pickingMode(1);
+	// 	glFlush();
+	// 	glFinish(); 
+	// 	// }
+	// 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		
-	}
+	// }
 	renderSceneGraph(*m_rootNode);
-	if (picking) {
-		
-		glReadPixels(picking_xPos, m_windowHeight - picking_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
-		cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
-		picking = false;
-		pickingMode(0);
-		// renderSceneGraph(*m_rootNode);
-	}
+	// if (picking) {
+
+	// 	glReadPixels(picking_xPos, m_windowHeight - picking_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
+	// 	cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
+	// 	picking = false;
+	// 	pickingMode(0);
+	// 	// renderSceneGraph(*m_rootNode);
+	// }
 	glDisable( GL_DEPTH_TEST );
 	renderArcCircle();
 }
@@ -642,6 +642,8 @@ bool A3::mouseButtonInputEvent (
 				picking = true;
 				picking_xPos = last_xPos;
 				picking_xPos = last_yPos;
+				glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
+				cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
 			}
 		}	
 	}
