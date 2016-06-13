@@ -680,9 +680,9 @@ bool A3::mouseButtonInputEvent (
 			cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
 			cout << lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) << endl;
 			// }
-			pickingMode(0);
-			glClear(GL_COLOR_BUFFER_BIT);
-			renderSceneGraph(*m_rootNode);
+			// pickingMode(0);
+			// glClear(GL_COLOR_BUFFER_BIT);
+			// renderSceneGraph(*m_rootNode);
 		}	
 	}
 	if (mouseState[0] == 0){
