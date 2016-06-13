@@ -668,15 +668,16 @@ bool A3::mouseButtonInputEvent (
 				// picking = true;
 			pickingMode(1);
 			glClear(GL_COLOR_BUFFER_BIT);
-			picking_xPos = last_xPos;
-			picking_xPos = last_yPos;
+			// picking_xPos = last_xPos;
+			// picking_xPos = last_yPos;
+			renderSceneGraph(*m_rootNode);
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] = picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] == 1 ? 0 : 1;
 			cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
 			cout << lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) << endl;
 			// }
 			pickingMode(0);
-			// glClear(GL_COLOR_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT);
 		}	
 	}
 	if (mouseState[0] == 0){
