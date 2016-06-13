@@ -552,7 +552,7 @@ void A3::renderGeomeNode(const SceneNode & root){
 	// cout << r << " " << g << " " << b << endl;
 	glUniform4f(colour_location, r, g, b, 1.0f);
 	CHECK_GL_ERRORS;
-	colour_location = shader.getUniformLocation("material.shininess");
+	colour_location = m_shader.getUniformLocation("material.shininess");
 	if (picked_Id == geometryNode->m_nodeId){
 		glUniform1f(location, geometryNode->material.shininess/2.0f);
 	}
