@@ -539,7 +539,7 @@ void A3::renderGeomeNode(const SceneNode & root){
 	colour_ids[geometryNode->m_nodeId] = vec3(geometryNode->material.kd.x/(geometryNode->m_nodeId + 1),
 	   									      geometryNode->material.kd.y/(geometryNode->m_nodeId + 1),
 											  geometryNode->material.kd.z/(geometryNode->m_nodeId + 1));
-	// cout << geometryNode->m_nodeId <<" " <<colour_ids[geometryNode->m_nodeId] << endl;
+	cout <<colour_ids[geometryNode->m_nodeId] << endl;
 	//-- Now render the mesh:
 	m_shader.enable();
 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
@@ -656,7 +656,7 @@ bool A3::mouseButtonInputEvent (
 				picking_xPos = last_yPos;
 				glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 				cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
-				cout << lookingUpId(picked_colour) << endl;
+				cout << lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) << endl;
 			// }
 		}	
 	}
