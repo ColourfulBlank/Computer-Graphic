@@ -42,6 +42,7 @@ A3::A3(const std::string & luaSceneFile)
 	mouseState[1] = 0;
 	mouseState[2] = 0;
 	totalNodes = 1;
+	picked_Id = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -433,7 +434,11 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			glUniform3fv(location, 1, value_ptr(ks));
 			CHECK_GL_ERRORS;
 			location = shader.getUniformLocation("material.shininess");
-			glUniform1f(location, node.material.shininess);
+			if (picked_Id == note.m_nodeId){
+				glUniform1f(location, node.material.shininess/2.0f);
+			} else {
+				glUniform1f(location, node.material.shininess);
+			}
 			CHECK_GL_ERRORS;
 			//
 			
@@ -658,12 +663,11 @@ bool A3::mouseButtonInputEvent (
 		if (current_mode == 1){
 			// if (picking == false){
 				// picking = true;
-				picking_xPos = last_xPos;
-				picking_xPos = last_yPos;
-				glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
-				// cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
-				picked_Id = lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]));
-				cout << picked_Id << endl;
+			picking_xPos = last_xPos;
+			picking_xPos = last_yPos;
+			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
+			picked_Id = lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]));
+			cout << picked_Id << endl;
 			// }
 		}	
 	}
@@ -770,27 +774,6 @@ void A3::pickingMode(int trager){
 }
 
 unsigned int A3::lookingUpId(glm::vec3 colour){
-	// std::map<unsigned int, glm::vec3>::iterator it;
-
-	// for (it = colour_ids.begin(); it != colour_ids.end(); it++){
-	// 	cout << it->second << endl;
-	// 	cout << colour << endl;
-	// 	if (it->second == colour) {
-	// 		return it->first;
-	// 	}
-	// }
-	// // for (int i = 0.001; i < 0.005; i += 0.001){
-	// 	for (it = colour_ids.begin(); it != colour_ids.end(); it++){
-	// 		cout << it->second << endl;
-	// 		cout << colour << endl;
-	// 		if (abs(it->second.x - colour.x) <= 0.003) {
-	// 			if (abs(it->second.y - colour.y) <= 0.003) {
-	// 				if (abs(it->second.z - colour.z) <= 0.003) {
-	// 					return it->first;
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }
+	if (colour.x == colour.y) return 0;
 	return colour.x * totalNodes;
 }
