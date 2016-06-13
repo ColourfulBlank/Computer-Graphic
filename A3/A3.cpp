@@ -434,7 +434,7 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			glUniform3fv(location, 1, value_ptr(ks));
 			CHECK_GL_ERRORS;
 			location = shader.getUniformLocation("material.shininess");
-			if (picked_Id == note.m_nodeId){
+			if (picked_Id == node.m_nodeId){
 				glUniform1f(location, node.material.shininess/2.0f);
 			} else {
 				glUniform1f(location, node.material.shininess);
