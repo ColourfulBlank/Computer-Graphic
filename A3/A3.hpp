@@ -11,6 +11,7 @@
 #include <memory>
 
 #include <map>
+#include <vector>
 
 struct LightSource {
 	glm::vec3 position;
@@ -112,7 +113,7 @@ protected:
 	double picking_xPos;
 	double picking_yPos;
 	float picked_colour[3];
-	unsigned int picked_Id;
+	unsigned int * picked_Id;
 	
-	std::map<unsigned int, glm::vec3> colour_ids;
+	// std::map<unsigned int, glm::vec3> colour_ids;
 };

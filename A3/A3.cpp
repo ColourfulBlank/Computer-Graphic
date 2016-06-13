@@ -42,7 +42,6 @@ A3::A3(const std::string & luaSceneFile)
 	mouseState[1] = 0;
 	mouseState[2] = 0;
 	totalNodes = 1;
-	picked_Id = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -117,10 +116,10 @@ void A3::processLuaSceneFile(const std::string & filename) {
 	}
 	initRootTrans = m_rootNode->get_transform();
 	totalNodes = m_rootNode->totalSceneNodes();
-	// colour_ids = new vec3[totalSceneNodes];
-	// for (int i = 0; i < totalSceneNodes; ++i){
-	// 	colour_ids[i] = vec3(-1, -1, -1);
-	// }
+	picked_Id = new unsigned int[totalNodes];
+	for (int i = 0; i < totalNodes; ++i){
+		picked_Id[i] = 0;
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -553,7 +552,7 @@ void A3::renderGeomeNode(const SceneNode & root){
 	glUniform4f(colour_location, r, g, b, 1.0f);
 	CHECK_GL_ERRORS;
 	
-	if (picked_Id == geometryNode->m_nodeId){
+	if (picked_Id[geometryNode->m_nodeId - 1] == 1){
 		GLint colour_location = m_shader.getUniformLocation("colour");
 		r = geometryNode->material.kd.x;
 		g = geometryNode->material.kd.y;
@@ -675,8 +674,8 @@ bool A3::mouseButtonInputEvent (
 			picking_xPos = last_xPos;
 			picking_xPos = last_yPos;
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
-			picked_Id = lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]));
-			cout << picked_Id << endl;
+			picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] = 1;
+			// cout << picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) - 1] << endl;
 			// }
 		}	
 	}
