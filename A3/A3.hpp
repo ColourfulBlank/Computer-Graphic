@@ -67,6 +67,9 @@ protected:
 	//options
 	void pickingMode(int trager);
 
+	//helper
+	unsigned int lookingUpId(glm::vec3 colour);
+
 	glm::mat4 m_perpsective;
 	glm::mat4 m_view;
 

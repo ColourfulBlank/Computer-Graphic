@@ -387,11 +387,11 @@ void A3::guiLogic()
 		ImGui::Checkbox( "Frontface culling (F)", &Frontface_culling_enable );
 		if( ImGui::RadioButton( "Position/Orientation (P)", &current_mode, 0 ) ) {
 			cout << "Position/Orientation: " << current_mode << endl;	
-			// pickingMode(0);
+			pickingMode(0);
 		}
 		if( ImGui::RadioButton( "Joints (J)", &current_mode, 1 ) ) {
 			cout << "Joints: " << current_mode << endl;	
-			// pickingMode(1);
+			pickingMode(1);
 		}
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
@@ -448,7 +448,7 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 /*
  * Called once per frame, after guiLogic().
  */
- int temp = 0;
+ // int temp = 0;
 void A3::draw() {
 
 	glEnable( GL_DEPTH_TEST );
@@ -471,23 +471,21 @@ void A3::draw() {
 	
 	glDisable( GL_DEPTH_TEST );
 	renderArcCircle();
-	if (temp == 1) {
+	// if (temp == 1) {
 
-		glReadPixels(picking_xPos, m_windowHeight - picking_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
-		cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
-		picking = false;
-		pickingMode(0);
-		temp = 0;
-		picking = false
-		// renderSceneGraph(*m_rootNode);
-	}
-	if (picking) {
-		pickingMode(1);
-		glFlush();
-		glFinish(); 
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		temp = 1;
-	}
+	// 	glReadPixels(picking_xPos, m_windowHeight - picking_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
+	// 	cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
+	// 	picking = false;
+	// 	pickingMode(0);
+	// 	temp 
+	// 	// renderSceneGraph(*m_rootNode);
+	// }
+	// if (picking) {
+	// 	pickingMode(1);
+	// 	glFlush();
+	// 	glFinish(); 
+	// 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	// }
 	
 
 }
@@ -652,13 +650,14 @@ bool A3::mouseButtonInputEvent (
 	mouseState[button] = actions;
 	if (mouseState[0] == 1){
 		if (current_mode == 1){
-			if (picking == false){
-				picking = true;
+			// if (picking == false){
+				// picking = true;
 				picking_xPos = last_xPos;
 				picking_xPos = last_yPos;
-				// glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
-				// cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
-			}
+				glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
+				cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
+				cout << lookingUpId(picked_colour) << endl;
+			// }
 		}	
 	}
 	if (mouseState[0] == 0){
@@ -761,4 +760,12 @@ void A3::pickingMode(int trager){
 	glUniform1i(joint, trager);
 	CHECK_GL_ERRORS;
 	m_shader.disable();
+}
+
+unsigned int A3::lookingUpId(glm::vec3 colour){
+	std::map<unsigned int, glm::vec3>::iterator it;
+	for (it = colour_ids.begin(); it != colour_ids.end(); it++){
+		if (it->second == colour) return it->first;
+	}
+	return 0;
 }
