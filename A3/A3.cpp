@@ -433,7 +433,7 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			vec3 ks = node.material.ks;
 			glUniform3fv(location, 1, value_ptr(ks));
 			CHECK_GL_ERRORS;
-			// location = shader.getUniformLocation("material.shininess");
+			location = shader.getUniformLocation("material.shininess");
 			// if (picked_Id == node.m_nodeId){
 				// glUniform1f(location, node.material.shininess/2.0f);
 			// } else {
@@ -552,9 +552,15 @@ void A3::renderGeomeNode(const SceneNode & root){
 	// cout << r << " " << g << " " << b << endl;
 	glUniform4f(colour_location, r, g, b, 1.0f);
 	CHECK_GL_ERRORS;
-	colour_location = m_shader.getUniformLocation("material.shininess");
+	
 	if (picked_Id == geometryNode->m_nodeId){
-		glUniform1f(location, geometryNode->material.shininess/2.0f);
+		GLint colour_location = m_shader.getUniformLocation("colour");
+		r = geometryNode->material.kd.x;
+		g = geometryNode->material.kd.y;
+		b = geometryNode->material.kd.z;
+		glUniform4f(colour_location, r, g, b, 1.0f);
+		colour_location = m_shader.getUniformLocation("material.shininess");
+		glUniform1f(colour_location, geometryNode->material.shininess/2.0f);
 	}
 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
 	m_shader.disable();
