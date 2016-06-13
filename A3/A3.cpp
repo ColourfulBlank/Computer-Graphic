@@ -764,7 +764,10 @@ void A3::pickingMode(int trager){
 
 unsigned int A3::lookingUpId(glm::vec3 colour){
 	std::map<unsigned int, glm::vec3>::iterator it;
+
 	for (it = colour_ids.begin(); it != colour_ids.end(); it++){
+		cout << it->second << endl;
+		cout << colour << endl;
 		if (abs(it->second.x - colour.x) <= 0.001) {
 			if (abs(it->second.y - colour.y) <= 0.001) {
 				if (abs(it->second.z - colour.z) <= 0.001) {
