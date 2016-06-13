@@ -536,9 +536,9 @@ void A3::renderGeomeNode(const SceneNode & root){
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
-	colour_ids[geometryNode->m_nodeId] = vec3(geometryNode->material.kd.x/(geometryNode->m_nodeId + 1),
-	   									      geometryNode->material.kd.y/(geometryNode->m_nodeId + 1),
-											  geometryNode->material.kd.z/(geometryNode->m_nodeId + 1));
+	colour_ids[geometryNode->m_nodeId] = vec3(geometryNode->material.kd.x/(geometryNode->m_nodeId + 1.0f),
+	   									      geometryNode->material.kd.y/(geometryNode->m_nodeId + 1.0f),
+											  geometryNode->material.kd.z/(geometryNode->m_nodeId + 1.0f));
 	// cout <<colour_ids[geometryNode->m_nodeId] << endl;
 	//-- Now render the mesh:
 	m_shader.enable();
