@@ -448,11 +448,7 @@ static void updateShaderUniforms( const ShaderProgram & shader,
  * Called once per frame, after guiLogic().
  */
 void A3::draw() {
-	if (current_mode == 1 && mouseState[0] == 1){
-		glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
-		cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
-		pickingMode(0);
-	}	
+
 	glEnable( GL_DEPTH_TEST );
 
 	renderSceneGraph(*m_rootNode);
@@ -621,7 +617,13 @@ bool A3::mouseButtonInputEvent (
 	mouseState[button] = actions;
 	if (mouseState[0] == 1){
 		if (current_mode == 1){
-			pickingMode(1);
+		pickingMode(1);
+		glFlush();
+		glFinish(); 
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
+		cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
+		pickingMode(0);
 		}	
 	}
 	if (mouseState[0] == 0){
