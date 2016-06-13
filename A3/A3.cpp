@@ -389,11 +389,9 @@ void A3::guiLogic()
 		ImGui::Checkbox( "Frontface culling (F)", &Frontface_culling_enable );
 		if( ImGui::RadioButton( "Position/Orientation (P)", &current_mode, 0 ) ) {
 			cout << "Position/Orientation: " << current_mode << endl;	
-			pickingMode(0);
 		}
 		if( ImGui::RadioButton( "Joints (J)", &current_mode, 1 ) ) {
 			cout << "Joints: " << current_mode << endl;	
-			pickingMode(1);
 		}
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
@@ -433,11 +431,7 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			glUniform3fv(location, 1, value_ptr(ks));
 			CHECK_GL_ERRORS;
 			location = shader.getUniformLocation("material.shininess");
-			// if (picked_Id == node.m_nodeId){
-				// glUniform1f(location, node.material.shininess/2.0f);
-			// } else {
-				glUniform1f(location, node.material.shininess);
-			// }
+			glUniform1f(location, node.material.shininess);
 			CHECK_GL_ERRORS;
 			//
 			
@@ -552,25 +546,16 @@ void A3::renderGeomeNode(const SceneNode & root){
 	glUniform4f(colour_location, r, g, b, 1.0f);
 	CHECK_GL_ERRORS;
 	
-	if (picked_Id[geometryNode->m_nodeId] == 1){
-		colour_location = m_shader.getUniformLocation("colour");
-		r = geometryNode->material.kd.x;
-		g = geometryNode->material.kd.y;
-		b = geometryNode->material.kd.z;
-		glUniform4f(colour_location, r, g, b, 1.0f);
-		colour_location = m_shader.getUniformLocation("material.shininess");
-		CHECK_GL_ERRORS;
-		// glUniform1f(colour_location, geometryNode->material.shininess/2.0f);
-	} else {
-		colour_location = m_shader.getUniformLocation("colour");
-		r = (geometryNode->m_nodeId  >> 0) / (float)totalNodes;// /255.0f;
-		g = (geometryNode->m_nodeId  >> 1) / (float)totalNodes;// /255.0f;
-		b = (geometryNode->m_nodeId  >> 2) / (float)totalNodes;// /255.0f;
-		// cout << r << " " << g << " " << b << endl;
-		glUniform4f(colour_location, r, g, b, 1.0f);
-		CHECK_GL_ERRORS;
-
-	}
+	// if (picked_Id[geometryNode->m_nodeId] == 1){
+	// 	colour_location = m_shader.getUniformLocation("colour");
+	// 	r = geometryNode->material.kd.x;
+	// 	g = geometryNode->material.kd.y;
+	// 	b = geometryNode->material.kd.z;
+	// 	glUniform4f(colour_location, r, g, b, 1.0f);
+	// 	colour_location = m_shader.getUniformLocation("material.shininess");
+	// 	CHECK_GL_ERRORS;
+	// 	// glUniform1f(colour_location, geometryNode->material.shininess/2.0f);
+	// }
 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
 	m_shader.disable();
 	for (SceneNode * node : root.children){
@@ -681,12 +666,16 @@ bool A3::mouseButtonInputEvent (
 		if (current_mode == 1){
 			// if (picking == false){
 				// picking = true;
+			pickingMode(1);
+			glClear(GL_COLOR_BUFFER_BIT);
 			picking_xPos = last_xPos;
 			picking_xPos = last_yPos;
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] = picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] == 1 ? 0 : 1;
-			// cout << picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) - 1] << endl;
+			cout << picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) ] << endl;
 			// }
+			pickingMode(0);
+			// glClear(GL_COLOR_BUFFER_BIT);
 		}	
 	}
 	if (mouseState[0] == 0){
