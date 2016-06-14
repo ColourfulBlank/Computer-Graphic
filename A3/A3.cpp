@@ -447,22 +447,16 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 		if (node.m_nodeType == NodeType::GeometryNode){
 			location = shader.getUniformLocation("material.kd");
 			vec3 kd;
-			// if (picked_Id[node.m_nodeId] == 1){
+			if (picked_Id[node.m_nodeId] == 1){
 				// std::cout << Picked_material.kd.x << std::endl;
-				// kd = node.Picked_material.kd;	
-			// } else {
+				kd = node.Picked_material.kd;	
+			} else {
 				kd = node.material.kd;
-			// }
+			}
 			glUniform3fv(location, 1, value_ptr(kd));
 			CHECK_GL_ERRORS;
 			location = shader.getUniformLocation("material.ks");
-			vec3 ks;
-			if (picked_Id[node.m_nodeId] == 1){
-				// std::cout << Picked_material.kd.x << std::endl;
-				ks = node.Picked_material.ks;	
-			} else {
-				ks = node.material.ks;
-			}
+			vec3 ks = node.material.ks;
 			glUniform3fv(location, 1, value_ptr(ks));
 			
 			CHECK_GL_ERRORS;
@@ -758,8 +752,8 @@ bool A3::mouseButtonInputEvent (
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			
 			picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] = picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] == 1 ? 0 : 1;
-			// cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
-			// cout << lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) << endl;
+			cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
+			cout << lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) << endl;
 
 			pickingMode(0);
 			
