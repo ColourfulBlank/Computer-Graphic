@@ -587,6 +587,7 @@ void A3::renderJointNode(const SceneNode & root){
 	for (int i = 0; i < m_rootNode->totalSceneNodes(); i++){
 		if (Joint_children[i] == root.m_nodeId){
 			if (picked_Id[i] == 1){
+				((JointNode * )jointNode)->rotateTrans = I;
 				((JointNode * )jointNode)->rotate_x(joint_rotate_x);
 				((JointNode * )jointNode)->rotate_y(joint_rotate_y);
 				joint_rotate_x = 0;
