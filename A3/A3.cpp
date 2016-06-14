@@ -678,7 +678,7 @@ bool A3::mouseMoveEvent (
 	double deltaZ;
 	deltaX = (xPos - last_xPos) / m_windowWidth;
 	deltaY = (yPos - last_yPos) / m_windowHeight;
-	deltaZ = abs(deltaX - deltaY)/2;
+	deltaZ = deltaY;
 	// Fill in with event handling code...
 	if (mouseState[1] == 1){ //right click
 
@@ -696,8 +696,7 @@ bool A3::mouseMoveEvent (
 		     rootRotation = glm::rotate( rootRotation,
 							   					glm::degrees(angleInView),
 							   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z});
-		}
-		if (current_mode == 1){
+		}if (current_mode == 1){
 			joint_rotate_x = deltaX * PI;
 			joint_rotate_y = deltaY * PI;
 
@@ -736,29 +735,30 @@ bool A3::mouseButtonInputEvent (
 	mouseState[button] = actions;
 	if (mouseState[0] == 1){
 		if (current_mode == 1){
-			
-			pickingMode(1);
+			if (mouseState[1] == 0){
+				pickingMode(1);
 
-			glClear(GL_COLOR_BUFFER_BIT);
-			glClear(GL_DEPTH_BUFFER_BIT);
+				glClear(GL_COLOR_BUFFER_BIT);
+				glClear(GL_DEPTH_BUFFER_BIT);
 
-			// glEnable( GL_DEPTH_TEST );
-			if (z_buffer_enable){
-				glEnable( GL_DEPTH_TEST );
+				// glEnable( GL_DEPTH_TEST );
+				if (z_buffer_enable){
+					glEnable( GL_DEPTH_TEST );
+				}
+				renderSceneGraph(*m_rootNode);
+				// glDisable( GL_DEPTH_TEST );
+				if (z_buffer_enable){
+					glDisable( GL_DEPTH_TEST );
+				}
+				unsigned char data[4];
+				glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+				
+				picked_Id[lookingUpId(data)] = picked_Id[lookingUpId(data)] == 1 ? 0 : 1;
+				cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
+				cout << lookingUpId(data) << endl;
+
+				pickingMode(0);
 			}
-			renderSceneGraph(*m_rootNode);
-			// glDisable( GL_DEPTH_TEST );
-			if (z_buffer_enable){
-				glDisable( GL_DEPTH_TEST );
-			}
-			unsigned char data[4];
-			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
-			
-			picked_Id[lookingUpId(data)] = picked_Id[lookingUpId(data)] == 1 ? 0 : 1;
-			cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
-			cout << lookingUpId(data) << endl;
-
-			pickingMode(0);
 			
 		}	
 	}
