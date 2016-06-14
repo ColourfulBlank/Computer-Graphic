@@ -61,6 +61,7 @@ public:
     glm::mat4 parent_trans;
     glm::mat4 parent_invtrans;
     glm::mat4 trans_without_scale;
+    glm::mat4 rotate_trans;
 
 
 private:

@@ -14,11 +14,14 @@ public:
 	void rotate_y(double amount);
 
 	void set_transform_from_parent(glm::mat4 m);
-
+	void upDateRotation();
 	struct JointRange {
 		double min, init, max;
 	};
 
+	glm::mat4 get_joint_transform(int on) const;
 
 	JointRange m_joint_x, m_joint_y;
+
+	glm::mat4 rotateTrans;
 };

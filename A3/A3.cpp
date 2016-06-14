@@ -441,7 +441,6 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			location = shader.getUniformLocation("material.kd");
 			vec3 kd;
 			if (picked_Id[node.m_nodeId] == 1){
-				
 				// std::cout << Picked_material.kd.x << std::endl;
 				kd = node.Picked_material.kd;	
 			} else {
@@ -584,12 +583,13 @@ void A3::renderGeomeNode(const SceneNode & root){
 
 }
 void A3::renderJointNode(const SceneNode & root){
+	const JointNode * jointNode = static_cast <const JointNode *>(& root);
 	for (SceneNode * node : root.children){
 		if (node->m_nodeType == NodeType::GeometryNode){
-			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform());
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(jointNode->get_joint_transform(picked_Id[node->m_nodeId]));
 			renderGeomeNode(*node);
 		} else if (node->m_nodeType == NodeType::JointNode){
-			((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans * root.get_transform());
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(jointNode->get_joint_transform(picked_Id[node->m_nodeId]));
 			renderJointNode(*node);
 		}
 	}
@@ -713,9 +713,16 @@ bool A3::mouseButtonInputEvent (
 
 			glClear(GL_COLOR_BUFFER_BIT);
 			glClear(GL_DEPTH_BUFFER_BIT);
-			glEnable( GL_DEPTH_TEST );
+
+			// glEnable( GL_DEPTH_TEST );
+			if (z_buffer_enable){
+				glEnable( GL_DEPTH_TEST );
+			}
 			renderSceneGraph(*m_rootNode);
-			glDisable( GL_DEPTH_TEST );
+			// glDisable( GL_DEPTH_TEST );
+			if (z_buffer_enable){
+				glDisable( GL_DEPTH_TEST );
+			}
 		
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			
