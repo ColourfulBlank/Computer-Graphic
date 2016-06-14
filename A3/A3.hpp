@@ -120,7 +120,6 @@ protected:
 	double arcBall_xPos;
 	double arcBall_yPos;
 	float picked_colour[3];
-	unsigned int * picked_Id;
 	SceneNode * headNode;
 	glm::mat4 headRotateTrans;
 	glm::mat4 rootRotation;

@@ -9,6 +9,10 @@ GeometryNode::GeometryNode(
 	  meshId(meshId)
 {
 	m_nodeType = NodeType::GeometryNode;
+	Picked_material = material;
+	Picked_material.kd.x = 1.0f - Picked_material.kd.x;
+	Picked_material.kd.y = 1.0f - Picked_material.kd.y;
+	Picked_material.kd.z = 1.0f - Picked_material.kd.z;
 }
 
 void GeometryNode::set_transform_from_parent(glm::mat4 m){

@@ -13,6 +13,7 @@ public:
 	// void draw_parent(); 
 
 	Material material;
+	Material Picked_material;
 
 	// Mesh Identifier. This must correspond to an object name of
 	// a loaded .obj file.

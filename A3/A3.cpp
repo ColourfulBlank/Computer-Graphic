@@ -21,7 +21,7 @@ const size_t CIRCLE_PTS = 48;
 
 int totalNodes;
 
-
+unsigned int * picked_Id;
 mat4x4 I = mat4x4(vec4(1, 0, 0, 0),
 				  vec4(0, 1, 0, 0),
 				  vec4(0, 0, 1, 0),
@@ -439,7 +439,12 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 		//-- Set Material values:
 		if (node.m_nodeType == NodeType::GeometryNode){
 			location = shader.getUniformLocation("material.kd");
-			vec3 kd = node.material.kd;
+			vec3 kd;
+			if (picked_Id[node.m_nodeId] == 1){
+				kd = node.Picked_material.kd;	
+			} else {
+				kd = node.material.kd;
+			}
 			glUniform3fv(location, 1, value_ptr(kd));
 			CHECK_GL_ERRORS;
 			location = shader.getUniformLocation("material.ks");
@@ -546,6 +551,7 @@ void A3::renderGeomeNode(const SceneNode & root){
 			headRotateTrans = geometryNode->get_transform();	
 		}
 	}
+
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
@@ -714,6 +720,7 @@ bool A3::mouseButtonInputEvent (
 			picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] = picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] == 1 ? 0 : 1;
 			cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
 			cout << lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) << endl;
+
 			pickingMode(0);
 			
 		}	
