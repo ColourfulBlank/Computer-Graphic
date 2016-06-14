@@ -16,12 +16,13 @@ torso = gr.mesh('Cylinder', 'torso')
 rootnode:add_child(torso)
 torso:set_material(white)
 torso:scale(0.5,0.5,0.5);
-
+headJoint = gr.joint('neckjoint', {0, 0, 0}, {-90, 0, 90})
+rootnode:add_child(headJoint)
 head = gr.mesh('cube', 'head')
-torso:add_child(head)
+headJoint:add_child(head)
 head:scale(1.0/0.5, 1.0, 1.0/0.5)
 head:scale(0.4, 0.4, 0.4)
-head:translate(0.0, 0.5, 0.0)
+head:translate(0.0, 1.3, 0.0)
 head:set_material(red)
 
 -- neck = gr.mesh('sphere', 'neck')
