@@ -72,7 +72,7 @@ protected:
 	void enableCulling(bool on);
 	// void rotateHead(double amount);
 	//helper
-	unsigned int lookingUpId(glm::vec3 colour);
+	unsigned int lookingUpId(unsigned char * data);
 
 
 	glm::mat4 m_perpsective;

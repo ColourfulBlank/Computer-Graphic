@@ -562,11 +562,14 @@ void A3::renderGeomeNode(const SceneNode & root){
 	m_shader.enable();
 	// false colour setting
 	GLint colour_location = m_shader.getUniformLocation("colour");
-	float r = (geometryNode->m_nodeId  >> 0) / (float)totalNodes;// /255.0f;
-	float g = (geometryNode->m_nodeId  >> 1) / (float)totalNodes;// /255.0f;
-	float b = (geometryNode->m_nodeId  >> 2) / (float)totalNodes;// /255.0f;
+	// float r = (geometryNode->m_nodeId & 0x000 >> 0) / (float)totalNodes;// /255.0f;
+	// float g = (geometryNode->m_nodeId  >> 1) / (float)totalNodes;// /255.0f;
+	// float b = (geometryNode->m_nodeId  >> 2) / (float)totalNodes;// /255.0f;
+	int r = (geometryNode->m_nodeId & 0x000000FF) >>  0;
+	int g = (geometryNode->m_nodeId & 0x0000FF00) >>  8;
+	int b = (geometryNode->m_nodeId & 0x00FF0000) >> 16;
 	// cout << r << " " << g << " " << b << endl;
-	glUniform4f(colour_location, r, g, b, 1.0f);
+	glUniform4f(colour_location, r/255.0f, g/255.0f, b/255.0f, 1.0f);
 	CHECK_GL_ERRORS;
 	
 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
@@ -748,12 +751,12 @@ bool A3::mouseButtonInputEvent (
 			if (z_buffer_enable){
 				glDisable( GL_DEPTH_TEST );
 			}
-		
-			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
+			unsigned char data[4];
+			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			
-			picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] = picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] == 1 ? 0 : 1;
+			picked_Id[lookingUpId(data)] = picked_Id[lookingUpId(data)] == 1 ? 0 : 1;
 			cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
-			cout << lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) << endl;
+			cout << lookingUpId(data) << endl;
 
 			pickingMode(0);
 			
@@ -903,9 +906,11 @@ void A3::pickingMode(int trager){
 	m_shader.disable();
 }
 
-unsigned int A3::lookingUpId(glm::vec3 colour){
-	if (colour.x == colour.y) return 0;
-	return ceil(colour.x * totalNodes);
+unsigned int A3::lookingUpId(unsigned char * data){
+	int id = data[0] + 
+			 data[1] * 256 +
+			 data[2] * 256 * 256;
+	return id;
 }
 
 void A3::setTrans(vec3 translation, vec3 rotation){
