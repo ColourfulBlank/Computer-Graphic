@@ -406,7 +406,8 @@ void A3::guiLogic()
 		ImGui::Checkbox( "Backface culling (B)", &Backface_culling_enable );
 		ImGui::Checkbox( "Frontface culling (F)", &Frontface_culling_enable );
 		if( ImGui::RadioButton( "Position/Orientation (P)", &current_mode, 0 ) ) {
-			cout << "Position/Orientation: " << current_mode << endl;	
+			cout << "Position/Orientation: " << current_mode << endl;
+			deSelect();	
 		}
 		if( ImGui::RadioButton( "Joints (J)", &current_mode, 1 ) ) {
 			cout << "Joints: " << current_mode << endl;	
@@ -848,11 +849,13 @@ bool A3::keyInputEvent (
 		if (key == GLFW_KEY_P ) {
 			cout << "p key pressed" << endl;
 			current_mode = 0;
+			deSelect();
 			eventHandled = true;
 		}
 		if (key == GLFW_KEY_J ) {
-			cout << "p key pressed" << endl;
+			cout << "j key pressed" << endl;
 			current_mode = 1;
+
 			eventHandled = true;
 		}
 		if (key == GLFW_KEY_U ) {
@@ -967,4 +970,9 @@ glm::vec3 A3::get_arcball_vector(int x, int y) {
     P = glm::normalize(P);  // nearest point
   return P;
 }
-
+void A3::deSelect(){
+	for (int i = 0; i < m_rootNode->totalSceneNodes(); i++){
+		picked_Id[i] = 0;	
+	}
+	
+}

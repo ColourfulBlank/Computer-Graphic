@@ -73,7 +73,7 @@ protected:
 	// void rotateHead(double amount);
 	//helper
 	unsigned int lookingUpId(unsigned char * data);
-
+	void deSelect();
 
 	glm::mat4 m_perpsective;
 	glm::mat4 m_view;
