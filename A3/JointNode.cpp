@@ -71,13 +71,13 @@ void JointNode::upDateRotation(){
 				  glm::vec4(0, 0, 1, 0),
 				  glm::vec4(0, 0, 0, 1));
 
-	glm::mat4 Rotation_z = glm::mat4x4 (glm::vec4(cos(glm::degrees(current_Y - m_joint_y.init)), sin(glm::degrees(current_Y - m_joint_y.init)),0 ,0),
-								glm::vec4(-sin(glm::degrees(current_Y - m_joint_y.init)), cos(glm::degrees(current_Y - m_joint_y.init)), 0, 0),
+	glm::mat4 Rotation_z = glm::mat4x4 (glm::vec4(cos(current_Y), sin(current_Y),0 ,0),
+								glm::vec4(-sin(current_Y), cos(current_Y), 0, 0),
 								glm::vec4(0,0,1,0),
 								glm::vec4(0,0,0,1) );
 	glm::mat4 Rotation_x = glm::mat4x4 (glm::vec4(1, 0, 0, 0),
-								 glm::vec4(0, cos(glm::degrees(current_X - m_joint_x.init)), sin(glm::degrees(current_X - m_joint_x.init)), 0),
-								 glm::vec4(0, -sin(glm::degrees(current_X - m_joint_x.init)), cos(glm::degrees(current_X - m_joint_x.init)), 0),
+								 glm::vec4(0, cos(current_X), sin(current_X), 0),
+								 glm::vec4(0, -sin(current_X), cos(current_X), 0),
 								 glm::vec4(0,0,0,1) );
 
 	rotateTrans = I * Rotation_z;
