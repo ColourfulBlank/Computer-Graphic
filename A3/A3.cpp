@@ -441,6 +441,8 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			location = shader.getUniformLocation("material.kd");
 			vec3 kd;
 			if (picked_Id[node.m_nodeId] == 1){
+				
+				// std::cout << Picked_material.kd.x << std::endl;
 				kd = node.Picked_material.kd;	
 			} else {
 				kd = node.material.kd;
