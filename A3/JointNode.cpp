@@ -33,15 +33,15 @@ void JointNode::set_joint_y(double min, double init, double max) {
 }
 void JointNode::rotate_x(double amount){
 	current_X = current_X + amount;
-	current_X = current_X > m_joint_x.max ? m_joint_x.max : current_X;
-	current_X = current_X < m_joint_x.min ? m_joint_x.min : current_X;
+	current_X = glm::degrees(current_X) > m_joint_x.max ? m_joint_x.max : current_X;
+	current_X = glm::degrees(current_X) < m_joint_x.min ? m_joint_x.min : current_X;
 	//need to apply to childrens
 	upDateRotation();
 }
 void JointNode::rotate_y(double amount){
 	current_Y = current_Y + amount;
-	current_Y = current_Y > m_joint_x.max ? m_joint_x.max : current_Y;
-	current_Y = current_Y < m_joint_x.min ? m_joint_x.min : current_Y;
+	current_Y = glm::degrees(current_X) > m_joint_x.max ? m_joint_x.max : current_Y;
+	current_Y = glm::degrees(current_X) < m_joint_x.min ? m_joint_x.min : current_Y;
 	//need to apply to childrens
 	upDateRotation();
 }
