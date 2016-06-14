@@ -6,7 +6,8 @@ class JointNode : public SceneNode {
 public:
 	JointNode(const std::string & name);
 	virtual ~JointNode();
-
+	double current_X;
+	double current_Y;
 	void set_joint_x(double min, double init, double max);
 	void set_joint_y(double min, double init, double max);
 	void rotate_x(double amount);

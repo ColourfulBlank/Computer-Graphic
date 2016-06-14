@@ -15,14 +15,14 @@ white = gr.material({1.0, 1.0, 1.0}, {0.1, 0.1, 0.1}, 10)
 torso = gr.mesh('Cylinder', 'torso')
 rootnode:add_child(torso)
 torso:set_material(white)
-torso:scale(0.5,1.0,0.5);
+torso:scale(0.5,0.5,0.5);
 
--- head = gr.mesh('cube', 'head')
--- torso:add_child(head)
--- head:scale(1.0/0.5, 1.0, 1.0/0.5)
--- head:scale(0.4, 0.4, 0.4)
--- head:translate(0.0, 0.5, 0.0)
--- head:set_material(red)
+head = gr.mesh('cube', 'head')
+torso:add_child(head)
+head:scale(1.0/0.5, 1.0, 1.0/0.5)
+head:scale(0.4, 0.4, 0.4)
+head:translate(0.0, 0.5, 0.0)
+head:set_material(red)
 
 -- neck = gr.mesh('sphere', 'neck')
 -- torso:add_child(neck)

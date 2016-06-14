@@ -26,6 +26,7 @@ mat4x4 I = mat4x4(vec4(1, 0, 0, 0),
 				  vec4(0, 1, 0, 0),
 				  vec4(0, 0, 1, 0),
 				  vec4(0, 0, 0, 1));
+
 //----------------------------------------------------------------------------------------
 // Constructor
 A3::A3(const std::string & luaSceneFile)
@@ -50,6 +51,7 @@ A3::A3(const std::string & luaSceneFile)
 	totalNodes = 1;
 	arcBall_xPos = m_framebufferWidth/2.0f;
 	arcBall_yPos = m_framebufferHeight/2.0f;
+	rootRotation = I;
 }
 
 //----------------------------------------------------------------------------------------
@@ -519,23 +521,31 @@ void A3::renderSceneNode(const SceneNode & root){
 	
 	totalNodes = root.totalSceneNodes();
 	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
+
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 
 
 	for (SceneNode * node : root.children){
 		if (node->m_nodeType == NodeType::GeometryNode){
-			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform());
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform() * rootRotation);
 			renderGeomeNode(*node);
 		} else if (node->m_nodeType == NodeType::JointNode){
-			((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform());
+			((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform() * rootRotation);
 			renderJointNode(*node);
 		}
 	}
 }
 void A3::renderGeomeNode(const SceneNode & root){
 	
-	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
 
+	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
+	// cout << geometryNode->m_name << endl;
+	if (geometryNode->m_name == "head") {
+		if (headNode != NULL){
+			headNode = (SceneNode *)geometryNode;
+			headRotateTrans = geometryNode->get_transform();	
+		}
+	}
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
@@ -639,7 +649,7 @@ bool A3::mouseMoveEvent (
 	deltaY = (yPos - last_yPos) * 2 / m_windowHeight;
 	deltaZ = abs(deltaX - deltaY)/2;
 	// Fill in with event handling code...
-	if (mouseState[1] == 1){
+	if (mouseState[1] == 1){ //right click
 
 		if (current_mode == 0){
 
@@ -649,21 +659,27 @@ bool A3::mouseMoveEvent (
 		    glm::vec3 a = p * d;
 		    a = glm::normalize(a);
 		    glm::vec4 axisInWorldframe = glm::inverse(m_view) * vec4(a, 0);
-		    m_rootNode->set_transform(glm::rotate( m_rootNode->get_transform(),
-							   glm::degrees(angleInView),
-							   {axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z}));
-
+		    // m_rootNode->set_transform(glm::rotate( m_rootNode->get_transform(),
+						// 	   					glm::degrees(angleInView),
+						// 	   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z}));
+		     rootRotation = glm::rotate( rootRotation,
+							   					glm::degrees(angleInView),
+							   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z});
 		}
 	}
-	if (mouseState[0] == 1){
+	if (mouseState[0] == 1){ // left click
 		if (current_mode == 0){
 			setTrans(vec3(deltaX, -deltaY, 0), vec3(0,0,0));
 		}
 	}
 
-	if (mouseState[2] == 1){
+	if (mouseState[2] == 1){ //middle
 		if (current_mode == 0){
 			setTrans(vec3(0, 0, deltaZ),vec3(0,0,0));
+		} 
+		if (current_mode == 1){
+			//rotate head
+			rotateHead(deltaX);
 		}
 	}
 	last_xPos = xPos;
@@ -691,7 +707,7 @@ bool A3::mouseButtonInputEvent (
 			glClear(GL_DEPTH_BUFFER_BIT);
 			glEnable( GL_DEPTH_TEST );
 			renderSceneGraph(*m_rootNode);
-			glEnable( GL_DEPTH_TEST );
+			glDisable( GL_DEPTH_TEST );
 		
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			
@@ -795,7 +811,16 @@ bool A3::keyInputEvent (
 			current_mode = 1;
 			eventHandled = true;
 		}
-		
+		if (key == GLFW_KEY_U ) {
+			cout << "u key pressed" << endl;
+			undo();
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_R ) {
+			cout << "r key pressed" << endl;
+			redo();
+			eventHandled = true;
+		}
 	}
 	// Fill in with event handling code...
 
@@ -809,6 +834,7 @@ void A3::resetPosition(){
 	m_rootNode->set_transform(initRootTrans);
 }
 void A3::resetOrientation(){
+	rootRotation = I;
 
 }
 void A3::resetJoints(){
@@ -873,6 +899,10 @@ m_rootNode->set_transform(  m_rootNode->get_transform() * Rotation_y);
 m_rootNode->set_transform(  m_rootNode->get_transform() * Rotation_x);
 m_rootNode->set_transform( Translation * m_rootNode->get_transform());
 }
+void A3::rotateHead(double amount){
+	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(headNode);
+	headNode->set_transform(glm::rotate(geometryNode->get_transform(), (float) amount, vec3(0,1,0)));
+}
 //sample code from https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
 /**
  * Get a normalized vector from the center of the virtual ball O to a
@@ -892,3 +922,4 @@ glm::vec3 A3::get_arcball_vector(int x, int y) {
     P = glm::normalize(P);  // nearest point
   return P;
 }
+

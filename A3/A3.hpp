@@ -70,6 +70,7 @@ protected:
 	void setTrans(glm::vec3 translation, glm::vec3 rotation);
 	glm::vec3 get_arcball_vector(int x, int y);
 	void enableCulling(bool on);
+	void rotateHead(double amount);
 	//helper
 	unsigned int lookingUpId(glm::vec3 colour);
 
@@ -120,6 +121,9 @@ protected:
 	double arcBall_yPos;
 	float picked_colour[3];
 	unsigned int * picked_Id;
+	SceneNode * headNode;
+	glm::mat4 headRotateTrans;
+	glm::mat4 rootRotation;
 	
 	// std::map<unsigned int, glm::vec3> colour_ids;
 };
