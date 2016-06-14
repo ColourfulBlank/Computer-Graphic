@@ -83,8 +83,8 @@ void A3::init()
 	unique_ptr<MeshConsolidator> meshConsolidator (new MeshConsolidator{
 			getAssetFilePath("cube.obj"),
 			getAssetFilePath("sphere.obj"),
-			getAssetFilePath("suzanne.obj")
-			// getAssetFilePath("suzanne.obj")
+			getAssetFilePath("suzanne.obj"),
+			getAssetFilePath("cylender.obj")
 	});
 
 
@@ -462,19 +462,35 @@ static void updateShaderUniforms( const ShaderProgram & shader,
  */
  // int temp = 0;
 void A3::draw() {
-
-	glEnable( GL_DEPTH_TEST );
-	
-
+	if (z_buffer_enable){
+		glEnable( GL_DEPTH_TEST );
+	}
+	enableCulling(true);
 	renderSceneGraph(*m_rootNode);
 	
-	glDisable( GL_DEPTH_TEST );
+	glCullFace(GL_FRONT);
+	if (z_buffer_enable){
+		glDisable( GL_DEPTH_TEST );
+	}
+	
 	renderArcCircle();
-	
-	
 
 }
 
+void A3::enableCulling(bool on){
+	if (Backface_culling_enable || Frontface_culling_enable){
+		glEnable(GL_CULL_FACE);
+		if (Backface_culling_enable && Frontface_culling_enable){
+			glCullFace(GL_FRONT_AND_BACK);
+		} else if (Backface_culling_enable){
+			glCullFace(GL_BACK);
+		} else if (Frontface_culling_enable){
+			glCullFace(GL_FRONT);
+		}
+	} else {
+		glDisable(GL_CULL_FACE);
+	}
+}
 //----------------------------------------------------------------------------------------
 void A3::renderSceneGraph(const SceneNode & root) {
 
@@ -624,8 +640,9 @@ bool A3::mouseMoveEvent (
 	deltaZ = abs(deltaX - deltaY)/2;
 	// Fill in with event handling code...
 	if (mouseState[1] == 1){
+
 		if (current_mode == 0){
-			// if abs(xPos - arcBall_xPos) < m_framebufferWidth/2)
+
 		    glm::vec3 p = get_arcball_vector(last_xPos, last_yPos);
 		    glm::vec3 d = get_arcball_vector(xPos, yPos);
 		    float angleInView = -acos(std::min(1.0f, dot(p, d))) * 0.1;
@@ -671,9 +688,10 @@ bool A3::mouseButtonInputEvent (
 			pickingMode(1);
 
 			glClear(GL_COLOR_BUFFER_BIT);
-
+			glClear(GL_DEPTH_BUFFER_BIT);
+			glEnable( GL_DEPTH_TEST );
 			renderSceneGraph(*m_rootNode);
-
+			glEnable( GL_DEPTH_TEST );
 		
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			
@@ -747,6 +765,37 @@ bool A3::keyInputEvent (
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
 			eventHandled = true;
 		}
+		if (key == GLFW_KEY_C ) {
+			cout << "c key pressed" << endl;
+			circle_enable = circle_enable ? false : true;
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_Z ) {
+			cout << "c key pressed" << endl;
+			z_buffer_enable = z_buffer_enable ? false : true;
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_B ) {
+			cout << "b key pressed" << endl;
+			Backface_culling_enable = Backface_culling_enable ? false : true;
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_F ) {
+			cout << "f key pressed" << endl;
+			Frontface_culling_enable = Frontface_culling_enable ? false : true;
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_P ) {
+			cout << "p key pressed" << endl;
+			current_mode = 0;
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_J ) {
+			cout << "p key pressed" << endl;
+			current_mode = 1;
+			eventHandled = true;
+		}
+		
 	}
 	// Fill in with event handling code...
 
@@ -816,8 +865,8 @@ mat4x4 Rotation_x = mat4x4 (vec4(1, 0, 0, 0),
 // M = M * modelRotation_y;
 // M = M * modelRotation_x;
 // M = M * modelRotation_z; 
-cout << m_rootNode->get_transform() << endl;
-cout << Translation << endl;
+// cout << m_rootNode->get_transform() << endl;
+// cout << Translation << endl;
 // arcTrans =  arcTranslation * arcTrans;
 m_rootNode->set_transform( m_rootNode->get_transform() * Rotation_z);
 m_rootNode->set_transform(  m_rootNode->get_transform() * Rotation_y);

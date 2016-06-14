@@ -69,6 +69,7 @@ protected:
 	void pickingMode(int trager);
 	void setTrans(glm::vec3 translation, glm::vec3 rotation);
 	glm::vec3 get_arcball_vector(int x, int y);
+	void enableCulling(bool on);
 	//helper
 	unsigned int lookingUpId(glm::vec3 colour);
 
