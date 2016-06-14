@@ -751,8 +751,8 @@ bool A3::mouseButtonInputEvent (
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			
 			picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] = picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] == 1 ? 0 : 1;
-			cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
-			cout << lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) << endl;
+			// cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
+			// cout << lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) << endl;
 
 			pickingMode(0);
 			
