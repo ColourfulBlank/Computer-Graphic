@@ -673,8 +673,8 @@ bool A3::mouseMoveEvent (
 	double deltaX; 
 	double deltaY; 
 	double deltaZ;
-	deltaX = (xPos - last_xPos) * 2 / m_windowWidth;
-	deltaY = (yPos - last_yPos) * 2 / m_windowHeight;
+	deltaX = (xPos - last_xPos) / m_windowWidth;
+	deltaY = (yPos - last_yPos) / m_windowHeight;
 	deltaZ = abs(deltaX - deltaY)/2;
 	// Fill in with event handling code...
 	if (mouseState[1] == 1){ //right click
@@ -695,8 +695,9 @@ bool A3::mouseMoveEvent (
 							   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z});
 		}
 		if (current_mode == 1){
-			joint_rotate_x = deltaX;
-			joint_rotate_y = deltaY;
+			joint_rotate_x = deltaX * PI;
+			joint_rotate_y = deltaY * PI;
+			
 		}
 	}
 	if (mouseState[0] == 1){ // left click
