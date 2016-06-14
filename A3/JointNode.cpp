@@ -59,7 +59,7 @@ glm::mat4 JointNode::get_joint_transform(int on) const{
 	if (on == 1) {
 		return parent_trans * trans * rotateTrans;
 	} else {
-		return parent_trans * trans;
+		return parent_trans * trans * rotateTrans;
 	}
 }
 
