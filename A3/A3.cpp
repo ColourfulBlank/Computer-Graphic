@@ -530,6 +530,15 @@ void A3::renderSceneNode(const SceneNode & root){
 	}
 }
 void A3::renderGeomeNode(const SceneNode & root){
+	for (SceneNode * node : root.children){
+		if (node->m_nodeType == NodeType::GeometryNode){
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform());
+			renderGeomeNode(*node);
+		} else {
+			((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform());
+			renderJointNode(*node);
+		}
+	}
 	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
@@ -558,15 +567,15 @@ void A3::renderGeomeNode(const SceneNode & root){
 	// }
 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
 	m_shader.disable();
-	for (SceneNode * node : root.children){
-		if (node->m_nodeType == NodeType::GeometryNode){
-			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform());
-			renderGeomeNode(*node);
-		} else {
-			((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform());
-			renderJointNode(*node);
-		}
-	}
+	// for (SceneNode * node : root.children){
+	// 	if (node->m_nodeType == NodeType::GeometryNode){
+	// 		((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform());
+	// 		renderGeomeNode(*node);
+	// 	} else {
+	// 		((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform());
+	// 		renderJointNode(*node);
+	// 	}
+	// }
 }
 void A3::renderJointNode(const SceneNode & root){
 	for (SceneNode * node : root.children){
@@ -671,10 +680,10 @@ bool A3::mouseButtonInputEvent (
 
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			appLogic();
-			glEnable( GL_DEPTH_TEST );
+			// appLogic();
+			// glEnable( GL_DEPTH_TEST );
 			renderSceneGraph(*m_rootNode);
-			glDisable( GL_DEPTH_TEST );
+			// glDisable( GL_DEPTH_TEST );
 
 			// glFlush();
 			// glFinish(); 
