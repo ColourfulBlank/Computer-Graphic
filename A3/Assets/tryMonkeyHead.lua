@@ -18,11 +18,11 @@ torso:set_material(white)
 torso:scale(0.5,1.0,0.5);
 
 
-HeadJoint = gr.joint('headJoint', {-90, 0, 90}, {-90, 0, 90})
-torse:add_child(HeadJoint)
+headJoint = gr.joint('headJoint', {-90, 0, 90}, {-90, 0, 90})
+torso:add_child(headJoint)
 
 head = gr.mesh('cube', 'head')
-HeadJoint:add_child(head)
+headJoint:add_child(head)
 head:scale(1.0/0.5, 1.0, 1.0/0.5)
 head:scale(0.4, 0.4, 0.4)
 head:translate(0.0, 0.9, 0.0)
