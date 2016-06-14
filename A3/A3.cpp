@@ -682,8 +682,10 @@ bool A3::mouseButtonInputEvent (
 
 			// appLogic();
 			// glEnable( GL_DEPTH_TEST );
-			renderSceneGraph(*m_rootNode);
+			// renderSceneGraph(*m_rootNode);
 			// glDisable( GL_DEPTH_TEST );
+			draw();
+
 
 			// glFlush();
 			// glFinish(); 
@@ -696,7 +698,7 @@ bool A3::mouseButtonInputEvent (
 			cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
 			cout << lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) << endl;
 			// }
-			// pickingMode(0);
+			pickingMode(0);
 			
 			// glEnable( GL_DEPTH_TEST );
 			// renderSceneGraph(*m_rootNode);
