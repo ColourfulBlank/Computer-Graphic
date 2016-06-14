@@ -67,9 +67,11 @@ protected:
 	void undo();
 	//options
 	void pickingMode(int trager);
-
+	void setTrans(glm::vec3 translation, glm::vec3 rotation);
+	glm::vec3 get_arcball_vector(int x, int y);
 	//helper
 	unsigned int lookingUpId(glm::vec3 colour);
+
 
 	glm::mat4 m_perpsective;
 	glm::mat4 m_view;
@@ -107,11 +109,14 @@ protected:
 	bool picking;
 	int current_mode;
 	glm::mat4 initRootTrans;
+	// glm::mat4 arcTrans;
 	int mouseState[3];
 	double last_xPos;
 	double last_yPos;
 	double picking_xPos;
 	double picking_yPos;
+	double arcBall_xPos;
+	double arcBall_yPos;
 	float picked_colour[3];
 	unsigned int * picked_Id;
 	

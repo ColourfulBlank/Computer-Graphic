@@ -20,6 +20,12 @@ static bool show_gui = true;
 const size_t CIRCLE_PTS = 48;
 
 int totalNodes;
+
+
+mat4x4 I = mat4x4(vec4(1, 0, 0, 0),
+				  vec4(0, 1, 0, 0),
+				  vec4(0, 0, 1, 0),
+				  vec4(0, 0, 0, 1));
 //----------------------------------------------------------------------------------------
 // Constructor
 A3::A3(const std::string & luaSceneFile)
@@ -42,6 +48,8 @@ A3::A3(const std::string & luaSceneFile)
 	mouseState[1] = 0;
 	mouseState[2] = 0;
 	totalNodes = 1;
+	arcBall_xPos = m_framebufferWidth/2.0f;
+	arcBall_yPos = m_framebufferHeight/2.0f;
 }
 
 //----------------------------------------------------------------------------------------
@@ -76,6 +84,7 @@ void A3::init()
 			getAssetFilePath("cube.obj"),
 			getAssetFilePath("sphere.obj"),
 			getAssetFilePath("suzanne.obj")
+			// getAssetFilePath("suzanne.obj")
 	});
 
 
@@ -403,13 +412,18 @@ void A3::guiLogic()
 // Update mesh specific shader uniforms:
 static void updateShaderUniforms( const ShaderProgram & shader,
 								  const GeometryNode & node,
-							      const glm::mat4 & viewMatrix ) {
+							      const glm::mat4 & viewMatrix) {
 
 	shader.enable();
 	{
 		//-- Set ModelView matrix:
 		GLint location = shader.getUniformLocation("ModelView");
-		mat4 modelView = viewMatrix * node.trans;
+		mat4 modelView;
+		if (node.m_nodeType == NodeType::GeometryNode){
+			modelView = node.parent_trans * viewMatrix  * node.trans;
+		} else {
+			modelView = viewMatrix * node.trans;
+		}
 		glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(modelView));
 		CHECK_GL_ERRORS;
 
@@ -434,7 +448,7 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			glUniform1f(location, node.material.shininess);
 			CHECK_GL_ERRORS;
 			//
-			
+			// 
 		}
 
 	}
@@ -451,39 +465,12 @@ void A3::draw() {
 
 	glEnable( GL_DEPTH_TEST );
 	
-	
-
-	
-	// if (picking) {
-	// 	// if (picking){
-	// 	pickingMode(1);
-	// 	glFlush();
-	// 	glFinish(); 
-	// 	// }
-	// 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-		
-	// }
 
 	renderSceneGraph(*m_rootNode);
 	
 	glDisable( GL_DEPTH_TEST );
 	renderArcCircle();
-	// if (temp == 1) {
-
-	// 	glReadPixels(picking_xPos, m_windowHeight - picking_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
-	// 	cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
-	// 	picking = false;
-	// 	pickingMode(0);
-	// 	temp 
-	// 	// renderSceneGraph(*m_rootNode);
-	// }
-	// if (picking) {
-	// 	pickingMode(1);
-	// 	glFlush();
-	// 	glFinish(); 
-	// 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	// }
+	
 	
 
 }
@@ -530,16 +517,9 @@ void A3::renderSceneNode(const SceneNode & root){
 	}
 }
 void A3::renderGeomeNode(const SceneNode & root){
-	for (SceneNode * node : root.children){
-		if (node->m_nodeType == NodeType::GeometryNode){
-			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform());
-			renderGeomeNode(*node);
-		} else {
-			((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform());
-			renderJointNode(*node);
-		}
-	}
+	
 	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
+
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
@@ -555,35 +535,27 @@ void A3::renderGeomeNode(const SceneNode & root){
 	glUniform4f(colour_location, r, g, b, 1.0f);
 	CHECK_GL_ERRORS;
 	
-	// if (picked_Id[geometryNode->m_nodeId] == 1){
-	// 	colour_location = m_shader.getUniformLocation("colour");
-	// 	r = geometryNode->material.kd.x;
-	// 	g = geometryNode->material.kd.y;
-	// 	b = geometryNode->material.kd.z;
-	// 	glUniform4f(colour_location, r, g, b, 1.0f);
-	// 	colour_location = m_shader.getUniformLocation("material.shininess");
-	// 	CHECK_GL_ERRORS;
-	// 	// glUniform1f(colour_location, geometryNode->material.shininess/2.0f);
-	// }
 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
 	m_shader.disable();
-	// for (SceneNode * node : root.children){
-	// 	if (node->m_nodeType == NodeType::GeometryNode){
-	// 		((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform());
-	// 		renderGeomeNode(*node);
-	// 	} else {
-	// 		((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform());
-	// 		renderJointNode(*node);
-	// 	}
-	// }
+
+	for (SceneNode * node : root.children){
+		if (node->m_nodeType == NodeType::GeometryNode){
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform());
+			renderGeomeNode(*node);
+		} else {
+			((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans * root.get_transform());
+			renderJointNode(*node);
+		}
+	}
+
 }
 void A3::renderJointNode(const SceneNode & root){
 	for (SceneNode * node : root.children){
 		if (node->m_nodeType == NodeType::GeometryNode){
-			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform());
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform());
 			renderGeomeNode(*node);
 		} else if (node->m_nodeType == NodeType::JointNode){
-			((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform());
+			((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans * root.get_transform());
 			renderJointNode(*node);
 		}
 	}
@@ -602,6 +574,7 @@ void A3::renderArcCircle() {
 			} else {
 				M = glm::scale( glm::mat4(), glm::vec3( 0.5, 0.5*aspect, 1.0 ) );
 			}
+			// M = arcTrans * M;
 			glUniformMatrix4fv( m_location, 1, GL_FALSE, value_ptr( M ) );
 			glDrawArrays( GL_LINE_LOOP, 0, CIRCLE_PTS );
 		m_shader_arcCircle.disable();
@@ -643,17 +616,38 @@ bool A3::mouseMoveEvent (
 		double yPos
 ) {
 	bool eventHandled(false);
-
+	double deltaX; 
+	double deltaY; 
+	double deltaZ;
+	deltaX = (xPos - last_xPos) * 2 / m_windowWidth;
+	deltaY = (yPos - last_yPos) * 2 / m_windowHeight;
+	deltaZ = abs(deltaX - deltaY)/2;
 	// Fill in with event handling code...
+	if (mouseState[1] == 1){
+		if (current_mode == 0){
+			// if abs(xPos - arcBall_xPos) < m_framebufferWidth/2)
+		    glm::vec3 p = get_arcball_vector(last_xPos, last_yPos);
+		    glm::vec3 d = get_arcball_vector(xPos, yPos);
+		    float angleInView = -acos(std::min(1.0f, dot(p, d))) * 0.1;
+		    glm::vec3 a = p * d;
+		    a = glm::normalize(a);
+		    glm::vec4 axisInWorldframe = glm::inverse(m_view) * vec4(a, 0);
+		    m_rootNode->set_transform(glm::rotate( m_rootNode->get_transform(),
+							   glm::degrees(angleInView),
+							   {axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z}));
+
+		}
+	}
 	if (mouseState[0] == 1){
-		// if (current_mode == 0){
-		// 	double deltaX = (xPos - last_xPos) / m_windowWidth;
-		// 	double deltaY = (yPos - last_yPos) / m_windowHeight;
-		// 	float apple;
-		// 	// cout << xPos << ", " << yPos << endl;
-		// 	// glReadPixels(xPos, yPos, 1, 1, GL_RGB, GL_FLOAT, &apple);
-		// 	// cout << apple << endl;
-		// }
+		if (current_mode == 0){
+			setTrans(vec3(deltaX, -deltaY, 0), vec3(0,0,0));
+		}
+	}
+
+	if (mouseState[2] == 1){
+		if (current_mode == 0){
+			setTrans(vec3(0, 0, deltaZ),vec3(0,0,0));
+		}
 	}
 	last_xPos = xPos;
 	last_yPos = yPos;
@@ -673,38 +667,21 @@ bool A3::mouseButtonInputEvent (
 	mouseState[button] = actions;
 	if (mouseState[0] == 1){
 		if (current_mode == 1){
-			// if (picking == false){
-				// picking = true;
 			
 			pickingMode(1);
 
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			// appLogic();
-			// glEnable( GL_DEPTH_TEST );
 			renderSceneGraph(*m_rootNode);
-			// glDisable( GL_DEPTH_TEST );
-			// draw();
 
-
-			// glFlush();
-			// glFinish(); 
-
-			// glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			
 			picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] = picked_Id[lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2]))] == 1 ? 0 : 1;
 			cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
 			cout << lookingUpId(vec3(picked_colour[0], picked_colour[1], picked_colour[2])) << endl;
-			// }
 			pickingMode(0);
 			
-			// glEnable( GL_DEPTH_TEST );
-			// renderSceneGraph(*m_rootNode);
-			// glDisable( GL_DEPTH_TEST );
-			// glClear(GL_COLOR_BUFFER_BIT);
-			// renderSceneGraph(*m_rootNode);
 		}	
 	}
 	if (mouseState[0] == 0){
@@ -779,7 +756,8 @@ bool A3::keyInputEvent (
 //gui functions
 //applications
 void A3::resetPosition(){
-
+	cout << initRootTrans << endl;
+	m_rootNode->set_transform(initRootTrans);
 }
 void A3::resetOrientation(){
 
@@ -812,4 +790,56 @@ void A3::pickingMode(int trager){
 unsigned int A3::lookingUpId(glm::vec3 colour){
 	if (colour.x == colour.y) return 0;
 	return colour.x * totalNodes;
+}
+
+void A3::setTrans(vec3 translation, vec3 rotation){
+mat4x4 Translation = mat4x4( vec4(1, 0, 0, 0), 
+							 vec4(0, 1, 0, 0), 
+							 vec4(0, 0, 1, 0), 
+							 vec4(translation.x, translation.y, translation.z, 1));
+mat4x4 arcTranslation = mat4x4( vec4(1, 0, 0, 0), 
+							 vec4(0, 1, 0, 0), 
+							 vec4(0, 0, 1, 0), 
+							 vec4(translation.x, translation.y, 0, 1));
+mat4x4 Rotation_z = mat4x4 (vec4(cos(rotation.z), sin(rotation.z),0 ,0),
+							vec4(-sin(rotation.z), cos(rotation.z), 0, 0),
+							vec4(0,0,1,0),
+							vec4(0,0,0,1) );
+mat4x4 Rotation_y = mat4x4 ( vec4(cos(rotation.y), 0, -sin(rotation.y), 0),
+							  vec4(0, 1, 0, 0),
+							  vec4(sin(rotation.y), 0, cos(rotation.y), 0),
+							  vec4(0,0,0,1) );
+mat4x4 Rotation_x = mat4x4 (vec4(1, 0, 0, 0),
+							 vec4(0, cos(rotation.x), sin(rotation.x), 0),
+							 vec4(0, -sin(rotation.x), cos(rotation.x), 0),
+							 vec4(0,0,0,1) );
+// M = M * modelRotation_y;
+// M = M * modelRotation_x;
+// M = M * modelRotation_z; 
+cout << m_rootNode->get_transform() << endl;
+cout << Translation << endl;
+// arcTrans =  arcTranslation * arcTrans;
+m_rootNode->set_transform( m_rootNode->get_transform() * Rotation_z);
+m_rootNode->set_transform(  m_rootNode->get_transform() * Rotation_y);
+m_rootNode->set_transform(  m_rootNode->get_transform() * Rotation_x);
+m_rootNode->set_transform( Translation * m_rootNode->get_transform());
+}
+//sample code from https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
+/**
+ * Get a normalized vector from the center of the virtual ball O to a
+ * point P on the virtual ball surface, such that P is aligned on
+ * screen's (X,Y) coordinates.  If (X,Y) is too far away from the
+ * sphere, return the nearest point on the virtual ball surface.
+ */
+glm::vec3 A3::get_arcball_vector(int x, int y) {
+  glm::vec3 P = glm::vec3(1.0*x/m_framebufferWidth*2 - 1.0,
+			  1.0*y/m_framebufferHeight*2 - 1.0,
+			  0);
+  P.y = -P.y;
+  float OP_squared = P.x * P.x + P.y * P.y;
+  if (OP_squared <= 1*1)
+    P.z = sqrt(1*1 - OP_squared);  // Pythagore
+  else
+    P = glm::normalize(P);  // nearest point
+  return P;
 }

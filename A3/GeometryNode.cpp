@@ -15,7 +15,7 @@ void GeometryNode::set_transform_from_parent(glm::mat4 m){
 	if (parent_trans != m){
 		parent_trans = m;
 		parent_invtrans = inverse(m);
-		trans = m * trans;
+		// trans = m * trans;
 	}
 }
 
