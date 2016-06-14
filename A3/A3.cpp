@@ -905,7 +905,7 @@ void A3::pickingMode(int trager){
 
 unsigned int A3::lookingUpId(glm::vec3 colour){
 	if (colour.x == colour.y) return 0;
-	return colour.x * totalNodes;
+	return ceil(colour.x * totalNodes);
 }
 
 void A3::setTrans(vec3 translation, vec3 rotation){
