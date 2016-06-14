@@ -584,11 +584,11 @@ void A3::renderGeomeNode(const SceneNode & root){
 }
 void A3::renderJointNode(const SceneNode & root){
 	const JointNode * jointNode = static_cast <const JointNode *>(& root);
-	for (int i = 0; i < m_rootNode.totalSceneNodes(); i++){
-		if (Joint_children[i] == node.m_nodeId){
+	for (int i = 0; i < m_rootNode->totalSceneNodes(); i++){
+		if (Joint_children[i] == root.m_nodeId){
 			if (picked_Id[i] == 1){
-				JointNode.rotate_x(joint_rotate_x);
-				JointNode.rotate_y(joint_rotate_y);
+				((JointNode * )jointNode)->rotate_x(joint_rotate_x);
+				((JointNode * )jointNode)->rotate_y(joint_rotate_y);
 			}
 		}
 	}
@@ -596,11 +596,11 @@ void A3::renderJointNode(const SceneNode & root){
 
 		if (node->m_nodeType == NodeType::GeometryNode){
 			Joint_children[node->m_nodeId] = root.m_nodeId;
-			const GeometryNode * geometryNode = static_cast <const GeometryNode *> node;
+			const GeometryNode * geometryNode = static_cast <const GeometryNode *>(node);
 			if (geometryNode->m_name == "head") {
 				if (headNode != NULL){
-					headNode = &root;
-					headRotateTrans = root->get_transform();	
+					headNode = (SceneNode *)&root;
+					headRotateTrans = root.get_transform();	
 				}
 			}
 			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(jointNode->get_joint_transform(picked_Id[node->m_nodeId]));
@@ -708,7 +708,7 @@ bool A3::mouseMoveEvent (
 		} 
 		if (current_mode == 1){
 			//rotate head
-			rotateHead(deltaX);
+			// rotateHead(deltaX);
 		}
 	}
 	last_xPos = xPos;
@@ -936,9 +936,9 @@ m_rootNode->set_transform(  m_rootNode->get_transform() * Rotation_y);
 m_rootNode->set_transform(  m_rootNode->get_transform() * Rotation_x);
 m_rootNode->set_transform( Translation * m_rootNode->get_transform());
 }
-void A3::rotateHead(double amount_x, double amount_y){
+// void A3::rotateHead(double amount_x, double amount_y){
 
-}
+// }
 //sample code from https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
 /**
  * Get a normalized vector from the center of the virtual ball O to a

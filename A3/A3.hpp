@@ -70,7 +70,7 @@ protected:
 	void setTrans(glm::vec3 translation, glm::vec3 rotation);
 	glm::vec3 get_arcball_vector(int x, int y);
 	void enableCulling(bool on);
-	void rotateHead(double amount);
+	// void rotateHead(double amount);
 	//helper
 	unsigned int lookingUpId(glm::vec3 colour);
 
