@@ -10,9 +10,9 @@ GeometryNode::GeometryNode(
 {
 	m_nodeType = NodeType::GeometryNode;
 	Picked_material = material;
-	Picked_material.kd.x = 1.0f - (float)m_nodeId/255.0f;
-	Picked_material.kd.y = 1.0f - (float)m_nodeId/255.0f;
-	Picked_material.kd.z = 1.0f - (float)m_nodeId/255.0f;
+	Picked_material.kd.x = 1.0f - (float)material.kd.x;
+	Picked_material.kd.y = 1.0f - (float)material.kd.y;
+	Picked_material.kd.z = 1.0f - (float)material.kd.z;
 	std::cout << Picked_material.kd.x << std::endl;
 }
 
