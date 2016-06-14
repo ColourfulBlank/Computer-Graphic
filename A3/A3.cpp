@@ -671,14 +671,15 @@ bool A3::mouseButtonInputEvent (
 
 			glClear(GL_COLOR_BUFFER_BIT);
 
+			appLogic();
 			glEnable( GL_DEPTH_TEST );
 			renderSceneGraph(*m_rootNode);
-			
 			glDisable( GL_DEPTH_TEST );
-			glFlush();
-			glFinish(); 
 
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			// glFlush();
+			// glFinish(); 
+
+			// glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		
 			glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
 			
