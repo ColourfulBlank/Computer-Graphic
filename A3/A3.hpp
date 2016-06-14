@@ -119,6 +119,9 @@ protected:
 	double picking_yPos;
 	double arcBall_xPos;
 	double arcBall_yPos;
+	double joint_rotate_x;
+	double joint_rotate_y;
+
 	float picked_colour[3];
 	SceneNode * headNode;
 	glm::mat4 headRotateTrans;

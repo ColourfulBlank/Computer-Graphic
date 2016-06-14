@@ -22,6 +22,7 @@ const size_t CIRCLE_PTS = 48;
 int totalNodes;
 
 unsigned int * picked_Id;
+unsigned int * Joint_children;
 mat4x4 I = mat4x4(vec4(1, 0, 0, 0),
 				  vec4(0, 1, 0, 0),
 				  vec4(0, 0, 1, 0),
@@ -52,6 +53,8 @@ A3::A3(const std::string & luaSceneFile)
 	arcBall_xPos = m_framebufferWidth/2.0f;
 	arcBall_yPos = m_framebufferHeight/2.0f;
 	rootRotation = I;
+	joint_rotate_x = 0;
+	joint_rotate_y = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -128,8 +131,12 @@ void A3::processLuaSceneFile(const std::string & filename) {
 	initRootTrans = m_rootNode->get_transform();
 	totalNodes = m_rootNode->totalSceneNodes();
 	picked_Id = new unsigned int[totalNodes];
+	Joint_children = new unsigned int[totalNodes];
 	for (int i = 0; i < totalNodes; ++i){
 		picked_Id[i] = 0;
+	}
+	for (int i = 0; i < totalNodes; ++i){
+		Joint_children[i] = 0;
 	}
 }
 
@@ -546,13 +553,6 @@ void A3::renderGeomeNode(const SceneNode & root){
 
 	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
 	// cout << geometryNode->m_name << endl;
-	if (geometryNode->m_name == "head") {
-		if (headNode != NULL){
-			headNode = (SceneNode *)geometryNode;
-			headRotateTrans = geometryNode->get_transform();	
-		}
-	}
-
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
@@ -584,8 +584,25 @@ void A3::renderGeomeNode(const SceneNode & root){
 }
 void A3::renderJointNode(const SceneNode & root){
 	const JointNode * jointNode = static_cast <const JointNode *>(& root);
+	for (int i = 0; i < m_rootNode.totalSceneNodes(); i++){
+		if (Joint_children[i] == node.m_nodeId){
+			if (picked_Id[i] == 1){
+				JointNode.rotate_x(joint_rotate_x);
+				JointNode.rotate_y(joint_rotate_y);
+			}
+		}
+	}
 	for (SceneNode * node : root.children){
+
 		if (node->m_nodeType == NodeType::GeometryNode){
+			Joint_children[node->m_nodeId] = root.m_nodeId;
+			const GeometryNode * geometryNode = static_cast <const GeometryNode *> node;
+			if (geometryNode->m_name == "head") {
+				if (headNode != NULL){
+					headNode = &root;
+					headRotateTrans = root->get_transform();	
+				}
+			}
 			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(jointNode->get_joint_transform(picked_Id[node->m_nodeId]));
 			renderGeomeNode(*node);
 		} else if (node->m_nodeType == NodeType::JointNode){
@@ -673,6 +690,10 @@ bool A3::mouseMoveEvent (
 		     rootRotation = glm::rotate( rootRotation,
 							   					glm::degrees(angleInView),
 							   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z});
+		}
+		if (current_mode == 1){
+			joint_rotate_x = deltaX;
+			joint_rotate_y = deltaY;
 		}
 	}
 	if (mouseState[0] == 1){ // left click
@@ -915,9 +936,8 @@ m_rootNode->set_transform(  m_rootNode->get_transform() * Rotation_y);
 m_rootNode->set_transform(  m_rootNode->get_transform() * Rotation_x);
 m_rootNode->set_transform( Translation * m_rootNode->get_transform());
 }
-void A3::rotateHead(double amount){
-	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(headNode);
-	headNode->set_transform(glm::rotate(geometryNode->get_transform(), (float) amount, vec3(0,1,0)));
+void A3::rotateHead(double amount_x, double amount_y){
+
 }
 //sample code from https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
 /**
