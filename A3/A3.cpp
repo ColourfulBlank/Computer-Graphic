@@ -447,17 +447,24 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 		if (node.m_nodeType == NodeType::GeometryNode){
 			location = shader.getUniformLocation("material.kd");
 			vec3 kd;
-			if (picked_Id[node.m_nodeId] == 1){
+			// if (picked_Id[node.m_nodeId] == 1){
 				// std::cout << Picked_material.kd.x << std::endl;
-				kd = node.Picked_material.kd;	
-			} else {
+				// kd = node.Picked_material.kd;	
+			// } else {
 				kd = node.material.kd;
-			}
+			// }
 			glUniform3fv(location, 1, value_ptr(kd));
 			CHECK_GL_ERRORS;
 			location = shader.getUniformLocation("material.ks");
-			vec3 ks = node.material.ks;
+			vec3 ks;
+			if (picked_Id[node.m_nodeId] == 1){
+				// std::cout << Picked_material.kd.x << std::endl;
+				ks = node.Picked_material.ks;	
+			} else {
+				ks = node.material.ks;
+			}
 			glUniform3fv(location, 1, value_ptr(ks));
+			
 			CHECK_GL_ERRORS;
 			location = shader.getUniformLocation("material.shininess");
 			glUniform1f(location, node.material.shininess);
