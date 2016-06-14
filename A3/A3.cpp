@@ -682,9 +682,9 @@ bool A3::mouseButtonInputEvent (
 
 			// appLogic();
 			// glEnable( GL_DEPTH_TEST );
-			// renderSceneGraph(*m_rootNode);
+			renderSceneGraph(*m_rootNode);
 			// glDisable( GL_DEPTH_TEST );
-			draw();
+			// draw();
 
 
 			// glFlush();
