@@ -689,7 +689,7 @@ bool A3::mouseMoveEvent (
 
 			    glm::vec3 p = get_arcball_vector(last_xPos, last_yPos);
 			    glm::vec3 d = get_arcball_vector(xPos, yPos);
-			    float angleInView = std::min(1.0f,acos(dot(p, d))) * 0.1;
+			    float angleInView = -acos(std::min(1.0f,dot(p, d))) * 0.1;
 			    glm::vec3 a = p * d;
 			    // a = glm::normalize(a);
 			    glm::vec4 axisInWorldframe = glm::inverse(m_view) * vec4(a, 0);
