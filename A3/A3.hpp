@@ -68,7 +68,7 @@ protected:
 	//options
 	void pickingMode(int trager);
 	void setTrans(glm::vec3 translation, glm::vec3 rotation);
-	glm::vec3 get_arcball_vector(int x, int y);
+	glm::vec3 get_arcball_vector(float x, float y);
 	void enableCulling(bool on);
 	// void rotateHead(double amount);
 	//helper

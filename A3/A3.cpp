@@ -689,10 +689,19 @@ bool A3::mouseMoveEvent (
 
 			    glm::vec3 p = get_arcball_vector(last_xPos, last_yPos);
 			    glm::vec3 d = get_arcball_vector(xPos, yPos);
-			    float angleInView = -acos(std::min(1.0f,dot(p, d))) * 0.1;
-			    glm::vec3 a = p * d;
+			    float angleInView = -acos(std::min(1.0f, dot(p, d))) * 0.1f;
+			    // float angleInView;
+			    // if (dot(p, d) == 0){ 
+			    //  	angleInView = 0.1;
+			    //  } else {
+			    //  	angleInView =dot(p, d) * 0.1;
+			    //  }
+			    //  = -acos(std::min(1.0f, dot(p, d))) * 0.1f;
+			    glm::vec3 a = cross(p, d);
+			    // glm::vec3 a = p * d;
+			    // cout << a << endl;
 			    // a = glm::normalize(a);
-			    glm::vec4 axisInWorldframe = glm::inverse(m_view) * vec4(a, 0);
+			    glm::vec4 axisInWorldframe = glm::inverse(m_view) * vec4(a.x, a.y, a.z, 0.0f);
 			    m_rootNode->set_rotation(glm::rotate( m_rootNode->get_rotation(),
 								   					glm::degrees(angleInView),
 								   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z}));
@@ -964,7 +973,7 @@ m_rootNode->set_transform( Translation * m_rootNode->get_transform());
  * screen's (X,Y) coordinates.  If (X,Y) is too far away from the
  * sphere, return the nearest point on the virtual ball surface.
  */
-glm::vec3 A3::get_arcball_vector(int x, int y) {
+glm::vec3 A3::get_arcball_vector(float x, float y) {
 
 	int width, height;
 	glfwGetWindowSize(m_window, &width, &height);
