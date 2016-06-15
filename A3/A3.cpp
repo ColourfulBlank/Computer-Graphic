@@ -965,10 +965,13 @@ m_rootNode->set_transform( Translation * m_rootNode->get_transform());
  * sphere, return the nearest point on the virtual ball surface.
  */
 glm::vec3 A3::get_arcball_vector(int x, int y) {
-  glm::vec3 P = glm::vec3(1.0*x/m_framebufferWidth*2 - 1.0,
+
+	// int width, height;
+	// glfwGetWindowSize(m_window, &width, &height);
+	glm::vec3 P = glm::vec3(x/width * 2 - 1.0, y / height * 2 - 1.0, 0);
+  glm::vec3 P = glm::vec3(x/m_framebufferWidth*2 - 1.0,
 			  1.0*y/m_framebufferHeight*2 - 1.0,
 			  0);
-  P.y = -P.y;
   float OP_squared = P.x * P.x + P.y * P.y;
   if (OP_squared <= 1*1)
     P.z = sqrt(1*1 - OP_squared);  // Pythagore
