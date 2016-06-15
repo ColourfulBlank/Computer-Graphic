@@ -79,3 +79,8 @@ void JointNode::upDateRotation(){
 	rotate_trans = rotate_trans * Rotation_x;
 
 }
+
+void JointNode::reset_angle_amount(){
+	current_X = 0;
+	current_Y = 0;
+}

@@ -687,7 +687,6 @@ bool A3::mouseMoveEvent (
 			    m_rootNode->set_rotation(glm::rotate( m_rootNode->get_rotation(),
 								   					glm::degrees(angleInView),
 								   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z}));
-
 			}
 			if (current_mode == 1){
 				joint_rotate_y = deltaY * PI * 2;
@@ -696,7 +695,7 @@ bool A3::mouseMoveEvent (
 		}
 		if (mouseState[0] == 1){ // left click
 			if (current_mode == 0){
-				(vec3(deltaX, -deltaY, 0), vec3(0,0,0));
+				setTrans(vec3(deltaX, -deltaY, 0), vec3(0,0,0));
 			}
 		}
 
@@ -761,6 +760,7 @@ bool A3::mouseButtonInputEvent (
 			
 		}	
 	}
+
 	if (mouseState[0] == 0){
 		if (current_mode == 1){
 
@@ -882,8 +882,18 @@ void A3::resetOrientation(){
 
 }
 void A3::resetJoints(){
-
+	resetJoints_re(*m_rootNode);
 }
+void A3::resetJoints_re(const SceneNode & root){
+	if (root.m_nodeType == NodeType::JointNode){
+		const JointNode * jointNode = static_cast <const JointNode *>(& root);
+		((JointNode *) jointNode)->reset_angle_amount();
+	}
+	for (SceneNode * node : root.children){
+		resetJoints_re(*node);
+	}
+}
+
 void A3::resetAll(){
 	resetPosition();
 	resetOrientation();

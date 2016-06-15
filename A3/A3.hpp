@@ -61,6 +61,7 @@ protected:
 	void resetPosition();
 	void resetOrientation();
 	void resetJoints();
+	void resetJoints_re(const SceneNode & root);
 	void resetAll();
 	//edit
 	void redo();
@@ -111,6 +112,7 @@ protected:
 	bool Backface_culling_enable;
 	bool Frontface_culling_enable;
 	bool picking;
+
 	int current_mode;
 	glm::mat4 initRootTrans;
 	// glm::mat4 arcTrans;

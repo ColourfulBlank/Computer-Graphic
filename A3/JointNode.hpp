@@ -20,7 +20,7 @@ public:
 	};
 
 	glm::mat4 get_joint_transform(int on) const;
-
+	void reset_angle_amount();
 	JointRange m_joint_x, m_joint_y;
 
 	
