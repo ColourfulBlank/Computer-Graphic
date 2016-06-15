@@ -699,7 +699,7 @@ bool A3::mouseMoveEvent (
 
 			}
 			if (current_mode == 1){
-				joint_rotate_x = deltaX * PI;
+				// joint_rotate_x = deltaX * PI;
 				joint_rotate_y = deltaY * PI;
 
 			}
@@ -717,8 +717,8 @@ bool A3::mouseMoveEvent (
 			if (current_mode == 1){
 				//rotate head
 				joint_rotate_x = deltaX * PI;
-				joint_rotate_y = deltaY * PI;
-				picked_Id[headNode_Id] = 1;
+				// joint_rotate_y = deltaY * PI;
+				// picked_Id[headNode_Id] = 1;
 			}
 		}
 	}
@@ -780,7 +780,7 @@ bool A3::mouseButtonInputEvent (
 	}
 	if (mouseState[2] == 0){ //middle
 		if (current_mode == 0){
-			picked_Id[headNode_Id] = 0;
+			// picked_Id[headNode_Id] = 0;
 		}
 	}
 	// Fill in with event handling code...
