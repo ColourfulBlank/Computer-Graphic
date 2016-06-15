@@ -713,7 +713,7 @@ bool A3::mouseMoveEvent (
 								   					{ axisAtWorld.x, -axisAtWorld.y, axisAtWorld.z}));
 			}
 			if (current_mode == 1){
-				joint_rotate_y = deltaY * PI * 2;
+				joint_rotate_y = deltaX * PI * 2;
 
 			}
 		}
@@ -728,7 +728,7 @@ bool A3::mouseMoveEvent (
 				setTrans(vec3(0, 0, deltaZ),vec3(0,0,0));
 			} 
 			if (current_mode == 1){
-				joint_rotate_x = deltaX * PI * 2;
+				joint_rotate_x = deltaY * PI * 2;
 				// joint_rotate_y = deltaY * PI;
 				// picked_Id[headNode_Id] = 1;
 			}
