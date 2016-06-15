@@ -4,12 +4,7 @@
 JointNode::JointNode(const std::string& name)
 	: SceneNode(name)
 {
-	glm::mat4x4 I = glm::mat4x4(glm::vec4(1, 0, 0, 0),
-				  glm::vec4(0, 1, 0, 0),
-				  glm::vec4(0, 0, 1, 0),
-				  glm::vec4(0, 0, 0, 1));
-	m_nodeType = NodeType::JointNode;
-	rotateTrans = I;
+	m_nodeType = NodeType::JointNode;	
 }
 
 //---------------------------------------------------------------------------------------
@@ -59,9 +54,9 @@ void JointNode::set_transform_from_parent(glm::mat4 m){
 
 glm::mat4 JointNode::get_joint_transform(int on) const{
 	if (on == 1) {
-		return parent_trans * trans * rotateTrans;
+		return parent_trans * rotate_trans * trans ;
 	} else {
-		return parent_trans * trans * rotateTrans;
+		return parent_trans  * rotate_trans * trans;
 	}
 }
 
@@ -80,7 +75,7 @@ void JointNode::upDateRotation(){
 								 glm::vec4(0, -sin(current_X), cos(current_X), 0),
 								 glm::vec4(0,0,0,1) );
 
-	rotateTrans = I * Rotation_z;
-	rotateTrans = rotateTrans * Rotation_x;
+	rotate_trans = I * Rotation_z;
+	rotate_trans = rotate_trans * Rotation_x;
 
 }

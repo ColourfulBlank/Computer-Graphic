@@ -38,6 +38,14 @@ SceneNode::SceneNode(const SceneNode & other)
 	for(SceneNode * child : other.children) {
 		this->children.push_front(new SceneNode(*child));
 	}
+	
+	glm::mat4x4 I = glm::mat4x4(glm::vec4(1, 0, 0, 0),
+				  glm::vec4(0, 1, 0, 0),
+				  glm::vec4(0, 0, 1, 0),
+				  glm::vec4(0, 0, 0, 1));
+	rotate_trans = I;
+	scale_trans = I;
+	parent_trans = I;
 }
 
 //---------------------------------------------------------------------------------------
@@ -53,9 +61,25 @@ void SceneNode::set_transform(const glm::mat4& m) {
 	invtrans = m;
 }
 
+void SceneNode::set_scale(const glm::mat4& m) {
+	scale_trans = m;
+	scale_invtrans = m;
+}
+
+void SceneNode::set_rotation(const glm::mat4& m) {
+	rotate_trans = m;
+	rotate_invtrans = m;
+}
+
 //---------------------------------------------------------------------------------------
 const glm::mat4& SceneNode::get_transform() const {
 	return trans;
+}
+const glm::mat4& SceneNode::get_scale() const {
+	return scale_trans;
+}
+const glm::mat4& SceneNode::get_rotation() const {
+	return rotate_trans;
 }
 
 //---------------------------------------------------------------------------------------
@@ -91,19 +115,19 @@ void SceneNode::rotate(char axis, float angle) {
 			break;
 	}
 	mat4 rot_matrix = glm::rotate(degreesToRadians(angle), rot_axis);
-	trans = rot_matrix * trans;
-	trans_without_scale = rot_matrix * trans_without_scale;
+	// trans = rot_matrix * trans;
+	scale_trans = rot_matrix * scale_trans;
 }
 
 //---------------------------------------------------------------------------------------
 void SceneNode::scale(const glm::vec3 & amount) {
-	trans = glm::scale(amount) * trans;
+	scale_trans = glm::scale(amount) * scale_trans;
 }
 
 //---------------------------------------------------------------------------------------
 void SceneNode::translate(const glm::vec3& amount) {
 	trans = glm::translate(amount) * trans;
-	trans_without_scale = glm::translate(amount) * trans_without_scale;
+	// trans_without_scale = glm::translate(amount) * trans_without_scale;
 }
 
 

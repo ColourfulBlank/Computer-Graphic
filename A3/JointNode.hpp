@@ -23,5 +23,5 @@ public:
 
 	JointRange m_joint_x, m_joint_y;
 
-	glm::mat4 rotateTrans;
+	
 };

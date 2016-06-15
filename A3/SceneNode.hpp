@@ -25,9 +25,14 @@ public:
 	int totalSceneNodes() const;
     
     const glm::mat4& get_transform() const;
+    const glm::mat4& get_scale() const;
+    const glm::mat4& get_rotation() const;
     const glm::mat4& get_inverse() const;
     
     void set_transform(const glm::mat4& m);
+    void set_scale(const glm::mat4& m);
+    void set_rotation(const glm::mat4& m);
+
     
     void add_child(SceneNode* child);
     
@@ -60,8 +65,10 @@ public:
 //add field
     glm::mat4 parent_trans;
     glm::mat4 parent_invtrans;
-    glm::mat4 trans_without_scale;
+    glm::mat4 scale_trans;
+    glm::mat4 scale_invtrans;
     glm::mat4 rotate_trans;
+    glm::mat4 rotate_invtrans;
 
 
 private:

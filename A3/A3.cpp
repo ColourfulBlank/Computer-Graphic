@@ -430,9 +430,9 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 		GLint location = shader.getUniformLocation("ModelView");
 		mat4 modelView;
 		if (node.m_nodeType == NodeType::GeometryNode){
-			modelView = node.parent_trans * viewMatrix  * node.trans;
+			modelView = viewMatrix * node.parent_trans * node.trans * node.rotate_trans * node.scale_trans;
 		} else {
-			modelView = viewMatrix * node.trans;
+			modelView = viewMatrix * node.trans  * node.rotate_trans * node.scale_trans;
 		}
 		glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(modelView));
 		CHECK_GL_ERRORS;
@@ -542,10 +542,10 @@ void A3::renderSceneNode(const SceneNode & root){
 
 	for (SceneNode * node : root.children){
 		if (node->m_nodeType == NodeType::GeometryNode){
-			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform() * rootRotation);
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform() * root.get_rotation() * root.get_scale());
 			renderGeomeNode(*node);
 		} else if (node->m_nodeType == NodeType::JointNode){
-			((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform() * rootRotation);
+			((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform() * root.get_rotation() * root.get_scale());
 			renderJointNode(*node);
 		}
 	}
@@ -578,10 +578,10 @@ void A3::renderGeomeNode(const SceneNode & root){
 
 	for (SceneNode * node : root.children){
 		if (node->m_nodeType == NodeType::GeometryNode){
-			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform());
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
 			renderGeomeNode(*node);
 		} else {
-			((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans * root.get_transform());
+			((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans* root.get_transform() * root.get_rotation() );
 			renderJointNode(*node);
 		}
 	}
@@ -604,16 +604,16 @@ void A3::renderJointNode(const SceneNode & root){
 		if (node->m_nodeType == NodeType::GeometryNode){
 			Joint_children[node->m_nodeId] = root.m_nodeId;
 			const GeometryNode * geometryNode = static_cast <const GeometryNode *>(node);
-			if (geometryNode->m_name == "head") {
-				if (headNode != NULL){
-					headNode = (SceneNode *)&root;
-					headRotateTrans = root.get_transform();	
-				}
-			}
-			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(jointNode->get_joint_transform(picked_Id[node->m_nodeId]));
+			// if (geometryNode->m_name == "head") {
+			// 	if (headNode != NULL){
+			// 		headNode = (SceneNode *)&root;
+			// 		headRotateTrans = root.get_transform();	
+			// 	}
+			// }
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
 			renderGeomeNode(*node);
 		} else if (node->m_nodeType == NodeType::JointNode){
-			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(jointNode->get_joint_transform(picked_Id[node->m_nodeId]));
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
 			renderJointNode(*node);
 		}
 	}
@@ -688,16 +688,14 @@ bool A3::mouseMoveEvent (
 
 			    glm::vec3 p = get_arcball_vector(last_xPos, last_yPos);
 			    glm::vec3 d = get_arcball_vector(xPos, yPos);
-			    float angleInView = -acos(std::min(1.0f, dot(p, d))) * 0.1;
+			    float angleInView = std::min(1.0f,acos(dot(p, d))) * 0.1;
 			    glm::vec3 a = p * d;
 			    a = glm::normalize(a);
-			    glm::vec4 axisInWorldframe = glm::inverse(m_view) * vec4(a, 0);
-			    // m_rootNode->set_transform(glm::rotate( m_rootNode->get_transform(),
-							// 	   					glm::degrees(angleInView),
-							// 	   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z}));
-			     rootRotation = glm::rotate( rootRotation,
+			    glm::vec4 axisInWorldframe = vec4(a, 0) * glm::inverse(m_view);
+			    m_rootNode->set_rotation(glm::rotate( m_rootNode->get_rotation(),
 								   					glm::degrees(angleInView),
-								   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z});
+								   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z}));
+
 			}if (current_mode == 1){
 				joint_rotate_x = deltaX * PI;
 				joint_rotate_y = deltaY * PI;
@@ -983,3 +981,11 @@ void A3::deSelect(){
 	}
 	
 }
+// glm::vec3 mapPlaneToSphere(double x, double y){
+//     z = -1 + 2 * x;
+//     phi = 2 * PI * y;
+//     theta = asin(z);
+//     return vector3(cos(theta) * cos(phi), 
+//                    cos(theta) * sin(phi), 
+//                    z);
+// }
