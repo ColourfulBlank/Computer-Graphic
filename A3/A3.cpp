@@ -968,12 +968,12 @@ void A3::deSelect(){
 	}
 	
 }
-void A3::add_to_stack_undo(const SceneNode & root){
-	if (root->m_nodeType == NodeType::jointNode){
-		const JointNode * jointNode = static_cast <const JointNode *>(& root);
-	}
+// void A3::add_to_stack_undo(const SceneNode & root){
+// 	if (root->m_nodeType == NodeType::jointNode){
+// 		const JointNode * jointNode = static_cast <const JointNode *>(& root);
+// 	}
 
-}
-void A3::add_to_stack_redo(const SceneNode & root){
+// }
+// void A3::add_to_stack_redo(const SceneNode & root){
 
-}
+// }

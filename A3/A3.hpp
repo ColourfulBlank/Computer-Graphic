@@ -65,8 +65,8 @@ protected:
 	//edit
 	void redo();
 	void undo();
-	void add_to_stack_undo(const SceneNode & root);
-	void add_to_stack_redo(const SceneNode & root);
+	// void add_to_stack_undo(const SceneNode & root);
+	// void add_to_stack_redo(const SceneNode & root);
 	//options
 	void pickingMode(int trager);
 	void setTrans(glm::vec3 translation, glm::vec3 rotation);
