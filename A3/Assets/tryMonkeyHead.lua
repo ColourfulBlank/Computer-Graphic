@@ -259,17 +259,31 @@ leftEyeMeiConnection:scale(0.01, 0.01, 0.01)
 leftEyeMeiConnection:translate(0, 0.15, 0.0)
 leftEyeMeiConnection:set_material(green)
 
+rightEyeMeiConnection = gr.mesh('sphere', 'rightEyeMeiConnection')
+rightEye:add_child(rightEyeMeiConnection)
+rightEyeMeiConnection:scale(0.01, 0.01, 0.01)
+rightEyeMeiConnection:translate(0, 0.15, 0.0)
+rightEyeMeiConnection:set_material(green)
+
 leftEyeMeiConnectionJoint = gr.joint('leftEyeMeiConnectionJoint', {-45, 0, 45}, {-90, 0, 90})
 leftEyeMeiConnectionJoint:translate(0.0, 0.0, 0.0)
 leftEyeMeiConnection:add_child(leftEyeMeiConnectionJoint)
+
+rightEyeMeiConnectionJoint = gr.joint('rightEyeMeiConnectionJoint', {-45, 0, 45}, {-90, 0, 90})
+rightEyeMeiConnectionJoint:translate(0.0, 0.0, 0.0)
+rightEyeMeiConnection:add_child(rightEyeMeiConnectionJoint)
 
 leftMei = gr.mesh('cube', 'leftMei')
 leftEyeMeiConnectionJoint:add_child(leftMei)
 leftMei:scale(0.16, 0.05, 0.02)
 leftMei:rotate('x', 90)
--- leftMei:translate(0, 0.0, 0.4)
--- leftMei:translate(-0.2, 0.0, 0)
 leftMei:set_material(black)
+
+rightMei = gr.mesh('cube', 'rightMei')
+rightEyeMeiConnectionJoint:add_child(rightMei)
+rightMei:scale(0.16, 0.05, 0.02)
+rightMei:rotate('x', 90)
+rightMei:set_material(black)
 
 rightEye = gr.mesh('sphere', 'rightEye')
 head:add_child(rightEye)
