@@ -749,7 +749,7 @@ bool A3::mouseButtonInputEvent (
 	if (! ImGui::IsMouseHoveringAnyWindow()){
 	if (mouseState[0] == 1){
 		if (current_mode == 1){
-			if (mouseState[1] == 0){
+			// if (mouseState[1] == 0){
 				pickingMode(1);
 
 				glClear(GL_COLOR_BUFFER_BIT);
@@ -778,7 +778,7 @@ bool A3::mouseButtonInputEvent (
 				if (mouseState[1] == 1 || mouseState[2] == 1){
 					reset_stacks();
 				}
-			}
+			// }
 			
 		}	
 	}
@@ -935,7 +935,9 @@ void A3::redo(){
 }
 void A3::undo(){
 	if (undo_stack.size() == 1){
-		resetJoints();
+		// resetJoints();
+		std::map<int, glm::vec2> poped_stack = undo_stack.back();
+		updateTree(*m_rootNode, & poped_stack);
 	} else {
 		std::map<int, glm::vec2> poped_stack = undo_stack.back();
 		redo_stack.push_back(poped_stack);
