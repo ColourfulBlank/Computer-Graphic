@@ -52,7 +52,6 @@ A3::A3(const std::string & luaSceneFile)
 	totalNodes = 1;
 	arcBall_xPos = m_framebufferWidth/2.0f;
 	arcBall_yPos = m_framebufferHeight/2.0f;
-	rootRotation = I;
 	joint_rotate_x = 0;
 	joint_rotate_y = 0;
 }
@@ -562,9 +561,9 @@ void A3::renderGeomeNode(const SceneNode & root){
 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
 
-	if (geometryNode->m_name == "head") {
-			headNode_Id = geometryNode->m_nodeId;
-	}
+	// if (geometryNode->m_name == "head") {
+	// 		headNode_Id = geometryNode->m_nodeId;
+	// }
 	//-- Now render the mesh:
 	m_shader.enable();
 	// false colour setting
@@ -594,7 +593,6 @@ void A3::renderJointNode(const SceneNode & root){
 	for (int i = 0; i < m_rootNode->totalSceneNodes(); i++){
 		if (Joint_children[i] == root.m_nodeId){
 			if (picked_Id[i] == 1){
-				cout << i << endl;
 				((JointNode * )jointNode)->rotate_x(joint_rotate_x);
 				((JointNode * )jointNode)->rotate_y(joint_rotate_y);
 			}
@@ -604,13 +602,6 @@ void A3::renderJointNode(const SceneNode & root){
 
 		if (node->m_nodeType == NodeType::GeometryNode){
 			Joint_children[node->m_nodeId] = root.m_nodeId;
-			// const GeometryNode * geometryNode = static_cast <const GeometryNode *>(node);
-			// if (geometryNode->m_name == "head") {
-			// 	if (headNode != NULL){
-			// 		headNode = (SceneNode *)&root;
-			// 		headNode_Id = rot
-			// 	}
-			// }
 			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
 			renderGeomeNode(*node);
 		} else if (node->m_nodeType == NodeType::JointNode){
@@ -699,7 +690,6 @@ bool A3::mouseMoveEvent (
 
 			}
 			if (current_mode == 1){
-				// joint_rotate_x = deltaX * PI;
 				joint_rotate_y = deltaY * PI * 2;
 
 			}
@@ -715,7 +705,6 @@ bool A3::mouseMoveEvent (
 				setTrans(vec3(0, 0, deltaZ),vec3(0,0,0));
 			} 
 			if (current_mode == 1){
-				//rotate head
 				joint_rotate_x = deltaX * PI * 2;
 				// joint_rotate_y = deltaY * PI;
 				// picked_Id[headNode_Id] = 1;
@@ -772,18 +761,12 @@ bool A3::mouseButtonInputEvent (
 	if (mouseState[0] == 0){
 		if (current_mode == 1){
 
-			// pickingMode(1);
-			// glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGB, GL_FLOAT, &picked_colour);
-			// cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
-			// pickingMode(0);
 		}	
 	}
 	if (mouseState[2] == 0){ //middle
 		if (current_mode == 0){
-			// picked_Id[headNode_Id] = 0;
 		}
 	}
-	// Fill in with event handling code...
 	}
 	return eventHandled;
 }
@@ -892,7 +875,7 @@ void A3::resetPosition(){
 	m_rootNode->set_transform(initRootTrans);
 }
 void A3::resetOrientation(){
-	rootRotation = I;
+	m_rootNode->set_rotation(I);
 
 }
 void A3::resetJoints(){
@@ -984,4 +967,13 @@ void A3::deSelect(){
 		picked_Id[i] = 0;	
 	}
 	
+}
+void A3::add_to_stack_undo(const SceneNode & root){
+	if (root->m_nodeType == NodeType::jointNode){
+		const JointNode * jointNode = static_cast <const JointNode *>(& root);
+	}
+
+}
+void A3::add_to_stack_redo(const SceneNode & root){
+
 }

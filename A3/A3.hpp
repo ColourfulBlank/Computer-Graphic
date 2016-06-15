@@ -65,6 +65,8 @@ protected:
 	//edit
 	void redo();
 	void undo();
+	void add_to_stack_undo(const SceneNode & root);
+	void add_to_stack_redo(const SceneNode & root);
 	//options
 	void pickingMode(int trager);
 	void setTrans(glm::vec3 translation, glm::vec3 rotation);
@@ -123,10 +125,14 @@ protected:
 	double joint_rotate_y;
 
 	float picked_colour[3];
-	SceneNode * headNode;
-	int headNode_Id;
+	// SceneNode * headNode;
+	// int headNode_Id;
 	glm::mat4 headRotateTrans;
 	glm::mat4 rootRotation;
+	std::vector<std::map<int, glm::vec2> > undo_stack;
+	// std::vector<std::map<int, float> > undo_stack_y;
+	std::vector<std::map<int, glm::vec2> > redo_stack;
+	// std::vector<std::map<int, float> > redo_stack_y;
 	
 	// std::map<unsigned int, glm::vec3> colour_ids;
 };
