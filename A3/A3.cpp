@@ -917,6 +917,9 @@ unsigned int A3::lookingUpId(unsigned char * data){
 	int id = data[0] + 
 			 data[1] * 256 +
 			 data[2] * 256 * 256;
+	if (id/m_rootNode->totalSceneNodes() > 1){
+		return 0;
+	}
 	return id;
 }
 
