@@ -13,6 +13,9 @@ GeometryNode::GeometryNode(
 	Picked_material.kd.x = 1.0f;
 	Picked_material.kd.y = 1.0f;
 	Picked_material.kd.z = 0.0f;
+	Picked_material.ks.x = 1.0f;
+	Picked_material.ks.y = 1.0f;
+	Picked_material.ks.z = 0.0f;
 }
 
 void GeometryNode::set_transform_from_parent(glm::mat4 m){

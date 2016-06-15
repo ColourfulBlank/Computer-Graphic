@@ -475,7 +475,14 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			glUniform3fv(location, 1, value_ptr(kd));
 			CHECK_GL_ERRORS;
 			location = shader.getUniformLocation("material.ks");
-			vec3 ks = node.material.ks;
+			vec3 ks;
+			 // = node.material.ks;
+			if (picked_Id[node.m_nodeId] == 1){
+				// std::cout << Picked_material.kd.x << std::endl;
+				ks = node.Picked_material.ks;	
+			} else {
+				ks = node.material.ks;
+			}
 			glUniform3fv(location, 1, value_ptr(ks));
 			
 			CHECK_GL_ERRORS;
