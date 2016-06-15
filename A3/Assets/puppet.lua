@@ -120,11 +120,11 @@ rightArmHandConnection:scale(0.05, 0.05, 0.05)
 rightArmHandConnection:translate(0.1, 0.0, 0.0)
 rightArmHandConnection:set_material(skin)
 
-leftArmHandConnectionJoint = gr.joint('leftArmHandConnectionJoint', {-45, 0, 45}, {-90, 0, 90})
+leftArmHandConnectionJoint = gr.joint('leftArmHandConnectionJoint', {-45, 0, 45}, {-5, 0, 90})
 leftArmHandConnectionJoint:translate(0.0, 0.0, 0.0)
 leftArmHandConnection:add_child(leftArmHandConnectionJoint)
 
-rightArmHandConnectionJoint = gr.joint('rightArmHandConnectionJoint', {-45, 0, 45}, {-90, 0, 90})
+rightArmHandConnectionJoint = gr.joint('rightArmHandConnectionJoint', {-45, 0, 45}, {-5, 0, 90})
 rightArmHandConnectionJoint:translate(0.0, 0.0, 0.0)
 rightArmHandConnection:add_child(rightArmHandConnectionJoint)
 
