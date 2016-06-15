@@ -155,11 +155,11 @@ rightHipTorsoConnection:scale(0.05, 0.05, 0.05)
 rightHipTorsoConnection:translate(0.25, -0.3, 0.0)
 rightHipTorsoConnection:set_material(skin)
 
-leftHipTorsoConnectionJoint = gr.joint('leftHipTorsoConnectionJoint', {-45, 0, 45}, {-90, 0, 90})
+leftHipTorsoConnectionJoint = gr.joint('leftHipTorsoConnectionJoint', {-45, 0, 45}, {-10, 0, 10})
 leftHipTorsoConnectionJoint:translate(0.0, 0.0, 0.0)
 leftHipTorsoConnection:add_child(leftHipTorsoConnectionJoint)
 
-rightHipTorsoConnectionJoint = gr.joint('rightHipTorsoConnectionJoint', {-45, 0, 45}, {-90, 0, 90})
+rightHipTorsoConnectionJoint = gr.joint('rightHipTorsoConnectionJoint', {-45, 0, 45}, {-10, 0, 10})
 rightHipTorsoConnectionJoint:translate(0.0, 0.0, 0.0)
 rightHipTorsoConnection:add_child(rightHipTorsoConnectionJoint)
 
