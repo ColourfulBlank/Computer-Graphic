@@ -411,6 +411,9 @@ void A3::guiLogic()
 			cout << "Redo" << endl;
 			redo();
 		}
+		ImGui::Text( "Redo: %d", redo_stack.size() );
+		ImGui::Text( "Undo: %d", undo_stack.size() - 1 );
+		
 
 	ImGui::End();
 	ImGui::Begin("Options", &showDebugWindow, ImVec2(100,100), opacity,
@@ -430,6 +433,7 @@ void A3::guiLogic()
 		}
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
+		
 
 	ImGui::End();
 }
@@ -771,6 +775,9 @@ bool A3::mouseButtonInputEvent (
 				// cout << lookingUpId(data) << endl;
 
 				pickingMode(0);
+				if (mouseState[1] == 1 || mouseState[2] == 1){
+					reset_stacks();
+				}
 			}
 			
 		}	
@@ -899,6 +906,7 @@ void A3::resetOrientation(){
 }
 void A3::resetJoints(){
 	resetJoints_re(*m_rootNode);
+	reset_stacks();
 }
 void A3::resetJoints_re(const SceneNode & root){
 	if (root.m_nodeType == NodeType::JointNode){
@@ -1030,6 +1038,13 @@ void A3::add_to_stack_undo(const SceneNode & root, std::map<int, glm::vec2> * pt
 	for (SceneNode * node : root.children){
 		add_to_stack_undo(*node, ptr_Joint_Record);
 	}
+}
+
+void A3::reset_stacks(){
+	std::map<int, glm::vec2> poped_stack = undo_stack.front();
+	undo_stack.clear();
+	undo_stack.push_back(poped_stack);
+	redo_stack.clear();
 }
 // void A3::add_to_stack_redo(const SceneNode & root){
 

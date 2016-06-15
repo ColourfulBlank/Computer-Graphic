@@ -69,6 +69,7 @@ protected:
 	int getNumberOfJointNode(const SceneNode & root, std::map<int, glm::vec2> * ptr_Joint_Record);
 	void add_to_stack_undo(const SceneNode & root, std::map<int, glm::vec2> * ptr_Joint_Record);
 	void updateTree(const SceneNode & root, std::map<int, glm::vec2> * ptr_Joint_Record);
+	void reset_stacks();
 	// void add_to_stack_redo(const SceneNode & root);
 	//options
 	void pickingMode(int trager);
