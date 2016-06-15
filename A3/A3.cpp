@@ -692,7 +692,7 @@ bool A3::mouseMoveEvent (
 			    float angleInView = std::min(1.0f,acos(dot(p, d))) * 0.1;
 			    glm::vec3 a = p * d;
 			    a = glm::normalize(a);
-			    glm::vec4 axisInWorldframe = vec4(a, 0) * glm::inverse(m_view);
+			    glm::vec4 axisInWorldframe = glm::inverse(m_view) * vec4(a, 0);
 			    m_rootNode->set_rotation(glm::rotate( m_rootNode->get_rotation(),
 								   					glm::degrees(angleInView),
 								   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z}));
