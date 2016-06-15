@@ -28,8 +28,8 @@ ifeq ($(config),debug)
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
   CFLAGS    += $(CPPFLAGS) $(ARCH) -g -std=c++11
   CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -framework IOKit -framework Cocoa -framework CoreVideo -framework OpenGL -L../../lib
-  LIBS      += -lcs488-framework -limgui -lglfw3 -llua
+  LDFLAGS   += -L../../lib
+  LIBS      += -lcs488-framework -limgui -lglfw3 -llua -lGL -lXinerama -lXcursor -lXxf86vm -lXi -lXrandr -lX11 -lstdc++ -ldl -lpthread
   RESFLAGS  += $(DEFINES) $(INCLUDES) 
   LDDEPS    += 
   LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(ARCH) $(LIBS)
@@ -50,8 +50,8 @@ ifeq ($(config),release)
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
   CFLAGS    += $(CPPFLAGS) $(ARCH) -O2 -std=c++11
   CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -Wl,-x -framework IOKit -framework Cocoa -framework CoreVideo -framework OpenGL -L../../lib
-  LIBS      += -lcs488-framework -limgui -lglfw3 -llua
+  LDFLAGS   += -s -L../../lib
+  LIBS      += -lcs488-framework -limgui -lglfw3 -llua -lGL -lXinerama -lXcursor -lXxf86vm -lXi -lXrandr -lX11 -lstdc++ -ldl -lpthread
   RESFLAGS  += $(DEFINES) $(INCLUDES) 
   LDDEPS    += 
   LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(ARCH) $(LIBS)
@@ -68,8 +68,8 @@ OBJECTS := \
 	$(OBJDIR)/GeometryNode.o \
 	$(OBJDIR)/JointNode.o \
 	$(OBJDIR)/Main.o \
-	$(OBJDIR)/scene_lua.o \
 	$(OBJDIR)/SceneNode.o \
+	$(OBJDIR)/scene_lua.o \
 
 RESOURCES := \
 
@@ -142,10 +142,10 @@ $(OBJDIR)/JointNode.o: ../JointNode.cpp
 $(OBJDIR)/Main.o: ../Main.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/scene_lua.o: ../scene_lua.cpp
+$(OBJDIR)/SceneNode.o: ../SceneNode.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/SceneNode.o: ../SceneNode.cpp
+$(OBJDIR)/scene_lua.o: ../scene_lua.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
