@@ -130,13 +130,13 @@ rightArmHandConnection:add_child(rightArmHandConnectionJoint)
 
 
 leftHand = gr.mesh('sphere', 'leftHand')
-leftArmHandConnection:add_child(leftHand)
+leftArmHandConnectionJoint:add_child(leftHand)
 leftHand:scale(0.15, 0.1, 0.05)
 leftHand:translate(-0.1, 0, 0.0)
 leftHand:set_material(skin)
 
 rightHand = gr.mesh('sphere', 'rightHand')
-rightArmHandConnection:add_child(rightHand)
+rightArmHandConnectionJoint:add_child(rightHand)
 rightHand:scale(0.15, 0.1, 0.05)
 rightHand:translate(0.1, 0, 0.0)
 rightHand:set_material(skin)
