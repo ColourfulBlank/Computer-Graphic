@@ -894,6 +894,26 @@ bool A3::keyInputEvent (
 			redo();
 			eventHandled = true;
 		}
+		if (key == GLFW_KEY_I ) {
+			cout << "i key pressed" << endl;
+			resetPosition();
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_O ) {
+			cout << "o key pressed" << endl;
+			resetOrientation();
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_N ) {
+			cout << "n key pressed" << endl;
+			resetJoints();
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_A ) {
+			cout << "a key pressed" << endl;
+			resetAll();
+			eventHandled = true;
+		}
 	}
 	// Fill in with event handling code...
 

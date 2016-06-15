@@ -11,9 +11,13 @@ hierarchical transformation did in A3.cpp by mutrula recursion.
 
 I will zip a file tho show the puppet, named as puppet.jpg
 
+my puppet is in the Assets directory.
+
 extra:
 
 not only head have to ways to move, every moveable parts does the same
 moveable eyebrow!
 
 there are warnings when compile, still runable.
+
+if there is linking problem just clean everything redo premake4 gmake. I didn't add anynew library.
