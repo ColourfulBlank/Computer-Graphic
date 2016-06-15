@@ -690,17 +690,8 @@ bool A3::mouseMoveEvent (
 			    glm::vec3 p = get_arcball_vector(last_xPos, last_yPos);
 			    glm::vec3 d = get_arcball_vector(xPos, yPos);
 			    float angleInView = -acos(std::min(1.0f, dot(p, d))) * 0.1f;
-			    // float angleInView;
-			    // if (dot(p, d) == 0){ 
-			    //  	angleInView = 0.1;
-			    //  } else {
-			    //  	angleInView =dot(p, d) * 0.1;
-			    //  }
-			    //  = -acos(std::min(1.0f, dot(p, d))) * 0.1f;
 			    glm::vec3 a = cross(p, d);
-			    // glm::vec3 a = p * d;
-			    // cout << a << endl;
-			    // a = glm::normalize(a);
+	
 			    glm::vec4 axisInWorldframe = glm::inverse(m_view) * vec4(a.x, a.y, a.z, 0.0f);
 			    m_rootNode->set_rotation(glm::rotate( m_rootNode->get_rotation(),
 								   					glm::degrees(angleInView),
