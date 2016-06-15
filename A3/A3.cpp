@@ -888,6 +888,7 @@ void A3::resetJoints_re(const SceneNode & root){
 	if (root.m_nodeType == NodeType::JointNode){
 		const JointNode * jointNode = static_cast <const JointNode *>(& root);
 		((JointNode *) jointNode)->reset_angle_amount();
+		((JointNode *) jointNode)->upDateRotation();
 	}
 	for (SceneNode * node : root.children){
 		resetJoints_re(*node);
