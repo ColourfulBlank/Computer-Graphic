@@ -369,39 +369,36 @@ void A3::guiLogic()
 	static bool showDebugWindow(true);
 	ImGuiWindowFlags windowFlags(ImGuiWindowFlags_AlwaysAutoResize);
 	float opacity(0.5f);
-
-	ImGui::Begin("Application", &showDebugWindow, ImVec2(100,100), opacity,
+	ImGui::Begin("A3", &showDebugWindow, ImVec2(100,100), opacity,
 			windowFlags);
-
-
-		if( ImGui::Button( "Reset Position (I)" ) ) {
-			cout << "Reset Position" << endl;
-			resetPosition();
+    	if (ImGui::BeginMenu("Application")){
+        	if( ImGui::Button( "Reset Position (I)" ) ) {
+        		cout << "Reset Position" << endl;
+        		resetPosition();
+        	}	
+        	if( ImGui::Button( "Reset Orientation (O)" ) ) {
+        		cout << "Reset Orientation" << endl;
+        		resetOrientation();
+        	}
+        	if( ImGui::Button( "Reset Joints (N)" ) ) {
+        		cout << "Reset Joints" << endl;
+        		resetJoints();
+        	}
+        	if( ImGui::Button( "Reset All (A)" ) ) {
+        		cout << "Reset All" << endl;
+        		resetAll();
+        	}
+        	if( ImGui::Button( "Quit Application (Q)" ) ) {
+        		cout << "Quit Application" << endl;
+        		glfwSetWindowShouldClose(m_window, GL_TRUE);
+        	}
+            ImGui::EndMenu();
 		}	
-		if( ImGui::Button( "Reset Orientation (O)" ) ) {
-			cout << "Reset Orientation" << endl;
-			resetOrientation();
-		}
-		if( ImGui::Button( "Reset Joints (N)" ) ) {
-			cout << "Reset Joints" << endl;
-			resetJoints();
-		}
-		if( ImGui::Button( "Reset All (A)" ) ) {
-			cout << "Reset All" << endl;
-			resetAll();
-		}
-		if( ImGui::Button( "Quit Application (Q)" ) ) {
-			cout << "Quit Application" << endl;
-			glfwSetWindowShouldClose(m_window, GL_TRUE);
-		}
+	
 
-		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
+	
 
-	ImGui::End();
-
-	ImGui::Begin("Edit", &showDebugWindow, ImVec2(100,100), opacity,
-			windowFlags);
-
+	if (ImGui::BeginMenu("Edit")){
 
 		if( ImGui::Button( "Undo (U)" ) ) {
 			cout << "Undo" << endl;
@@ -411,13 +408,10 @@ void A3::guiLogic()
 			cout << "Redo" << endl;
 			redo();
 		}
-		ImGui::Text( "Redo: %d", redo_stack.size() );
-		ImGui::Text( "Undo: %d", undo_stack.size() - 1 );
 		
-
-	ImGui::End();
-	ImGui::Begin("Options", &showDebugWindow, ImVec2(100,100), opacity,
-			windowFlags);
+	 	ImGui::EndMenu();	
+	}
+	if (ImGui::BeginMenu("options")){
 
 		
 		ImGui::Checkbox( "Circle (C)", &circle_enable );
@@ -431,6 +425,10 @@ void A3::guiLogic()
 		if( ImGui::RadioButton( "Joints (J)", &current_mode, 1 ) ) {
 			cout << "Joints: " << current_mode << endl;	
 		}
+		ImGui::EndMenu();	
+	}	
+		ImGui::Text( "Redo: %d", redo_stack.size() );
+		ImGui::Text( "Undo: %d", undo_stack.size() - 1 );
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
 		
@@ -783,7 +781,7 @@ bool A3::mouseButtonInputEvent (
 		}	
 	}
 
-	if (button == 1 && actions == 0 || button == 2 && actions == 0){
+	if ((button == 1 && actions == 0) || (button == 2 && actions == 0)){
 		if (current_mode == 1){
 			std::map<int, glm::vec2> Joint_Record;
 			add_to_stack_undo(*m_rootNode,  & Joint_Record);
