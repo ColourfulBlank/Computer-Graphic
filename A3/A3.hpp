@@ -70,7 +70,7 @@ protected:
 	void setTrans(glm::vec3 translation, glm::vec3 rotation);
 	glm::vec3 get_arcball_vector(float x, float y);
 	void enableCulling(bool on);
-	// void rotateHead(double amount);
+	// void rotateHead(double amount_x, double amount_y);
 	//helper
 	unsigned int lookingUpId(unsigned char * data);
 	void deSelect();
@@ -124,6 +124,7 @@ protected:
 
 	float picked_colour[3];
 	SceneNode * headNode;
+	int headNode_Id;
 	glm::mat4 headRotateTrans;
 	glm::mat4 rootRotation;
 	

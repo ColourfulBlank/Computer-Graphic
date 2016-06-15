@@ -561,18 +561,17 @@ void A3::renderGeomeNode(const SceneNode & root){
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
-	//-- Now render the mesh:
 
+	if (geometryNode->m_name == "head") {
+			headNode_Id = geometryNode->m_nodeId;
+	}
+	//-- Now render the mesh:
 	m_shader.enable();
 	// false colour setting
 	GLint colour_location = m_shader.getUniformLocation("colour");
-	// float r = (geometryNode->m_nodeId & 0x000 >> 0) / (float)totalNodes;// /255.0f;
-	// float g = (geometryNode->m_nodeId  >> 1) / (float)totalNodes;// /255.0f;
-	// float b = (geometryNode->m_nodeId  >> 2) / (float)totalNodes;// /255.0f;
 	int r = (geometryNode->m_nodeId & 0x000000FF) >>  0;
 	int g = (geometryNode->m_nodeId & 0x0000FF00) >>  8;
 	int b = (geometryNode->m_nodeId & 0x00FF0000) >> 16;
-	// cout << r << " " << g << " " << b << endl;
 	glUniform4f(colour_location, r/255.0f, g/255.0f, b/255.0f, 1.0f);
 	CHECK_GL_ERRORS;
 	
@@ -605,11 +604,11 @@ void A3::renderJointNode(const SceneNode & root){
 
 		if (node->m_nodeType == NodeType::GeometryNode){
 			Joint_children[node->m_nodeId] = root.m_nodeId;
-			const GeometryNode * geometryNode = static_cast <const GeometryNode *>(node);
+			// const GeometryNode * geometryNode = static_cast <const GeometryNode *>(node);
 			// if (geometryNode->m_name == "head") {
 			// 	if (headNode != NULL){
 			// 		headNode = (SceneNode *)&root;
-			// 		headRotateTrans = root.get_transform();	
+			// 		headNode_Id = rot
 			// 	}
 			// }
 			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
@@ -707,7 +706,7 @@ bool A3::mouseMoveEvent (
 		}
 		if (mouseState[0] == 1){ // left click
 			if (current_mode == 0){
-				setTrans(vec3(deltaX, -deltaY, 0), vec3(0,0,0));
+				(vec3(deltaX, -deltaY, 0), vec3(0,0,0));
 			}
 		}
 
@@ -717,7 +716,9 @@ bool A3::mouseMoveEvent (
 			} 
 			if (current_mode == 1){
 				//rotate head
-				// rotateHead(deltaX);
+				joint_rotate_x = deltaX * PI;
+				joint_rotate_y = deltaY * PI;
+				picked_Id[headNode_Id] = 1;
 			}
 		}
 	}
@@ -776,6 +777,11 @@ bool A3::mouseButtonInputEvent (
 			// cout <<"RGB " << picked_colour[0] <<" "<< picked_colour[1] <<" "<< picked_colour[2] << endl;
 			// pickingMode(0);
 		}	
+	}
+	if (mouseState[2] == 0){ //middle
+		if (current_mode == 0){
+			picked_Id[headNode_Id] = 0;
+		}
 	}
 	// Fill in with event handling code...
 	}
@@ -945,20 +951,13 @@ mat4x4 Rotation_x = mat4x4 (vec4(1, 0, 0, 0),
 							 vec4(0, cos(rotation.x), sin(rotation.x), 0),
 							 vec4(0, -sin(rotation.x), cos(rotation.x), 0),
 							 vec4(0,0,0,1) );
-// M = M * modelRotation_y;
-// M = M * modelRotation_x;
-// M = M * modelRotation_z; 
-// cout << m_rootNode->get_transform() << endl;
-// cout << Translation << endl;
-// arcTrans =  arcTranslation * arcTrans;
+
 m_rootNode->set_transform( m_rootNode->get_transform() * Rotation_z);
 m_rootNode->set_transform(  m_rootNode->get_transform() * Rotation_y);
 m_rootNode->set_transform(  m_rootNode->get_transform() * Rotation_x);
 m_rootNode->set_transform( Translation * m_rootNode->get_transform());
 }
-// void A3::rotateHead(double amount_x, double amount_y){
 
-// }
 //sample code from https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
 /**
  * Get a normalized vector from the center of the virtual ball O to a
@@ -971,17 +970,14 @@ glm::vec3 A3::get_arcball_vector(float x, float y) {
 	int width, height;
 	glfwGetWindowSize(m_window, &width, &height);
 	glm::vec3 P = glm::vec3(x/width * 2 - 1.0, y / height * 2 - 1.0, 0);
-  // glm::vec3 P = glm::vec3(x/m_framebufferWidth*2.0f - 1.0,
-		// 	  y/m_framebufferHeight*2.0f - 1.0,
-		// 	  0);
-  // P.y = m_framebufferHeight - P.y;
-  // P.y = -P.y
-  float OP_squared = P.x * P.x + P.y * P.y;
-  if (OP_squared <= 1*1)
-    P.z = sqrt(1*1 - OP_squared);  // Pythagore
-  else
-    P = glm::normalize(P);  // nearest point
-  return P;
+	  
+	float OP_squared = P.x * P.x + P.y * P.y;
+	if (OP_squared <= 1*1)
+	    P.z = sqrt(1*1 - OP_squared);  // Pythagore
+	else
+	    P = glm::normalize(P);  // nearest point
+	return P;
+
 }
 void A3::deSelect(){
 	for (int i = 0; i < m_rootNode->totalSceneNodes(); i++){
@@ -989,11 +985,3 @@ void A3::deSelect(){
 	}
 	
 }
-// glm::vec3 mapPlaneToSphere(double x, double y){
-//     z = -1 + 2 * x;
-//     phi = 2 * PI * y;
-//     theta = asin(z);
-//     return vector3(cos(theta) * cos(phi), 
-//                    cos(theta) * sin(phi), 
-//                    z);
-// }
