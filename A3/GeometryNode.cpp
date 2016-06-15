@@ -10,7 +10,7 @@ GeometryNode::GeometryNode(
 {
 	m_nodeType = NodeType::GeometryNode;
 	Picked_material = material;
-	Picked_material.kd.x = 56.0f/255.0f;
+	Picked_material.kd.x = 1.0f;
 	Picked_material.kd.y = 1.0f;
 	Picked_material.kd.z = 0.0f;
 }
