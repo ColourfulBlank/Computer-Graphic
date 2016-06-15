@@ -26,6 +26,12 @@ void JointNode::set_joint_y(double min, double init, double max) {
 	m_joint_y.max = max;
 	current_Y = 0;
 }
+void JointNode::upDate_x(double amount){
+	current_X = amount;
+}
+void JointNode::upDate_y(double amount){
+	current_Y = amount;
+}
 void JointNode::rotate_x(double amount){
 	current_X = current_X + amount;
 	const float PI = 3.14159265f;

@@ -12,6 +12,8 @@ public:
 	void set_joint_y(double min, double init, double max);
 	void rotate_x(double amount);
 	void rotate_y(double amount);
+	void upDate_x(double amount);
+	void upDate_y(double amount);
 
 	void set_transform_from_parent(glm::mat4 m);
 	void upDateRotation();

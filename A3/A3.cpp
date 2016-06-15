@@ -138,8 +138,22 @@ void A3::processLuaSceneFile(const std::string & filename) {
 	for (int i = 0; i < totalNodes; ++i){
 		Joint_children[i] = 0;
 	}
+	std::map<int, glm::vec2> Joint_Record;
+	getNumberOfJointNode(*m_rootNode, & Joint_Record);
+	undo_stack.push_back(Joint_Record);
 }
 
+int A3::getNumberOfJointNode(const SceneNode & root, std::map<int, glm::vec2> * ptr_Joint_Record){
+	int ret = 0;
+	if (root.m_nodeType == NodeType::JointNode){
+		ret++;
+		(*ptr_Joint_Record)[root.m_nodeId] = vec2(0,0);
+	}
+	for (SceneNode * node : root.children){
+		ret += getNumberOfJointNode(*node, ptr_Joint_Record);
+	}
+	return ret;
+}
 //----------------------------------------------------------------------------------------
 void A3::createShaderProgram()
 {
@@ -680,13 +694,12 @@ bool A3::mouseMoveEvent (
 
 			    glm::vec3 p = get_arcball_vector(last_xPos, last_yPos);
 			    glm::vec3 d = get_arcball_vector(xPos, yPos);
-			    float angleInView = -acos(std::min(1.0f, dot(p, d))) * 0.1f;
+			    float angleAtView = -acos(std::min(1.0f, dot(p, d))) * 0.1f;
 			    glm::vec3 a = cross(p, d);
-	
-			    glm::vec4 axisInWorldframe = glm::inverse(m_view) * vec4(a.x, a.y, a.z, 0.0f);
+			    glm::vec4 axisAtWorld = glm::inverse(m_view) * vec4(a.x, a.y, a.z, 0.0f);
 			    m_rootNode->set_rotation(glm::rotate( m_rootNode->get_rotation(),
-								   					glm::degrees(angleInView),
-								   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z}));
+								   					glm::degrees(angleAtView),
+								   					{ axisAtWorld.x, -axisAtWorld.y, axisAtWorld.z}));
 			}
 			if (current_mode == 1){
 				joint_rotate_y = deltaY * PI * 2;
@@ -761,15 +774,17 @@ bool A3::mouseButtonInputEvent (
 		}	
 	}
 
-	if (mouseState[0] == 0){
+	if (mouseState[1] == 0 || mouseState[2] == 0){
 		if (current_mode == 1){
-
+			std::map<int, glm::vec2> Joint_Record;
+			add_to_stack_undo(*m_rootNode,  & Joint_Record);
+			undo_stack.push_back(Joint_Record);
 		}	
 	}
-	if (mouseState[2] == 0){ //middle
-		if (current_mode == 0){
-		}
-	}
+	// if (mouseState[2] == 0){ //middle
+	// 	if (current_mode == 0){
+	// 	}
+	// }
 	}
 	return eventHandled;
 }
@@ -874,7 +889,6 @@ bool A3::keyInputEvent (
 //gui functions
 //applications
 void A3::resetPosition(){
-	cout << initRootTrans << endl;
 	m_rootNode->set_transform(initRootTrans);
 }
 void A3::resetOrientation(){
@@ -902,12 +916,35 @@ void A3::resetAll(){
 }
 //edit
 void A3::redo(){
-
+	if(!redo_stack.empty()){
+		std::map<int, glm::vec2> poped_stack = redo_stack.back();
+		undo_stack.push_back(poped_stack);
+		redo_stack.pop_back();
+		updateTree(*m_rootNode, & poped_stack);
+	}
 }
 void A3::undo(){
-
+	if (undo_stack.size() == 1){
+		resetJoints();
+	} else {
+		std::map<int, glm::vec2> poped_stack = undo_stack.back();
+		redo_stack.push_back(poped_stack);
+		undo_stack.pop_back();
+		poped_stack = undo_stack.back();
+		updateTree(*m_rootNode, & poped_stack);
+	}
 }
-
+void A3::updateTree(const SceneNode & root, std::map<int, glm::vec2> * ptr_Joint_Record){
+	if (root.m_nodeType == NodeType::JointNode){
+		const JointNode * jointNode = static_cast <const JointNode *>(& root);
+		((JointNode *)jointNode)->upDate_x((*ptr_Joint_Record)[root.m_nodeId].x);
+		((JointNode *)jointNode)->upDate_y((*ptr_Joint_Record)[root.m_nodeId].y);
+		((JointNode *)jointNode)->upDateRotation();
+	}
+	for (SceneNode * node : root.children){
+		updateTree(*node, ptr_Joint_Record);
+	}
+}
 void A3::pickingMode(int trager){
 
 	m_shader.enable();
@@ -964,9 +1001,9 @@ m_rootNode->set_transform( Translation * m_rootNode->get_transform());
  */
 glm::vec3 A3::get_arcball_vector(float x, float y) {
 
-	int width, height;
-	glfwGetWindowSize(m_window, &width, &height);
-	glm::vec3 P = glm::vec3(x/width * 2 - 1.0, y / height * 2 - 1.0, 0);
+	int w, h;
+	glfwGetWindowSize(m_window, &w, &h);
+	glm::vec3 P = glm::vec3(x/w * 2 - 1.0, y / h * 2 - 1.0, 0);
 	  
 	float OP_squared = P.x * P.x + P.y * P.y;
 	if (OP_squared <= 1*1)
@@ -982,12 +1019,16 @@ void A3::deSelect(){
 	}
 	
 }
-// void A3::add_to_stack_undo(const SceneNode & root){
-// 	if (root->m_nodeType == NodeType::jointNode){
-// 		const JointNode * jointNode = static_cast <const JointNode *>(& root);
-// 	}
 
-// }
+void A3::add_to_stack_undo(const SceneNode & root, std::map<int, glm::vec2> * ptr_Joint_Record){
+	if (root.m_nodeType == NodeType::JointNode){
+		const JointNode * jointNode = static_cast <const JointNode *>(& root);
+		(*ptr_Joint_Record)[root.m_nodeId] = vec2(((JointNode *)jointNode)->current_X, ((JointNode *)jointNode)->current_Y);
+	}
+	for (SceneNode * node : root.children){
+		add_to_stack_undo(*node, ptr_Joint_Record);
+	}
+}
 // void A3::add_to_stack_redo(const SceneNode & root){
 
 // }
