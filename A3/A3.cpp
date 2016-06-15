@@ -783,7 +783,7 @@ bool A3::mouseButtonInputEvent (
 		}	
 	}
 
-	if (button == 1 && action == 0 || button == 2 && action == 0){
+	if (button == 1 && actions == 0 || button == 2 && actions == 0){
 		if (current_mode == 1){
 			std::map<int, glm::vec2> Joint_Record;
 			add_to_stack_undo(*m_rootNode,  & Joint_Record);
