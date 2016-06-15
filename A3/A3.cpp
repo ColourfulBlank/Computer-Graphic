@@ -969,9 +969,10 @@ glm::vec3 A3::get_arcball_vector(int x, int y) {
 	// int width, height;
 	// glfwGetWindowSize(m_window, &width, &height);
 	// glm::vec3 P = glm::vec3(x/width * 2 - 1.0, y / height * 2 - 1.0, 0);
-  glm::vec3 P = glm::vec3(x/m_framebufferWidth*2 - 1.0,
-			  1.0*y/m_framebufferHeight*2 - 1.0,
+  glm::vec3 P = glm::vec3(x/m_framebufferWidth*2.0f - 1.0,
+			  y/m_framebufferHeight*2.0f - 1.0,
 			  0);
+  P.y = m_framebufferHeight - P.y;
   float OP_squared = P.x * P.x + P.y * P.y;
   if (OP_squared <= 1*1)
     P.z = sqrt(1*1 - OP_squared);  // Pythagore
