@@ -89,7 +89,8 @@ void A3::init()
 			getAssetFilePath("cube.obj"),
 			getAssetFilePath("sphere.obj"),
 			getAssetFilePath("suzanne.obj"),
-			getAssetFilePath("cylender.obj")
+			getAssetFilePath("cylender.obj"),
+			getAssetFilePath("pin.obj")
 	});
 
 
