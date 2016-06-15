@@ -748,10 +748,13 @@ bool A3::mouseButtonInputEvent (
 				}
 				unsigned char data[4];
 				glReadPixels(last_xPos, m_windowHeight - last_yPos, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+					
+				if (Joint_children[lookingUpId(data)] != 0) {
+					picked_Id[lookingUpId(data)] = picked_Id[lookingUpId(data)] == 1 ? 0 : 1;
+				}
 				
-				picked_Id[lookingUpId(data)] = picked_Id[lookingUpId(data)] == 1 ? 0 : 1;
-				cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
-				cout << lookingUpId(data) << endl;
+				// cout << picked_colour[0] << " " << picked_colour[1] << " " << picked_Id[2] << endl;
+				// cout << lookingUpId(data) << endl;
 
 				pickingMode(0);
 			}
