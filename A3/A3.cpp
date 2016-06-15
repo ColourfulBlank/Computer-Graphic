@@ -550,8 +550,8 @@ void A3::renderSceneNode(const SceneNode & root){
 			renderJointNode(*node);
 		}
 	}
-	// joint_rotate_x = 0;
-	// joint_rotate_y = 0;
+	joint_rotate_x = 0;
+	joint_rotate_y = 0;
 }
 void A3::renderGeomeNode(const SceneNode & root){
 	
