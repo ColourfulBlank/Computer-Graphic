@@ -550,8 +550,8 @@ void A3::renderSceneNode(const SceneNode & root){
 			renderJointNode(*node);
 		}
 	}
-	joint_rotate_x = 0;
-	joint_rotate_y = 0;
+	// joint_rotate_x = 0;
+	// joint_rotate_y = 0;
 }
 void A3::renderGeomeNode(const SceneNode & root){
 	
@@ -595,6 +595,7 @@ void A3::renderJointNode(const SceneNode & root){
 	for (int i = 0; i < m_rootNode->totalSceneNodes(); i++){
 		if (Joint_children[i] == root.m_nodeId){
 			if (picked_Id[i] == 1){
+				cout << i << endl;
 				((JointNode * )jointNode)->rotate_x(joint_rotate_x);
 				((JointNode * )jointNode)->rotate_y(joint_rotate_y);
 			}
@@ -697,7 +698,8 @@ bool A3::mouseMoveEvent (
 								   					glm::degrees(angleInView),
 								   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z}));
 
-			}if (current_mode == 1){
+			}
+			if (current_mode == 1){
 				joint_rotate_x = deltaX * PI;
 				joint_rotate_y = deltaY * PI;
 
