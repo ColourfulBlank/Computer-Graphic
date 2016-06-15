@@ -681,41 +681,43 @@ bool A3::mouseMoveEvent (
 	deltaY = (yPos - last_yPos) / m_windowHeight;
 	deltaZ = deltaY;
 	// Fill in with event handling code...
-	if (mouseState[1] == 1){ //right click
+	if ( !ImGui::IsMouseHoveringAnyWindow() ){
+		if (mouseState[1] == 1){ //right click
 
-		if (current_mode == 0){
+			if (current_mode == 0){
 
-		    glm::vec3 p = get_arcball_vector(last_xPos, last_yPos);
-		    glm::vec3 d = get_arcball_vector(xPos, yPos);
-		    float angleInView = -acos(std::min(1.0f, dot(p, d))) * 0.1;
-		    glm::vec3 a = p * d;
-		    a = glm::normalize(a);
-		    glm::vec4 axisInWorldframe = glm::inverse(m_view) * vec4(a, 0);
-		    // m_rootNode->set_transform(glm::rotate( m_rootNode->get_transform(),
-						// 	   					glm::degrees(angleInView),
-						// 	   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z}));
-		     rootRotation = glm::rotate( rootRotation,
-							   					glm::degrees(angleInView),
-							   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z});
-		}if (current_mode == 1){
-			joint_rotate_x = deltaX * PI;
-			joint_rotate_y = deltaY * PI;
+			    glm::vec3 p = get_arcball_vector(last_xPos, last_yPos);
+			    glm::vec3 d = get_arcball_vector(xPos, yPos);
+			    float angleInView = -acos(std::min(1.0f, dot(p, d))) * 0.1;
+			    glm::vec3 a = p * d;
+			    a = glm::normalize(a);
+			    glm::vec4 axisInWorldframe = glm::inverse(m_view) * vec4(a, 0);
+			    // m_rootNode->set_transform(glm::rotate( m_rootNode->get_transform(),
+							// 	   					glm::degrees(angleInView),
+							// 	   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z}));
+			     rootRotation = glm::rotate( rootRotation,
+								   					glm::degrees(angleInView),
+								   					{ axisInWorldframe.x, -axisInWorldframe.y, axisInWorldframe.z});
+			}if (current_mode == 1){
+				joint_rotate_x = deltaX * PI;
+				joint_rotate_y = deltaY * PI;
 
+			}
 		}
-	}
-	if (mouseState[0] == 1){ // left click
-		if (current_mode == 0){
-			setTrans(vec3(deltaX, -deltaY, 0), vec3(0,0,0));
+		if (mouseState[0] == 1){ // left click
+			if (current_mode == 0){
+				setTrans(vec3(deltaX, -deltaY, 0), vec3(0,0,0));
+			}
 		}
-	}
 
-	if (mouseState[2] == 1){ //middle
-		if (current_mode == 0){
-			setTrans(vec3(0, 0, deltaZ),vec3(0,0,0));
-		} 
-		if (current_mode == 1){
-			//rotate head
-			// rotateHead(deltaX);
+		if (mouseState[2] == 1){ //middle
+			if (current_mode == 0){
+				setTrans(vec3(0, 0, deltaZ),vec3(0,0,0));
+			} 
+			if (current_mode == 1){
+				//rotate head
+				// rotateHead(deltaX);
+			}
 		}
 	}
 	last_xPos = xPos;
@@ -733,7 +735,9 @@ bool A3::mouseButtonInputEvent (
 		int mods
 ) {
 	bool eventHandled(false);
+
 	mouseState[button] = actions;
+	if (! ImGui::IsMouseHoveringAnyWindow()){
 	if (mouseState[0] == 1){
 		if (current_mode == 1){
 			if (mouseState[1] == 0){
@@ -773,7 +777,7 @@ bool A3::mouseButtonInputEvent (
 		}	
 	}
 	// Fill in with event handling code...
-
+	}
 	return eventHandled;
 }
 
