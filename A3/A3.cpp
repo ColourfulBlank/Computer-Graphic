@@ -405,9 +405,11 @@ void A3::guiLogic()
 
 		if( ImGui::Button( "Undo (U)" ) ) {
 			cout << "Undo" << endl;
+			undo();
 		}
 		if( ImGui::Button( "Redo (R)" ) ) {
 			cout << "Redo" << endl;
+			redo();
 		}
 
 	ImGui::End();
