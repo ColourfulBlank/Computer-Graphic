@@ -20,19 +20,19 @@ ifndef AR
 endif
 
 ifeq ($(config),debug)
-  OBJDIR     = Debug
-  TARGETDIR  = ..
-  TARGET     = $(TARGETDIR)/A4
+  OBJDIR     = Debug/cs488-framework
+  TARGETDIR  = ../lib
+  TARGET     = $(TARGETDIR)/libcs488-framework.a
   DEFINES   += -DDEBUG
-  INCLUDES  += -I../../shared -I../../shared/include -I../../shared/gl3w -I../../shared/imgui
+  INCLUDES  += -I../shared -I../shared/gl3w -I../shared/imgui -I../shared/include
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
   CFLAGS    += $(CPPFLAGS) $(ARCH) -g -std=c++11
   CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -framework IOKit -framework Cocoa -framework CoreVideo -framework OpenGL -L../../lib
-  LIBS      += -lcs488-framework -limgui -lglfw3 -llua -llodepng
+  LDFLAGS   += 
+  LIBS      += 
   RESFLAGS  += $(DEFINES) $(INCLUDES) 
   LDDEPS    += 
-  LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(ARCH) $(LIBS)
+  LINKCMD    = $(AR) -rcs $(TARGET) $(OBJECTS)
   define PREBUILDCMDS
   endef
   define PRELINKCMDS
@@ -42,19 +42,19 @@ ifeq ($(config),debug)
 endif
 
 ifeq ($(config),release)
-  OBJDIR     = Release
-  TARGETDIR  = ..
-  TARGET     = $(TARGETDIR)/A4
+  OBJDIR     = Release/cs488-framework
+  TARGETDIR  = ../lib
+  TARGET     = $(TARGETDIR)/libcs488-framework.a
   DEFINES   += -DNDEBUG
-  INCLUDES  += -I../../shared -I../../shared/include -I../../shared/gl3w -I../../shared/imgui
+  INCLUDES  += -I../shared -I../shared/gl3w -I../shared/imgui -I../shared/include
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
   CFLAGS    += $(CPPFLAGS) $(ARCH) -O2 -std=c++11
   CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -Wl,-x -framework IOKit -framework Cocoa -framework CoreVideo -framework OpenGL -L../../lib
-  LIBS      += -lcs488-framework -limgui -lglfw3 -llua -llodepng
+  LDFLAGS   += -Wl,-x
+  LIBS      += 
   RESFLAGS  += $(DEFINES) $(INCLUDES) 
   LDDEPS    += 
-  LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(ARCH) $(LIBS)
+  LINKCMD    = $(AR) -rcs $(TARGET) $(OBJECTS)
   define PREBUILDCMDS
   endef
   define PRELINKCMDS
@@ -64,19 +64,11 @@ ifeq ($(config),release)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/A4.o \
-	$(OBJDIR)/GeometryNode.o \
-	$(OBJDIR)/Image.o \
-	$(OBJDIR)/JointNode.o \
-	$(OBJDIR)/Light.o \
-	$(OBJDIR)/Main.o \
-	$(OBJDIR)/Material.o \
-	$(OBJDIR)/Mesh.o \
-	$(OBJDIR)/PhongMaterial.o \
-	$(OBJDIR)/polyroots.o \
-	$(OBJDIR)/Primitive.o \
-	$(OBJDIR)/scene_lua.o \
-	$(OBJDIR)/SceneNode.o \
+	$(OBJDIR)/CS488Window.o \
+	$(OBJDIR)/GlErrorCheck.o \
+	$(OBJDIR)/MeshConsolidator.o \
+	$(OBJDIR)/ObjFileDecoder.o \
+	$(OBJDIR)/ShaderProgram.o \
 
 RESOURCES := \
 
@@ -94,7 +86,7 @@ all: $(TARGETDIR) $(OBJDIR) prebuild prelink $(TARGET)
 	@:
 
 $(TARGET): $(GCH) $(OBJECTS) $(LDDEPS) $(RESOURCES)
-	@echo Linking A4
+	@echo Linking cs488-framework
 	$(SILENT) $(LINKCMD)
 	$(POSTBUILDCMDS)
 
@@ -115,7 +107,7 @@ else
 endif
 
 clean:
-	@echo Cleaning A4
+	@echo Cleaning cs488-framework
 ifeq (posix,$(SHELLTYPE))
 	$(SILENT) rm -f  $(TARGET)
 	$(SILENT) rm -rf $(OBJDIR)
@@ -137,43 +129,19 @@ $(GCH): $(PCH)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 endif
 
-$(OBJDIR)/A4.o: ../A4.cpp
+$(OBJDIR)/CS488Window.o: ../shared/cs488-framework/CS488Window.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/GeometryNode.o: ../GeometryNode.cpp
+$(OBJDIR)/GlErrorCheck.o: ../shared/cs488-framework/GlErrorCheck.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/Image.o: ../Image.cpp
+$(OBJDIR)/MeshConsolidator.o: ../shared/cs488-framework/MeshConsolidator.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/JointNode.o: ../JointNode.cpp
+$(OBJDIR)/ObjFileDecoder.o: ../shared/cs488-framework/ObjFileDecoder.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/Light.o: ../Light.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/Main.o: ../Main.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/Material.o: ../Material.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/Mesh.o: ../Mesh.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/PhongMaterial.o: ../PhongMaterial.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/polyroots.o: ../polyroots.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/Primitive.o: ../Primitive.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/scene_lua.o: ../scene_lua.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-$(OBJDIR)/SceneNode.o: ../SceneNode.cpp
+$(OBJDIR)/ShaderProgram.o: ../shared/cs488-framework/ShaderProgram.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 

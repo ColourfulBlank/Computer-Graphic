@@ -23,3 +23,9 @@ void A4_Render(
 		const glm::vec3 & ambient,
 		const std::list<Light *> & lights
 );
+
+int A4_get_frame_height(double fovy, double distance_to_screen);
+
+double A4_helper_module(vec3 vector);
+
+glm::vec3 A4_ray_colour(glm::vec4 ray, glm::vec2 uv);
