@@ -2,6 +2,15 @@
 
 #include <glm/glm.hpp>
 
+enum class NodeType {
+  Primitive,
+  Sphere,
+  Cube,
+  NonhierSphere,
+  NonhierBox
+
+};
+
 class Primitive {
 public:
   virtual ~Primitive();

@@ -1,7 +1,5 @@
 #pragma once
-
 #include <glm/glm.hpp>
-
 #include "SceneNode.hpp"
 #include "Light.hpp"
 #include "Image.hpp"
@@ -24,8 +22,17 @@ void A4_Render(
 		const std::list<Light *> & lights
 );
 
-int A4_get_frame_height(double fovy, double distance_to_screen);
+glm::vec3 ray_colour(SceneNode * root, glm::vec4 ray, glm::vec2 uv, const glm::vec3 & ambient, glm::vec4 look_from, const std::list<Light *> & lights, int nh);
 
-double A4_helper_module(vec3 vector);
+int get_frame_height(double fovy, double distance_to_screen);
 
-glm::vec3 A4_ray_colour(glm::vec4 ray, glm::vec2 uv);
+glm::vec3 directLight(SceneNode * root, glm::vec4 p, glm::vec4 N, glm::vec2 uv, const std::list<Light *> & lights);
+
+glm::vec4 ggReflection(glm::vec4 ray, glm::vec4 N);
+
+bool hit(SceneNode * root, glm::vec4 ray, double * t, glm::vec4 * N, glm::vec2 uv, glm::vec3 * kd, glm::vec3  *ks, glm::vec3 * ke);
+
+glm::vec4 get_intersection_point(glm::vec4 point_of_origin, glm::vec4 direction, double t);
+
+double helper_module(glm::vec3 vector);
+
