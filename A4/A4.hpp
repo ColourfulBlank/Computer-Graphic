@@ -1,8 +1,13 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <climits>
 #include "SceneNode.hpp"
+#include "GeometryNode.hpp"
+#include "polyroots.hpp"
 #include "Light.hpp"
 #include "Image.hpp"
+#include "PhongMaterial.hpp"
+
 
 void A4_Render(
 		// What to render
@@ -30,7 +35,7 @@ glm::vec3 directLight(SceneNode * root, glm::vec4 p, glm::vec4 N, glm::vec2 uv, 
 
 glm::vec4 ggReflection(glm::vec4 ray, glm::vec4 N);
 
-bool hit(SceneNode * root, glm::vec4 ray, double * t, glm::vec4 * N, glm::vec2 uv, glm::vec3 * kd, glm::vec3  *ks, glm::vec3 * ke);
+bool hit(SceneNode * root, glm::vec4 ray, glm::vec4 look_from, double * t, glm::vec4 * N, glm::vec2 uv, glm::vec3 * kd, glm::vec3 * ks, glm::vec3 * ke, double * shininess);
 
 glm::vec4 get_intersection_point(glm::vec4 point_of_origin, glm::vec4 direction, double t);
 

@@ -6,6 +6,10 @@ Primitive::Primitive(){
 Primitive::~Primitive(){
 }
 
+PrimitiveType Primitive::get_primitiveType(){
+	return p_type;
+}
+
 Sphere::Sphere(){
 	p_type = PrimitiveType::Sphere;	
 }
@@ -28,6 +32,12 @@ NonhierSphere::NonhierSphere(const glm::vec3& pos, double radius)
 NonhierSphere::~NonhierSphere()
 {
 }
+glm::vec4 NonhierSphere::get_pos(){
+	return glm::vec4(m_pos, 1);
+}
+double NonhierSphere::get_radius(){
+	return m_radius;
+}
 NonhierBox::NonhierBox(const glm::vec3& pos, double size)
   : m_pos(pos), m_size(size)
 {
@@ -35,4 +45,10 @@ NonhierBox::NonhierBox(const glm::vec3& pos, double size)
 }
 NonhierBox::~NonhierBox()
 {
+}
+glm::vec4 NonhierBox::get_pos(){
+	return glm::vec4(m_pos, 1);
+}
+double NonhierBox::get_size(){
+	return m_size;
 }
