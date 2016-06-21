@@ -34,7 +34,7 @@ Image::Image(const Image & other)
     m_data(other.m_data ? new double[m_width * m_height * m_colorComponents] : 0)
 {
   if (m_data) {
-    std::memcpy(m_data, other.m_data,
+    memcpy(m_data, other.m_data,
                 m_width * m_height * m_colorComponents * sizeof(double));
   }
 }
@@ -55,7 +55,7 @@ Image & Image::operator=(const Image& other)
   m_data = (other.m_data ? new double[m_width * m_height * m_colorComponents] : 0);
 
   if (m_data) {
-    std::memcpy(m_data,
+    memcpy(m_data,
                 other.m_data,
                 m_width * m_height * m_colorComponents * sizeof(double)
     );
