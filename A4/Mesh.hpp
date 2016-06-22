@@ -25,10 +25,19 @@ struct Triangle
 class Mesh : public Primitive {
 public:
   Mesh( const std::string& fname );
-  
+  glm::vec3 get_vertices(int i);
+  Triangle get_faces(int i);
+  int get_faces_size();
+  glm::vec3 get_center();
+  double get_r();
 private:
 	std::vector<glm::vec3> m_vertices;
 	std::vector<Triangle> m_faces;
-
+	double outer_x_max;
+	double outer_x_min;
+	double outer_y_max;
+	double outer_y_min;
+	double outer_z_max;
+	double outer_z_min;
     friend std::ostream& operator<<(std::ostream& out, const Mesh& mesh);
 };

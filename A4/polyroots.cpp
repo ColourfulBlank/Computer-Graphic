@@ -107,10 +107,10 @@ size_t quadraticRoots( double A, double B, double C, double roots[2] )
 {
 	double D;
 	double q;
-	double epsilon = 0.001;
+	double epsilon = 0.0001;
 	// if( A == 0 ) {//Math.Abs(A - 0) < 0.00001
-	if( std::abs(A - 0.0f) < epsilon ) {//
-		if( std::abs(B - 0.0f) < epsilon ) {
+	if( std::abs(A - 0.0) < epsilon ) {//
+		if( std::abs(B - 0.0) < epsilon ) {
 			return 0;
 		} else {	
 			roots[0] = -C/B;
@@ -126,7 +126,7 @@ size_t quadraticRoots( double A, double B, double C, double roots[2] )
 			/* Two real roots */
 			q = -( B + SIGN(B)*sqrt(D) ) / 2.0;
 			roots[0] = q / A;
-			if( !(std::abs(A - 0.0f) < epsilon) ) {
+			if( !(std::abs(A - 0.0) < epsilon) ) {
 				roots[1] = C / q;
 			} else {
 				roots[1] = roots[0];
