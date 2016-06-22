@@ -132,10 +132,10 @@ vec3 ray_colour(SceneNode * root, vec4 ray, vec2 uv, const vec3 & ambient, vec4 
 	//intersection t
 	double t;
 	//
-	int max_h = 1;
+	int max_h = 10;
 
 	if (hit(root, ray, look_from, &t, &N, uv, &kd, &ks, &ke, &shininess, true) && nh <= max_h){
-		nh++;
+		
 		ke = kd;//in ambient lighting
 		colour = kd * ambient;
 		//Find intersection point p = r.point at parameter(t)
@@ -151,21 +151,24 @@ vec3 ray_colour(SceneNode * root, vec4 ray, vec2 uv, const vec3 & ambient, vec4 
 				vec4 light_position = vec4(light->position, 1);
 				vec4 light_ray = light_position - p;
 				vec4 reflected_ray = ggReflection(light_ray, N);
-				if (!hit(root, light_ray, p+light_ray*0.01, &hit_point, NULL, vec2(0,0), NULL, NULL, NULL, NULL, false)){
-					if ( kd != vec3(0,0,0) ){ //diffuse surface
-						diffuse_colour += kd * glm::max(dot(normalize(light_ray), N), 0.0f) * light->colour;
-					}
-					if ( ks != vec3(0,0,0) ){ //specular
-						specular_colour = specular_colour + ks * pow(glm::max(dot(normalize(reflected_ray), normalize(-ray)), 0.0f), shininess) * light->colour;
-					}
-						
+
+				if (!hit(root, light_ray, p+N*0.01, &hit_point, NULL, vec2(0,0), NULL, NULL, NULL, NULL, false)){
+					if (hit_point < 1.0){
+						if ( kd != vec3(0,0,0) ){ //diffuse surface
+							diffuse_colour += kd * glm::max(dot(normalize(light_ray), N), 0.0f) * light->colour;
+						}
+						if ( ks != vec3(0,0,0) ){ //specular
+							specular_colour = specular_colour + ks * pow(glm::max(dot(normalize(reflected_ray), normalize(-ray)), 0.0f), shininess) * light->colour;
+						}
+					}	
 				}
 			}
 			colour += diffuse_colour;
 			colour += specular_colour;
+
 			if ( ks != vec3(0,0,0) ){ //specular
 				vec4 reflected_ray_eye = ggReflection(ray, N);
-				colour += 0.15 * ray_colour(root, normalize(reflected_ray_eye), uv, ambient, p+reflected_ray_eye*0.01, lights, nh,  counter_y, height);
+				colour +=  0.2 * ks * ray_colour(root, normalize(reflected_ray_eye), uv, ambient, p+N*0.01, lights, nh+1,  counter_y, height);
 			}
 			
 	} else {
@@ -336,10 +339,59 @@ bool hit(SceneNode * root, vec4 ray, vec4 look_from, double * t, vec4 * N, vec2 
 								}
 							}
 							flag = true;
+
 						}
 					}
 				}
+				// if (number_of_roots > 0){
+				// 	double new_root = 0.0;
+				// 	if (number_of_roots == 2){
+				// 		if (roots[0] > 0 && roots[1] > 0){
+				// 			new_root = roots[0] < roots[1] ? roots[0] : roots[1];
+				// 			if (!flag){
+				// 				root_number = new_root;
+				// 			}
+				// 			flag = true;
+				// 		} else if (roots[0] > 0){
+				// 			new_root = roots[0];
+				// 			if (!flag){
+				// 				root_number = new_root;
+				// 			}
+				// 			flag = true;	
+				// 		}else if (roots[1] > 0){
+				// 			new_root = roots[1];
+				// 			if (!flag){
+				// 				root_number = new_root;
+				// 			}
+				// 			flag = true;
+				// 		}
+				// 	} else {
+				// 		if (roots[0] > 0){
+				// 			new_root = roots[0];
+				// 			if (!flag){
+				// 				root_number = new_root;
+				// 			}
+				// 			flag = true;	
+				// 		}
+				// 	}
+				// 	if (flag == true && new_root <= root_number){
+				// 		root_number = new_root;
+				// 		if (s){
+				// 			*N = normalize(get_intersection_point(look_from, ray, root_number) - sphere_center);
+				// 			*kd = ((PhongMaterial *)geometryNode->m_material)->getKd();
+				// 			*ks = ((PhongMaterial *)geometryNode->m_material)->getKs();
+				// 			*shininess = ((PhongMaterial *)geometryNode->m_material)->getShininess();
+				// 		}
+				// 	}
+				// }
+
+
+
+
+
+				
 			}
+			
 		}
 	}
 	*t = root_number;
