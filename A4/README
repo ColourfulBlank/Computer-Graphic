@@ -1,0 +1,18 @@
+Assignment 4 
+w257wang
+this assignment is built on gl10
+
+extra feature
+
+I made reflection, you can check with simple.lua
+
+I didn't do the Hierarchical model and transformations
+
+for the bounding volume, I made a sphere check out side mesh object
+shown in nonhier_bb.png
+
+for the simple.lua, I made a specular sphere to show the reflection
+and some non specular sphere and cube to show shadow and phong model
+a star to show mesh object. a sphere to show hidden surface
+
+

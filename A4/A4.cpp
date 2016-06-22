@@ -132,7 +132,7 @@ vec3 ray_colour(SceneNode * root, vec4 ray, vec2 uv, const vec3 & ambient, vec4 
 	//intersection t
 	double t;
 	//
-	int max_h = 10;
+	int max_h = 1;
 
 	if (hit(root, ray, look_from, &t, &N, uv, &kd, &ks, &ke, &shininess, true) && nh <= max_h){
 		
@@ -152,7 +152,7 @@ vec3 ray_colour(SceneNode * root, vec4 ray, vec2 uv, const vec3 & ambient, vec4 
 				vec4 light_ray = light_position - p;
 				vec4 reflected_ray = ggReflection(light_ray, N);
 
-				if (!hit(root, light_ray, p+N*0.01, &hit_point, NULL, vec2(0,0), NULL, NULL, NULL, NULL, false)){
+				if (!hit(root, light_ray, p+light_ray*0.01, &hit_point, NULL, vec2(0,0), NULL, NULL, NULL, NULL, false)){
 					if (hit_point < 1.0){
 						if ( kd != vec3(0,0,0) ){ //diffuse surface
 							diffuse_colour += kd * glm::max(dot(normalize(light_ray), N), 0.0f) * light->colour;
@@ -168,7 +168,7 @@ vec3 ray_colour(SceneNode * root, vec4 ray, vec2 uv, const vec3 & ambient, vec4 
 
 			if ( ks != vec3(0,0,0) ){ //specular
 				vec4 reflected_ray_eye = ggReflection(ray, N);
-				colour +=  0.2 * ks * ray_colour(root, normalize(reflected_ray_eye), uv, ambient, p+N*0.01, lights, nh+1,  counter_y, height);
+				colour +=  0.1 * ks * ray_colour(root, normalize(reflected_ray_eye), uv, ambient, p+N*0.01, lights, nh+1,  counter_y, height);
 			}
 			
 	} else {
