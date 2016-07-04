@@ -911,6 +911,20 @@ bool A5::keyInputEvent (
 			resetAll();
 			eventHandled = true;
 		}
+		if (key == GLFW_KEY_RIGHT ){
+			joint_rotate_y = 0.1 * PI * 2;
+			eventHandled = true;
+		} 
+		if (key == GLFW_KEY_LEFT ){
+			joint_rotate_y = -0.1 * PI * 2;
+			eventHandled = true;
+		} 
+		if (key == GLFW_KEY_UP ){
+			eventHandled = true;
+		} 
+		if (key == GLFW_KEY_DOWN ){
+			eventHandled = true;
+		} 
 	}
 	// Fill in with event handling code...
 
@@ -1034,7 +1048,6 @@ m_rootNode->set_transform( Translation * m_rootNode->get_transform());
  * sphere, return the nearest point on the virtual ball surface.
  */
 glm::vec3 A5::get_arcball_vector(float x, float y) {
-
 	int w, h;
 	glfwGetWindowSize(m_window, &w, &h);
 	glm::vec3 P = glm::vec3(x/w * 2 - 1.0, y / h * 2 - 1.0, 0);
@@ -1045,7 +1058,6 @@ glm::vec3 A5::get_arcball_vector(float x, float y) {
 	else
 	    P = glm::normalize(P);  // nearest point
 	return P;
-
 }
 void A5::deSelect(){
 	for (int i = 0; i < m_rootNode->totalSceneNodes(); i++){
