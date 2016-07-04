@@ -44,8 +44,8 @@ void JointNode::rotate_y(double amount){
 	current_Y = current_Y + amount;
 	// std::cout << current_Y <<" " << glm::degrees(current_Y) << std::endl;
 	const float PI = 3.14159265f;
-	current_Y = glm::degrees(current_Y) > m_joint_x.max ? m_joint_x.max/180.0f * PI : current_Y;
-	current_Y = glm::degrees(current_Y) < m_joint_x.min ? m_joint_x.min/180.0f * PI : current_Y;
+	current_Y = glm::degrees(current_Y) > m_joint_y.max ? m_joint_y.max/180.0f * PI : current_Y;
+	current_Y = glm::degrees(current_Y) < m_joint_y.min ? m_joint_y.min/180.0f * PI : current_Y;
 	//need to apply to childrens
 	upDateRotation();
 }
