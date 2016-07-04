@@ -13,10 +13,6 @@ scene_root = gr.node('root')
 s2 = gr.nh_sphere('s2', {0, 30, -100}, 150)
 scene_root:add_child(s2)
 s2:set_material(mat1)
-d2 = gr.nh_sphere('d2', {0, 0, 100}, 50)
-scene_root:add_child(d2)
-d2:set_material(mat3)
-
 
 s7 = gr.nh_sphere('s7', {-400, 30, -100}, 150)
 scene_root:add_child(s7)

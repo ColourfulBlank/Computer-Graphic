@@ -1,0 +1,23 @@
+Assignment3 README
+This assignment is coded and tested at lab computer gl30
+
+In SceneNode, I changed trans matrix into 3 parts: translation, rotation and scaling. and added a field to store the transform from parent node.
+
+In it's subclasses:
+In GeometryNode, doesn't do much extra change.
+In JointNode, added to double value to store angle rotation amount and a method to update rotation matrix
+
+hierarchical transformation did in A3.cpp by mutrula recursion.
+
+I will zip a file tho show the puppet, named as puppet.jpg
+
+my puppet is in the Assets directory.
+
+extra:
+
+not only head have to ways to move, every moveable parts does the same
+moveable eyebrow!
+
+there are warnings when compile, still runable.
+
+if there is linking problem just clean everything redo premake4 gmake. I didn't add anynew library.

@@ -1,0 +1,87 @@
+\documentclass {article}
+\usepackage{fullpage}
+
+\begin{document}
+
+~\vfill
+\begin{center}
+\Large
+
+A5 Project Proposal
+
+Title: You Don't Want To Talk and Throw A Ball
+
+Name: Weicheng Wang 
+
+Student ID: 20487825
+
+User ID: w257wang
+\end{center}
+\vfill ~\vfill~
+\newpage
+\noindent{\Large \bf Final Project:}
+\begin{description}
+\item[Purpose]:\\
+	The purpose of this project is to create a 3d game with as many 3d graphic features as possibale with OpenGL.
+\item[Statement]:\\
+	What it's about: This game is that a talk-less ball thrower throw balls to nearby target.
+
+	What to do: Player will be act as the talk-less ball thrower, aiming and shot balls out. By shout the time will be stopped for certain time. ball will be affected by gravity and wind. ball will explode on impact.
+
+	Why it is interesting and challenging: This is fun, think about shooting things use a ball thrower. Challenges are how to hit moving target
+
+	What I will learn: how to implement particle system, how to handle detections, how to add textures, how do cel shading and how to get sound inputs.
+
+\item[Technical Outline]:\\
+    Model and Scenes: This game will have model and scene to be able to visible. \\
+    User Interface: There will be a menu bar in the scene for players to adjust the wind, gravity, ball init speed and angle. \\
+    Texture Mapping: Ball is covered by texture to make looks like ball not just a sphere. \\
+    Particle System: partial system is used to perform ball explosions.\\
+    Spline Animation: Ball flying trace is clearly shown as spline animation.\\
+    Static Collision Dectection: When ball travel and hit the ground or target, ball will perform an explotion.\\
+    Synchronization sound: Explotion will have sound.\\
+    Physical System: A physical system is used to calculated the ball trace, which means the ball will be effected by gravity and wind force. \\
+    Cel Shading: Cel shading is applied to all models.\\
+    Shadows: models shadows will be created by adding shadows to the light mapping.\\
+
+
+\item[Bibliography]:\\
+    Particle Systems: "Particle Systems - a Technique for Modeling a Class of Fuzzy Objects" Journal ACM Transactions on Graphics (TOG) TOG Homepage archive Volume 2 Issue 2, April 1983 P 91-108 \\
+    light mappiing: "3D Games: Real-time rendering and software technology" Alan Watt P 314-320 \\
+    Shadow mappiing: "3D Games: Real-time rendering and software technology" Alan Watt P 329-349 \\
+
+
+\end{description}
+\newpage
+
+
+\noindent{\Large\bf Objectives:}
+
+{\hfill{\bf Full UserID:\rule{2in}{.1mm}}\hfill{\bf Student ID:\rule{2in}{.1mm}}\hfill}
+
+\begin{enumerate}
+     \item[\_\_\_ 1:]  Model and Scenes are working.
+
+     \item[\_\_\_ 2:]  User Interface is working.
+
+     \item[\_\_\_ 3:]  Ball is covered by texture mapping.
+
+     \item[\_\_\_ 4:]  When ball is under impact, it will explode rendered as particle system.
+
+     \item[\_\_\_ 5:]  Ball flying trace is visible (Spline Animation).
+
+     \item[\_\_\_ 6:]  When ball hit objects it will be under impact (Static collision dectection).
+
+     \item[\_\_\_ 7:]  Sound will be performed synchronized.
+
+     \item[\_\_\_ 8:]  Ball trace is effected by gravity and wind.
+
+     \item[\_\_\_ 9:]  Model and scenes are randered using cel shading.
+
+     \item[\_\_\_ 10:]  Objects have shadows using basic light mapping to get a shadow mapping.
+\end{enumerate}
+
+% Delete % at start of next line if this is a ray tracing project
+% A4 extra objective:
+
+\end{document}
