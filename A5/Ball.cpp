@@ -24,7 +24,6 @@ glm::mat4x4 Ball::fly(float arm_angle){
 	std::chrono::duration<double> ts = end_time - start_time;
 	// std::chrono::milliseconds d = std::chrono::duration_cast<std::chrono::milliseconds>(ts);
 	double t = ts.count();
-	std::cout << t << std::endl;
 	double angle = PI/2.0 - arm_angle;
 	double vx_a = local_v * sin(angle);
 	double vy_a = local_v * cos(angle);
@@ -38,7 +37,6 @@ glm::mat4x4 Ball::fly(float arm_angle){
 						 glm::vec4(0, 1, 0, 0), 
 						 glm::vec4(0, 0, 1, 0), 
 						 glm::vec4( change_distance_y * 0.001, change_distance_x * 0.001, 0, 1));
-	std::cout << "here" << std::endl;
 	return Translation;
 }
 
