@@ -32,7 +32,7 @@ xz_joint:scale(0.1, 0.1, 0.1)
 xz_joint:translate(0.0, 0.2, 0.0)
 xz_joint:set_material(blue)
 
-xz_joint_joint = gr.joint('xz_joint_joint', {-45, 0, 45}, {-90, 0, 90})
+xz_joint_joint = gr.joint('xz_joint_joint', {0, 0, 0}, {-180, 0, 180})
 xz_joint:add_child(xz_joint_joint)
 
 xz_rotation_plate = gr.mesh('Cylinder', 'xz_rotation_plate')
@@ -58,14 +58,20 @@ y_joint:scale(0.1, 0.1, 0.1)
 y_joint:translate(0.4, 0.2, 0.0)
 y_joint:set_material(yellow)
 
-y_joint_joint = gr.joint('y_joint_joint', {-45, 0, 45}, {-90, 0, 90})
+y_joint_joint = gr.joint('y_joint_joint', {0, 0, 90}, {0, 0, 0})
 y_joint:add_child(y_joint_joint)
 
-arm = gr.mesh('cube', 'arm')
-arm:scale(0.2, 1, 0.2)
-y_joint:translate(0.0, 0.5, 0.0)
+arm = gr.mesh('Cylinder', 'arm')
+arm:scale(0.2, 0.8, 0.2)
+arm:translate(0.0, 0.5, 0.0)
 arm:set_material(green)
 y_joint_joint:add_child(arm)
+
+ball = gr.mesh('sphere', 'ball')
+ball:scale(0.2, 0.2, 0.2)
+ball:translate(0.0, 0.4, 0.0)
+ball:set_material(red)
+arm:add_child(ball)
 
 -- ballThrower:rotate('y', -20.0)
 -- ballThrower:scale( 0.25, 0.25, 0.25 )

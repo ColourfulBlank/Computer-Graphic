@@ -29,6 +29,9 @@ void JointNode::set_joint_y(double min, double init, double max) {
 void JointNode::upDate_x(double amount){
 	current_X = amount;
 }
+double JointNode::getCurrentX(){
+	return current_X;
+}
 void JointNode::upDate_y(double amount){
 	current_Y = amount;
 }
@@ -42,6 +45,7 @@ void JointNode::rotate_x(double amount){
 }
 void JointNode::rotate_y(double amount){
 	current_Y = current_Y + amount;
+	// std::cout << current_Y <<" " << glm::degrees(current_Y) << std::endl;
 	const float PI = 3.14159265f;
 	current_Y = glm::degrees(current_Y) > m_joint_y.max ? m_joint_y.max/180.0f * PI : current_Y;
 	current_Y = glm::degrees(current_Y) < m_joint_y.min ? m_joint_y.min/180.0f * PI : current_Y;
@@ -53,7 +57,6 @@ void JointNode::set_transform_from_parent(glm::mat4 m){
 	if (parent_trans != m){
 		parent_trans = m;
 		parent_invtrans = inverse(m);
-		// trans = m * trans;
 	}
 }
 
@@ -70,6 +73,11 @@ void JointNode::upDateRotation(){
 				  glm::vec4(0, 1, 0, 0),
 				  glm::vec4(0, 0, 1, 0),
 				  glm::vec4(0, 0, 0, 1));
+
+	glm::mat4 Rotation_z = glm::mat4x4 (glm::vec4(cos(current_X), sin(current_X),0 ,0),
+								glm::vec4(-sin(current_X), cos(current_X), 0, 0),
+								glm::vec4(0,0,1,0),
+								glm::vec4(0,0,0,1) );
 	glm::mat4 Rotation_y = glm::mat4x4 ( glm::vec4(cos(current_Y), 0, -sin(current_Y), 0),
 								  glm::vec4(0, 1, 0, 0),
 								  glm::vec4(sin(current_Y), 0, cos(current_Y), 0),
@@ -80,7 +88,7 @@ void JointNode::upDateRotation(){
 								 glm::vec4(0,0,0,1) );
 
 	rotate_trans = I * Rotation_y;
-	rotate_trans = rotate_trans * Rotation_x;
+	rotate_trans = rotate_trans * Rotation_z;
 
 }
 

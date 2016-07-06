@@ -55,6 +55,7 @@ protected:
 	//triverse the tree 
 	void renderSceneNode(const SceneNode & root);
 	void renderGeomeNode(const SceneNode & root);
+	void renderBall(const SceneNode & root, glm::mat4x4 trans);
 	void renderJointNode(const SceneNode & root);
 	//gui functions
 	//applications
@@ -115,6 +116,8 @@ protected:
 	bool Backface_culling_enable;
 	bool Frontface_culling_enable;
 	bool picking;
+	int fire;
+
 
 	int current_mode;
 	glm::mat4 initRootTrans;
@@ -128,6 +131,10 @@ protected:
 	double arcBall_yPos;
 	double joint_rotate_x;
 	double joint_rotate_y;
+	float arm_angle;
+	float v;
+	float g;
+	float arm_angle_in_degree;
 
 	float picked_colour[3];
 	// SceneNode * headNode;

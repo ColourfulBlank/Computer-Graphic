@@ -19,7 +19,7 @@ unsigned int SceneNode::nodeInstanceCount = 0;
 //---------------------------------------------------------------------------------------
 SceneNode::SceneNode(const std::string& name)
   : m_name(name),
-	m_nodeType(NodeType::SceneNode),
+	m_nodeType( NodeType::SceneNode),
 	trans(mat4()),
 	isSelected(false),
 	m_nodeId(nodeInstanceCount++)
@@ -149,6 +149,9 @@ std::ostream & operator << (std::ostream & os, const SceneNode & node) {
 			break;
 		case NodeType::JointNode:
 			os << "JointNode";
+			break;
+		case NodeType::Ball:
+			os << "Ball";
 			break;
 	}
 	os << ":[";

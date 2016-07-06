@@ -11,7 +11,8 @@
 enum class NodeType {
 	SceneNode,
 	GeometryNode,
-	JointNode
+	JointNode,
+    Ball
 };
 
 class SceneNode {
@@ -58,8 +59,8 @@ public:
     
     std::list<SceneNode*> children;
 
-	NodeType m_nodeType;
 	std::string m_name;
+    NodeType m_nodeType;
 	unsigned int m_nodeId;
 
 //add field
@@ -69,8 +70,7 @@ public:
     glm::mat4 scale_invtrans;
     glm::mat4 rotate_trans;
     glm::mat4 rotate_invtrans;
-
-
+    
 private:
 	// The number of SceneNode instances.
 	static unsigned int nodeInstanceCount;

@@ -66,6 +66,7 @@ endif
 OBJECTS := \
 	$(OBJDIR)/A5.o \
 	$(OBJDIR)/GeometryNode.o \
+	$(OBJDIR)/Ball.o \
 	$(OBJDIR)/JointNode.o \
 	$(OBJDIR)/Main.o \
 	$(OBJDIR)/scene_lua.o \
@@ -134,6 +135,9 @@ $(OBJDIR)/A5.o: ../A5.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/GeometryNode.o: ../GeometryNode.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+$(OBJDIR)/Ball.o: ../Ball.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 $(OBJDIR)/JointNode.o: ../JointNode.cpp

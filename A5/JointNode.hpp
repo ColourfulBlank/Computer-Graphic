@@ -14,7 +14,7 @@ public:
 	void rotate_y(double amount);
 	void upDate_x(double amount);
 	void upDate_y(double amount);
-
+	double getCurrentX();
 	void set_transform_from_parent(glm::mat4 m);
 	void upDateRotation();
 	struct JointRange {

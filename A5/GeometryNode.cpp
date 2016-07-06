@@ -7,8 +7,27 @@ GeometryNode::GeometryNode(
 )
 	: SceneNode(name),
 	  meshId(meshId)
+	  // m_nodeType(NodeType::GeometryNode)
 {
 	m_nodeType = NodeType::GeometryNode;
+	Picked_material = material;
+	Picked_material.kd.x = 1.0f;
+	Picked_material.kd.y = 1.0f;
+	Picked_material.kd.z = 0.0f;
+	Picked_material.ks.x = 1.0f;
+	Picked_material.ks.y = 1.0f;
+	Picked_material.ks.z = 0.0f;
+}
+
+GeometryNode::GeometryNode(
+		const std::string & meshId,
+		const std::string & name,
+		const NodeType type
+)
+	: SceneNode(name),
+	meshId(meshId)
+{
+	m_nodeType = type;
 	Picked_material = material;
 	Picked_material.kd.x = 1.0f;
 	Picked_material.kd.y = 1.0f;

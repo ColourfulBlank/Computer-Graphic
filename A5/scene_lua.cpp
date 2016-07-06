@@ -43,6 +43,7 @@
 #include "lua488.hpp"
 #include "JointNode.hpp"
 #include "GeometryNode.hpp"
+#include "Ball.hpp"
 
 // Uncomment the following line to enable debugging messages
 //#define GRLUA_ENABLE_DEBUG
@@ -137,6 +138,7 @@ int gr_joint_cmd(lua_State* L)
 
   return 1;
 }
+//
 extern "C"
 int gr_mesh_cmd(lua_State* L)
 {
@@ -155,6 +157,24 @@ int gr_mesh_cmd(lua_State* L)
 	return 1;
 }
 
+//
+extern "C"
+int gr_ball_cmd(lua_State* L)
+{
+  GRLUA_DEBUG_CALL;
+
+  gr_node_ud* data = (gr_node_ud*)lua_newuserdata(L, sizeof(gr_node_ud));
+  data->node = 0;
+
+  const char* meshId = luaL_checkstring(L, 1);
+  const char* name = luaL_checkstring(L, 2);
+  data->node = new Ball(meshId, name);
+
+  luaL_getmetatable(L, "gr.node");
+  lua_setmetatable(L, -2);
+
+  return 1;
+}
 
 // Create a material
 extern "C"
@@ -341,6 +361,7 @@ static const luaL_Reg grlib_functions[] = {
   {"node", gr_node_cmd},
   {"joint", gr_joint_cmd},
   {"mesh", gr_mesh_cmd},
+  {"ball", gr_ball_cmd},
   {"material", gr_material_cmd},
   {0, 0}
 };

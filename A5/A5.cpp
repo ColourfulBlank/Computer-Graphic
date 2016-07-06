@@ -6,12 +6,16 @@ using namespace std;
 #include "cs488-framework/MathUtils.hpp"
 #include "GeometryNode.hpp"
 #include "JointNode.hpp"
+#include "Ball.hpp"
 
 #include <imgui/imgui.h>
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/io.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include <chrono>
+#include <ctime>
 
 using namespace glm;
 
@@ -41,8 +45,8 @@ A5::A5(const std::string & luaSceneFile)
 	  m_vbo_arcCircle(0)
 {
 	circle_enable = false;
-	z_buffer_enable = false;
-	Backface_culling_enable = false; 
+	z_buffer_enable = true;
+	Backface_culling_enable = true; 
 	Frontface_culling_enable = false;
 	picking = false;
 	current_mode = 0;
@@ -54,6 +58,11 @@ A5::A5(const std::string & luaSceneFile)
 	arcBall_yPos = m_framebufferHeight/2.0f;
 	joint_rotate_x = 0;
 	joint_rotate_y = 0;
+	fire = 0;
+	arm_angle = 0;
+	v = 50.0f;
+	g = -9.8f;
+	arm_angle_in_degree = arm_angle / PI * 180.0f;
 }
 
 //----------------------------------------------------------------------------------------
@@ -301,7 +310,7 @@ void A5::initPerspectiveMatrix()
 
 //----------------------------------------------------------------------------------------
 void A5::initViewMatrix() {
-	m_view = glm::lookAt(vec3(0.0f, 5.0f, 15.0f), vec3(0.0f, 0.0f, -1.0f),
+	m_view = glm::lookAt(vec3(0.0f, 5.0f, 30m.0f), vec3(0.0f, 0.0f, -1.0f),
 			vec3(0.0f, 1.0f, 0.0f));
 }
 // 
@@ -371,71 +380,22 @@ void A5::guiLogic()
 
 	static bool showDebugWindow(true);
 	ImGuiWindowFlags windowFlags(ImGuiWindowFlags_AlwaysAutoResize);
-	float opacity(0.5f);
+	float opacity(0.9f);
 	ImGui::Begin("A5", &showDebugWindow, ImVec2(100,100), opacity,
 			windowFlags);
-    	if (ImGui::BeginMenu("Application")){
-        	if( ImGui::Button( "Reset Position (I)" ) ) {
-        		cout << "Reset Position" << endl;
-        		resetPosition();
-        	}	
-        	if( ImGui::Button( "Reset Orientation (O)" ) ) {
-        		cout << "Reset Orientation" << endl;
-        		resetOrientation();
-        	}
-        	if( ImGui::Button( "Reset Joints (N)" ) ) {
-        		cout << "Reset Joints" << endl;
-        		resetJoints();
-        	}
-        	if( ImGui::Button( "Reset All (A)" ) ) {
-        		cout << "Reset All" << endl;
-        		resetAll();
-        	}
-        	if( ImGui::Button( "Quit Application (Q)" ) ) {
-        		cout << "Quit Application" << endl;
-        		glfwSetWindowShouldClose(m_window, GL_TRUE);
-        	}
-            ImGui::EndMenu();
-		}	
-	
-
-	
-
-	if (ImGui::BeginMenu("Edit")){
-
-		if( ImGui::Button( "Undo (U)" ) ) {
-			cout << "Undo" << endl;
-			undo();
-		}
-		if( ImGui::Button( "Redo (R)" ) ) {
-			cout << "Redo" << endl;
-			redo();
-		}
-		
-	 	ImGui::EndMenu();	
-	}
-	if (ImGui::BeginMenu("options")){
-
-		
+    	if( ImGui::Button( "Reset All (A)" ) ) {
+    		cout << "Reset All" << endl;
+    		resetAll();
+    	}
+    	if( ImGui::Button( "Quit Application (Q)" ) ) {
+    		cout << "Quit Application" << endl;
+    		glfwSetWindowShouldClose(m_window, GL_TRUE);
+    	}
 		ImGui::Checkbox( "Circle (C)", &circle_enable );
 		ImGui::Checkbox( "Z-buffer (Z)", &z_buffer_enable );
-		ImGui::Checkbox( "Backface culling (B)", &Backface_culling_enable );
-		ImGui::Checkbox( "Frontface culling (F)", &Frontface_culling_enable );
-		if( ImGui::RadioButton( "Position/Orientation (P)", &current_mode, 0 ) ) {
-			cout << "Position/Orientation: " << current_mode << endl;
-			deSelect();	
-		}
-		if( ImGui::RadioButton( "Joints (J)", &current_mode, 1 ) ) {
-			cout << "Joints: " << current_mode << endl;	
-		}
-		ImGui::EndMenu();	
-	}	
-		ImGui::Text( "Redo: %d", redo_stack.size() );
-		ImGui::Text( "Undo: %d", undo_stack.size() - 1 );
-
+		ImGui::SliderFloat("init v", &v, 0, 100, "%.0f");
+		ImGui::SliderFloat("init g", &g, -100, 100, "%.0f");
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
-		
-
 	ImGui::End();
 }
 
@@ -443,14 +403,14 @@ void A5::guiLogic()
 // Update mesh specific shader uniforms:
 static void updateShaderUniforms( const ShaderProgram & shader,
 								  const GeometryNode & node,
-							      const glm::mat4 & viewMatrix) {
+							      const glm::mat4 & viewMatrix ) {
 
 	shader.enable();
 	{
 		//-- Set ModelView matrix:
 		GLint location = shader.getUniformLocation("ModelView");
 		mat4 modelView;
-		if (node.m_nodeType == NodeType::GeometryNode){
+		if (node.m_nodeType == NodeType::GeometryNode || node.m_nodeType == NodeType::Ball){
 			modelView = viewMatrix * node.parent_trans * node.trans * node.rotate_trans * node.scale_trans;
 		} else {
 			modelView = viewMatrix * node.trans  * node.rotate_trans * node.scale_trans;
@@ -466,11 +426,10 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 
 
 		//-- Set Material values:
-		if (node.m_nodeType == NodeType::GeometryNode){
+		if (node.m_nodeType == NodeType::GeometryNode || node.m_nodeType == NodeType::Ball){
 			location = shader.getUniformLocation("material.kd");
 			vec3 kd;
 			if (picked_Id[node.m_nodeId] == 1){
-				// std::cout << Picked_material.kd.x << std::endl;
 				kd = node.Picked_material.kd;	
 			} else {
 				kd = node.material.kd;
@@ -479,9 +438,7 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			CHECK_GL_ERRORS;
 			location = shader.getUniformLocation("material.ks");
 			vec3 ks;
-			 // = node.material.ks;
 			if (picked_Id[node.m_nodeId] == 1){
-				// std::cout << Picked_material.kd.x << std::endl;
 				ks = node.Picked_material.ks;	
 			} else {
 				ks = node.material.ks;
@@ -492,8 +449,7 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			location = shader.getUniformLocation("material.shininess");
 			glUniform1f(location, node.material.shininess);
 			CHECK_GL_ERRORS;
-			//
-			// 
+			
 		}
 
 	}
@@ -512,7 +468,6 @@ void A5::draw() {
 	}
 	enableCulling(true);
 	renderSceneGraph(*m_rootNode);
-	
 	glCullFace(GL_FRONT);
 	if (z_buffer_enable){
 		glDisable( GL_DEPTH_TEST );
@@ -542,18 +497,6 @@ void A5::renderSceneGraph(const SceneNode & root) {
 	// Bind the VAO once here, and reuse for all GeometryNode rendering below.
 	glBindVertexArray(m_vao_meshData);
 
-	// This is emphatically *not* how you should be drawing the scene graph in
-	// your final implementation.  This is a non-hierarchical demonstration
-	// in which we assume that there is a list of GeometryNodes living directly
-	// underneath the root node, and that we can draw them in a loop.  It's
-	// just enough to demonstrate how to get geometry and materials out of
-	// a GeometryNode and onto the screen.
-
-	// You'll want to turn this into recursive code that walks over the tree.
-	// You can do that by putting a method in SceneNode, overridden in its
-	// subclasses, that renders the subtree rooted at every node.  Or you
-	// could put a set of mutually recursive functions in this class, which
-	// walk down the tree from nodes of different types.
 	renderSceneNode(root);
 
 	glBindVertexArray(0);
@@ -570,10 +513,12 @@ void A5::renderSceneNode(const SceneNode & root){
 
 	for (SceneNode * node : root.children){
 		if (node->m_nodeType == NodeType::GeometryNode){
-			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.get_transform() * root.get_rotation() * root.get_scale());
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
 			renderGeomeNode(*node);
-		} else if (node->m_nodeType == NodeType::JointNode){
-			((JointNode *)node)->JointNode::set_transform_from_parent(root.get_transform() * root.get_rotation() * root.get_scale());
+		} else if (node->m_nodeType == NodeType::Ball){
+			 renderBall(*node, root.parent_trans * root.get_transform() * root.get_rotation());
+		} else {
+			((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans* root.get_transform() * root.get_rotation() );
 			renderJointNode(*node);
 		}
 	}
@@ -584,56 +529,89 @@ void A5::renderGeomeNode(const SceneNode & root){
 	
 
 	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
-	// cout << geometryNode->m_name << endl;
+	if (geometryNode->m_nodeType == NodeType::Ball){
+		// const Ball * ball = static_cast <const Ball *>(& root);
+		// if (fire > 0){
+		// 	((Ball *)ball)->init_fly(g, v);
+		// 	fire = 0;
+		// }
+		// if (ball->ball_state == BallState::Flying){
+		// 	mat4x4 Translation = ((Ball *)ball)->fly(arm_angle);
+		// 	((Ball *)ball)->GeometryNode::set_transform_from_parent(root.parent_trans * Translation);	
+		// }
+
+		// updateShaderUniforms(m_shader, *geometryNode, m_view);
+		// // Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
+		// BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
+
+		// //-- Now render the mesh:
+		// m_shader.enable();
+		// glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
+		// m_shader.disable();
+	} else {
+		updateShaderUniforms(m_shader, *geometryNode, m_view);
+		// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
+		BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
+
+		//-- Now render the mesh:
+		m_shader.enable();
+		glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
+		m_shader.disable();
+
+		for (SceneNode * node : root.children){
+			if (node->m_nodeType == NodeType::GeometryNode){
+				((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
+				renderGeomeNode(*node);
+			} else if (node->m_nodeType == NodeType::Ball){
+				 renderBall(*node, root.parent_trans * root.get_transform() * root.get_rotation());
+			} else {
+				((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans* root.get_transform() * root.get_rotation() );
+				renderJointNode(*node);
+			}
+		}
+	}
+}
+
+void A5::renderBall(const SceneNode & root, mat4x4 trans){
+	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
+	const Ball * ball = static_cast <const Ball *>(& root);
+	if (((Ball *) ball)->ball_state == BallState::Waiting){
+		((GeometryNode *)geometryNode)->GeometryNode::set_transform_from_parent( trans );
+	} 
+	if (fire > 0 && ball->ball_state == BallState::Waiting){
+		((Ball *)ball)->init_fly(g, v);
+		fire = 0;
+	}
+	if (ball->ball_state == BallState::Flying){
+		mat4x4 Translation = ((Ball *)ball)->fly(arm_angle);
+		((Ball *)ball)->GeometryNode::set_transform_from_parent(root.parent_trans * Translation);	
+	}
+
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
 
-	// if (geometryNode->m_name == "head") {
-	// 		headNode_Id = geometryNode->m_nodeId;
-	// }
 	//-- Now render the mesh:
 	m_shader.enable();
-	// false colour setting
-	GLint colour_location = m_shader.getUniformLocation("colour");
-	int r = (geometryNode->m_nodeId & 0x000000FF) >>  0;
-	int g = (geometryNode->m_nodeId & 0x0000FF00) >>  8;
-	int b = (geometryNode->m_nodeId & 0x00FF0000) >> 16;
-	glUniform4f(colour_location, r/255.0f, g/255.0f, b/255.0f, 1.0f);
-	CHECK_GL_ERRORS;
-	
 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
 	m_shader.disable();
-
-	for (SceneNode * node : root.children){
-		if (node->m_nodeType == NodeType::GeometryNode){
-			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
-			renderGeomeNode(*node);
-		} else {
-			((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans* root.get_transform() * root.get_rotation() );
-			renderJointNode(*node);
-		}
-	}
-
 }
+
 void A5::renderJointNode(const SceneNode & root){
 	const JointNode * jointNode = static_cast <const JointNode *>(& root);
 	for (int i = 0; i < m_rootNode->totalSceneNodes(); i++){
-		if (Joint_children[i] == root.m_nodeId){
-			if (picked_Id[i] == 1){
-				((JointNode * )jointNode)->rotate_x(joint_rotate_x);
-				((JointNode * )jointNode)->rotate_y(joint_rotate_y);
-			}
-		}
+		((JointNode * )jointNode)->rotate_x(joint_rotate_x);
+		((JointNode * )jointNode)->rotate_y(joint_rotate_y);
+		arm_angle = ((JointNode * )jointNode)->getCurrentX();
 	}
 	for (SceneNode * node : root.children){
-
 		if (node->m_nodeType == NodeType::GeometryNode){
-			Joint_children[node->m_nodeId] = root.m_nodeId;
 			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
 			renderGeomeNode(*node);
-		} else if (node->m_nodeType == NodeType::JointNode){
-			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
+		} else if (node->m_nodeType == NodeType::Ball){
+			 renderBall(*node, root.parent_trans * root.get_transform() * root.get_rotation());
+		} else {
+			((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans* root.get_transform() * root.get_rotation() );
 			renderJointNode(*node);
 		}
 	}
@@ -717,10 +695,6 @@ bool A5::mouseMoveEvent (
 								   					glm::degrees(angleAtView),
 								   					{ axisAtWorld.x, -axisAtWorld.y, axisAtWorld.z}));
 			}
-			if (current_mode == 1){
-				joint_rotate_y = deltaX * PI * 2;
-
-			}
 		}
 		if (mouseState[0] == 1){ // left click
 			if (current_mode == 0){
@@ -732,11 +706,6 @@ bool A5::mouseMoveEvent (
 			if (current_mode == 0){
 				setTrans(vec3(0, 0, deltaZ),vec3(0,0,0));
 			} 
-			if (current_mode == 1){
-				joint_rotate_x = deltaY * PI * 2;
-				// joint_rotate_y = deltaY * PI;
-				// picked_Id[headNode_Id] = 1;
-			}
 		}
 	}
 	last_xPos = xPos;
@@ -761,41 +730,9 @@ bool A5::mouseButtonInputEvent (
 		int w, h;
 		glfwGetWindowSize(m_window, &w, &h);
 	if (mouseState[0] == 1){
-		if (current_mode == 1){
-			pickingMode(1);
-
-			glClear(GL_COLOR_BUFFER_BIT);
-			glClear(GL_DEPTH_BUFFER_BIT);
-
-			if (z_buffer_enable){
-				glEnable( GL_DEPTH_TEST );
-			}
-			renderSceneGraph(*m_rootNode);
-
-			if (z_buffer_enable){
-				glDisable( GL_DEPTH_TEST );
-			}
-			unsigned char data[4];
-			glReadPixels(last_xPos, h - last_yPos, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
-				
-			if (Joint_children[lookingUpId(data)] != 0) {
-				picked_Id[lookingUpId(data)] = picked_Id[lookingUpId(data)] == 1 ? 0 : 1;
-			}
-
-			pickingMode(0);
-			if (mouseState[1] == 1 || mouseState[2] == 1){
-				reset_stacks();
-			}	
-		}	
+		
 	}
 
-	if ((button == 1 && actions == 0) || (button == 2 && actions == 0)){
-		if (current_mode == 1){
-			std::map<int, glm::vec2> Joint_Record;
-			add_to_stack_undo(*m_rootNode,  & Joint_Record);
-			undo_stack.push_back(Joint_Record);
-		}	
-	}
 	}
 	return eventHandled;
 }
@@ -855,55 +792,8 @@ bool A5::keyInputEvent (
 			eventHandled = true;
 		}
 		if (key == GLFW_KEY_Z ) {
-			cout << "c key pressed" << endl;
+			cout << "z key pressed" << endl;
 			z_buffer_enable = z_buffer_enable ? false : true;
-			eventHandled = true;
-		}
-		if (key == GLFW_KEY_B ) {
-			cout << "b key pressed" << endl;
-			Backface_culling_enable = Backface_culling_enable ? false : true;
-			eventHandled = true;
-		}
-		if (key == GLFW_KEY_F ) {
-			cout << "f key pressed" << endl;
-			Frontface_culling_enable = Frontface_culling_enable ? false : true;
-			eventHandled = true;
-		}
-		if (key == GLFW_KEY_P ) {
-			cout << "p key pressed" << endl;
-			current_mode = 0;
-			deSelect();
-			eventHandled = true;
-		}
-		if (key == GLFW_KEY_J ) {
-			cout << "j key pressed" << endl;
-			current_mode = 1;
-
-			eventHandled = true;
-		}
-		if (key == GLFW_KEY_U ) {
-			cout << "u key pressed" << endl;
-			undo();
-			eventHandled = true;
-		}
-		if (key == GLFW_KEY_R ) {
-			cout << "r key pressed" << endl;
-			redo();
-			eventHandled = true;
-		}
-		if (key == GLFW_KEY_I ) {
-			cout << "i key pressed" << endl;
-			resetPosition();
-			eventHandled = true;
-		}
-		if (key == GLFW_KEY_O ) {
-			cout << "o key pressed" << endl;
-			resetOrientation();
-			eventHandled = true;
-		}
-		if (key == GLFW_KEY_N ) {
-			cout << "n key pressed" << endl;
-			resetJoints();
 			eventHandled = true;
 		}
 		if (key == GLFW_KEY_A ) {
@@ -912,19 +802,26 @@ bool A5::keyInputEvent (
 			eventHandled = true;
 		}
 		if (key == GLFW_KEY_RIGHT ){
-			joint_rotate_y = 0.1 * PI * 2;
+			joint_rotate_y = -0.01 * PI * 2;
 			eventHandled = true;
 		} 
 		if (key == GLFW_KEY_LEFT ){
-			joint_rotate_y = -0.1 * PI * 2;
+			joint_rotate_y = 0.01 * PI * 2;
 			eventHandled = true;
 		} 
 		if (key == GLFW_KEY_UP ){
+			joint_rotate_x = -0.001 * PI*2;
 			eventHandled = true;
 		} 
 		if (key == GLFW_KEY_DOWN ){
+			joint_rotate_x = 0.001 * PI*2;
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_SPACE ){
+			fire = 1;
 			eventHandled = true;
 		} 
+
 	}
 	// Fill in with event handling code...
 

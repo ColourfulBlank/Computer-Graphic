@@ -8,10 +8,15 @@ public:
 		const std::string & meshId,
 		const std::string & name
 	);
+	GeometryNode(
+		const std::string & meshId,
+		const std::string & name,
+		const NodeType type
+	);
 
 	void set_transform_from_parent(glm::mat4 m);
 	// void draw_parent(); 
-
+	// NodeType m_nodeType;
 	Material material;
 	Material Picked_material;
 
