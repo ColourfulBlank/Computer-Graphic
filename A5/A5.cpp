@@ -516,7 +516,7 @@ void A5::renderSceneNode(const SceneNode & root){
 			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
 			renderGeomeNode(*node);
 		} else if (node->m_nodeType == NodeType::Ball){
-			 renderBall(*node, root.get_transform() * root.get_rotation());
+			 renderBall(*node, root.parent_trans * root.get_transform() * root.get_rotation());
 		} else {
 			((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans* root.get_transform() * root.get_rotation() );
 			renderJointNode(*node);
@@ -563,7 +563,7 @@ void A5::renderGeomeNode(const SceneNode & root){
 				((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
 				renderGeomeNode(*node);
 			} else if (node->m_nodeType == NodeType::Ball){
-				 renderBall(*node, root.get_transform() * root.get_rotation());
+				 renderBall(*node, root.parent_trans * root.get_transform() * root.get_rotation());
 			} else {
 				((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans* root.get_transform() * root.get_rotation() );
 				renderJointNode(*node);
@@ -576,7 +576,7 @@ void A5::renderBall(const SceneNode & root, mat4x4 trans){
 	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
 	const Ball * ball = static_cast <const Ball *>(& root);
 	if (((Ball *) ball)->ball_state == BallState::Waiting){
-		((GeometryNode *)geometryNode)->GeometryNode::set_transform_from_parent( root.parent_trans * trans );
+		((GeometryNode *)geometryNode)->GeometryNode::set_transform_from_parent( trans );
 	} 
 	if (fire > 0 && ball->ball_state == BallState::Waiting){
 		((Ball *)ball)->init_fly(g, v);
@@ -609,7 +609,7 @@ void A5::renderJointNode(const SceneNode & root){
 			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
 			renderGeomeNode(*node);
 		} else if (node->m_nodeType == NodeType::Ball){
-			 renderBall(*node, root.get_transform() * root.get_rotation());
+			 renderBall(*node, root.parent_trans * root.get_transform() * root.get_rotation());
 		} else {
 			((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans* root.get_transform() * root.get_rotation() );
 			renderJointNode(*node);
