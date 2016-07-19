@@ -7,6 +7,7 @@ using namespace std;
 #include "GeometryNode.hpp"
 #include "JointNode.hpp"
 #include "Ball.hpp"
+#include "explosive.hpp"
 
 #include <imgui/imgui.h>
 
@@ -16,6 +17,7 @@ using namespace std;
 
 #include <chrono>
 #include <ctime>
+#include <cstdlib>
 
 using namespace glm;
 
@@ -46,7 +48,7 @@ A5::A5(const std::string & luaSceneFile)
 {
 	circle_enable = false;
 	z_buffer_enable = true;
-	Backface_culling_enable = true; 
+	Backface_culling_enable = false; 
 	Frontface_culling_enable = false;
 	picking = false;
 	current_mode = 0;
@@ -60,7 +62,8 @@ A5::A5(const std::string & luaSceneFile)
 	joint_rotate_y = 0;
 	fire = 0;
 	arm_angle = 0;
-	v = 50.0f;
+	v = 10.0f;
+	w = 0.0f;
 	g = -9.8f;
 	arm_angle_in_degree = arm_angle / PI * 180.0f;
 }
@@ -98,7 +101,9 @@ void A5::init()
 			getAssetFilePath("sphere.obj"),
 			getAssetFilePath("suzanne.obj"),
 			getAssetFilePath("cylender.obj"),
-			getAssetFilePath("pin.obj")
+			getAssetFilePath("pin.obj"),
+			getAssetFilePath("mesh.obj"),
+			getAssetFilePath("plane.obj")
 	});
 
 
@@ -253,7 +258,7 @@ void A5::uploadVertexDataToVbos (
 			pts[2*idx+1] = sin( ang );
 		}
 
-		glBufferData(GL_ARRAY_BUFFER, 2*CIRCLE_PTS*sizeof(float), pts, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, 2 * CIRCLE_PTS * sizeof(float), pts, GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		CHECK_GL_ERRORS;
@@ -311,6 +316,7 @@ void A5::initPerspectiveMatrix()
 //----------------------------------------------------------------------------------------
 void A5::initViewMatrix() {
 	m_view = glm::lookAt(vec3(0.0f, 5.0f, 30.0f), vec3(0.0f, 0.0f, -1.0f),
+	// m_view = glm::lookAt(vec3(0.0f, 5.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f),
 			vec3(0.0f, 1.0f, 0.0f));
 }
 // 
@@ -394,6 +400,7 @@ void A5::guiLogic()
 		ImGui::Checkbox( "Circle (C)", &circle_enable );
 		ImGui::Checkbox( "Z-buffer (Z)", &z_buffer_enable );
 		ImGui::SliderFloat("init v", &v, 0, 100, "%.0f");
+		ImGui::SliderFloat("init w", &w, -100, 100, "%.0f");
 		ImGui::SliderFloat("init g", &g, -100, 100, "%.0f");
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
 	ImGui::End();
@@ -410,7 +417,7 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 		//-- Set ModelView matrix:
 		GLint location = shader.getUniformLocation("ModelView");
 		mat4 modelView;
-		if (node.m_nodeType == NodeType::GeometryNode || node.m_nodeType == NodeType::Ball){
+		if (node.m_nodeType == NodeType::GeometryNode || node.m_nodeType == NodeType::Ball || node.m_nodeType == NodeType::Explosive){
 			modelView = viewMatrix * node.parent_trans * node.trans * node.rotate_trans * node.scale_trans;
 		} else {
 			modelView = viewMatrix * node.trans  * node.rotate_trans * node.scale_trans;
@@ -426,7 +433,7 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 
 
 		//-- Set Material values:
-		if (node.m_nodeType == NodeType::GeometryNode || node.m_nodeType == NodeType::Ball){
+		if (node.m_nodeType == NodeType::GeometryNode || node.m_nodeType == NodeType::Ball || node.m_nodeType == NodeType::Explosive){
 			location = shader.getUniformLocation("material.kd");
 			vec3 kd;
 			if (picked_Id[node.m_nodeId] == 1){
@@ -443,7 +450,7 @@ static void updateShaderUniforms( const ShaderProgram & shader,
 			} else {
 				ks = node.material.ks;
 			}
-			glUniform3fv(location, 1, value_ptr(ks));
+			glUniform3fv(location, 1, value_ptr(ks)); 
 			
 			CHECK_GL_ERRORS;
 			location = shader.getUniformLocation("material.shininess");
@@ -467,7 +474,9 @@ void A5::draw() {
 		glEnable( GL_DEPTH_TEST );
 	}
 	enableCulling(true);
+
 	renderSceneGraph(*m_rootNode);
+
 	glCullFace(GL_FRONT);
 	if (z_buffer_enable){
 		glDisable( GL_DEPTH_TEST );
@@ -529,64 +538,6 @@ void A5::renderGeomeNode(const SceneNode & root){
 	
 
 	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
-	if (geometryNode->m_nodeType == NodeType::Ball){
-		// const Ball * ball = static_cast <const Ball *>(& root);
-		// if (fire > 0){
-		// 	((Ball *)ball)->init_fly(g, v);
-		// 	fire = 0;
-		// }
-		// if (ball->ball_state == BallState::Flying){
-		// 	mat4x4 Translation = ((Ball *)ball)->fly(arm_angle);
-		// 	((Ball *)ball)->GeometryNode::set_transform_from_parent(root.parent_trans * Translation);	
-		// }
-
-		// updateShaderUniforms(m_shader, *geometryNode, m_view);
-		// // Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
-		// BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
-
-		// //-- Now render the mesh:
-		// m_shader.enable();
-		// glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
-		// m_shader.disable();
-	} else {
-		updateShaderUniforms(m_shader, *geometryNode, m_view);
-		// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
-		BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
-
-		//-- Now render the mesh:
-		m_shader.enable();
-		glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
-		m_shader.disable();
-
-		for (SceneNode * node : root.children){
-			if (node->m_nodeType == NodeType::GeometryNode){
-				((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
-				renderGeomeNode(*node);
-			} else if (node->m_nodeType == NodeType::Ball){
-				 renderBall(*node, root.parent_trans * root.get_transform() * root.get_rotation());
-			} else {
-				((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans* root.get_transform() * root.get_rotation() );
-				renderJointNode(*node);
-			}
-		}
-	}
-}
-
-void A5::renderBall(const SceneNode & root, mat4x4 trans){
-	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
-	const Ball * ball = static_cast <const Ball *>(& root);
-	if (((Ball *) ball)->ball_state == BallState::Waiting){
-		((GeometryNode *)geometryNode)->GeometryNode::set_transform_from_parent( trans );
-	} 
-	if (fire > 0 && ball->ball_state == BallState::Waiting){
-		((Ball *)ball)->init_fly(g, v);
-		fire = 0;
-	}
-	if (ball->ball_state == BallState::Flying){
-		mat4x4 Translation = ((Ball *)ball)->fly(arm_angle);
-		((Ball *)ball)->GeometryNode::set_transform_from_parent(root.parent_trans * Translation);	
-	}
-
 	updateShaderUniforms(m_shader, *geometryNode, m_view);
 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
@@ -595,6 +546,89 @@ void A5::renderBall(const SceneNode & root, mat4x4 trans){
 	m_shader.enable();
 	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
 	m_shader.disable();
+
+	for (SceneNode * node : root.children){
+		if (node->m_nodeType == NodeType::GeometryNode){
+			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
+			renderGeomeNode(*node);
+		} else if (node->m_nodeType == NodeType::Ball){
+			 renderBall(*node, root.parent_trans * root.get_transform() * root.get_rotation());
+		} else {
+			((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans* root.get_transform() * root.get_rotation() );
+			renderJointNode(*node);
+		}
+	}
+}
+
+void A5::renderBall(const SceneNode & root, mat4x4 trans){
+	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
+	const Ball * ball = static_cast <const Ball *>(& root);
+
+	if (((Ball *) ball)->ball_state == BallState::Waiting){
+		((GeometryNode *)geometryNode)->GeometryNode::set_transform_from_parent( trans );
+	} 
+
+	if (fire > 0 && ball->ball_state == BallState::Waiting){
+		((Ball *)ball)->init_fly(arm_angle, g, v, w);
+		fire = 0;
+	}
+	
+	if (ball->ball_state == BallState::Flying){
+		mat4x4 Translation = ((Ball *)ball)->fly();
+		((Ball *)ball)->GeometryNode::set_transform_from_parent(root.parent_trans * Translation);	
+	}
+	if (ball->ball_state == BallState::Contact){
+		
+		if (((Ball *)ball)->Contact_time < 100){
+			for (SceneNode * node : root.children){
+				renderExplosive(*node, root.parent_trans * root.get_transform() * root.get_rotation(), ((Ball *)ball)->Contact_time);
+			}
+			((Ball *)ball)->Contact_time++;
+		} else {
+			((Ball *)ball)->Contact_time = 0;
+			((Ball *)ball)->ball_state = BallState::Waiting;	
+		}
+
+		
+	}
+	updateShaderUniforms(m_shader, *geometryNode, m_view);
+	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
+	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
+
+	//-- Now render the mesh:
+	m_shader.enable();
+	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
+	m_shader.disable();
+}
+
+void A5::renderExplosive(const SceneNode & root, mat4x4 trans, float Contact_time){
+	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
+	const Explosive * explosive = static_cast <const Explosive *>(& root);
+	((GeometryNode *)geometryNode)->GeometryNode::set_transform_from_parent( trans );
+	int particalCount = 30 * Contact_time;
+	std::srand(std::time(0));
+	cout << Contact_time << endl;
+	for (int i = 0; i < particalCount; i++){
+		 int random_a = std::rand() % 90 - 45;
+		 int random_g = std::rand() % particalCount - particalCount/2.0;
+		 int random_v = std::rand() % particalCount - particalCount/2.0;
+		 int random_w = std::rand() % particalCount - particalCount/2.0;
+		 // std::cout << random_g <<" "<< random_v <<" "<< random_w <<" "<< endl;
+		((Explosive *)explosive)->init_fly(random_a, random_v, random_g, random_w, Contact_time);
+		
+		mat4x4 Translation = ((Explosive *)explosive)->fly();
+		((Explosive *)explosive)->GeometryNode::set_transform_from_parent(root.parent_trans * Translation);	
+		std::cout << root.parent_trans * Translation << std::endl;
+
+		updateShaderUniforms(m_shader, *geometryNode, m_view);
+		// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
+		BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
+
+		//-- Now render the mesh:
+		m_shader.enable();
+		glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
+		m_shader.disable();
+	}
 }
 
 void A5::renderJointNode(const SceneNode & root){
@@ -609,7 +643,7 @@ void A5::renderJointNode(const SceneNode & root){
 			((GeometryNode *)node)->GeometryNode::set_transform_from_parent(root.parent_trans * root.get_transform() * root.get_rotation() );
 			renderGeomeNode(*node);
 		} else if (node->m_nodeType == NodeType::Ball){
-			 renderBall(*node, root.parent_trans * root.get_transform() * root.get_rotation());
+			renderBall(*node, root.parent_trans * root.get_transform() * root.get_rotation());
 		} else {
 			((JointNode *)node)->JointNode::set_transform_from_parent(root.parent_trans* root.get_transform() * root.get_rotation() );
 			renderJointNode(*node);
@@ -632,7 +666,6 @@ void A5::renderArcCircle() {
 			} else {
 				M = glm::scale( glm::mat4(), glm::vec3( 0.5, 0.5*aspect, 1.0 ) );
 			}
-			// M = arcTrans * M;
 			glUniformMatrix4fv( m_location, 1, GL_FALSE, value_ptr( M ) );
 			glDrawArrays( GL_LINE_LOOP, 0, CIRCLE_PTS );
 		m_shader_arcCircle.disable();

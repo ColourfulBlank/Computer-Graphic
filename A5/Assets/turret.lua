@@ -14,7 +14,7 @@ skin = gr.material({1.0, 0.8, 0.6}, {0.1, 0.1, 0.1}, 5)
 brown = gr.material({0.4, 0.2, 0}, {0.1, 0.1, 0.1}, 5)
 lightGreen = gr.material({0, 0.8, 0}, {0.1, 0.1, 0.1}, 5)
 
-ground = gr.mesh('cube', 'ground')
+ground = gr.mesh('plane', 'ground')
 rootnode:add_child(ground)
 ground:scale(30,0.1,30);
 ground:set_material(red)
@@ -68,8 +68,15 @@ arm:set_material(green)
 y_joint_joint:add_child(arm)
 
 ball = gr.ball('sphere', 'ball')
-ball:scale(0.5, 0.5, 0.5)
-ball:translate(0.0, 0.4, 0.0)
+ball:scale(0.2, 0.2, 0.2)
+ball:translate(0.0, 0.6, 0.0)
 ball:set_material(red)
 arm:add_child(ball)
+
+explosive = gr.exp('sphere', 'partical')
+explosive:scale(0.2, 0.2, 0.2)
+explosive:set_material(white)
+ball:add_child(explosive)
+
+
 return rootnode

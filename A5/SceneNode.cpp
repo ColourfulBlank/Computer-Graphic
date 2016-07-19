@@ -153,6 +153,9 @@ std::ostream & operator << (std::ostream & os, const SceneNode & node) {
 		case NodeType::Ball:
 			os << "Ball";
 			break;
+		case NodeType::Explosive:
+			os << "Explosive";
+			break;	
 	}
 	os << ":[";
 

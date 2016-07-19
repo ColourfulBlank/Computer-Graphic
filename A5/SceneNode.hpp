@@ -12,7 +12,8 @@ enum class NodeType {
 	SceneNode,
 	GeometryNode,
 	JointNode,
-    Ball
+    Ball,
+    Explosive
 };
 
 class SceneNode {

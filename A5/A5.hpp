@@ -56,6 +56,8 @@ protected:
 	void renderSceneNode(const SceneNode & root);
 	void renderGeomeNode(const SceneNode & root);
 	void renderBall(const SceneNode & root, glm::mat4x4 trans);
+	void renderExplosive(const SceneNode & root, glm::mat4x4 trans, float Contact_time);
+	
 	void renderJointNode(const SceneNode & root);
 	//gui functions
 	//applications
@@ -133,18 +135,14 @@ protected:
 	double joint_rotate_y;
 	float arm_angle;
 	float v;
+	float w;
 	float g;
 	float arm_angle_in_degree;
 
 	float picked_colour[3];
-	// SceneNode * headNode;
-	// int headNode_Id;
 	glm::mat4 headRotateTrans;
 	glm::mat4 rootRotation;
 	std::vector<std::map<int, glm::vec2> > undo_stack;
-	// std::vector<std::map<int, float> > undo_stack_y;
 	std::vector<std::map<int, glm::vec2> > redo_stack;
-	// std::vector<std::map<int, float> > redo_stack_y;
-	
-	// std::map<unsigned int, glm::vec3> colour_ids;
+
 };
