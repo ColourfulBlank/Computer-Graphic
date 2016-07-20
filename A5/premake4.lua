@@ -6,20 +6,28 @@ includeDirList = {
     "../shared",
     "../shared/include",
     "../shared/gl3w",
-    "../shared/imgui"
+    "../shared/imgui",
+    "irrKlang/include"
 }
 
 libDirectories = { 
-    "../lib"
+    "../lib",
+    "irrKlang/bin/linux-gcc-64/"
 }
 
 
 if os.get() == "macosx" then
+    libDirectories = { 
+        "../lib",
+        "irrKlang/bin/macosx-gcc/"
+    }
     linkLibs = {
         "cs488-framework",
         "imgui",
         "glfw3",
-        "lua"
+        "lua",
+        "IrrKlang"
+
 
     }
 end
@@ -39,7 +47,8 @@ if os.get() == "linux" then
         "X11",
         "stdc++",
         "dl",
-        "pthread"
+        "pthread",
+        "IrrKlang"
     }
 end
 

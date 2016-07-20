@@ -19,7 +19,10 @@ using namespace std;
 #include <ctime>
 #include <cstdlib>
 
+
+
 using namespace glm;
+using namespace irrklang;
 
 static bool show_gui = true;
 
@@ -66,6 +69,8 @@ A5::A5(const std::string & luaSceneFile)
 	w = 0.0f;
 	g = -9.8f;
 	arm_angle_in_degree = arm_angle / PI * 180.0f;
+	soundEngine = irrklang::createIrrKlangDevice();
+
 }
 
 //----------------------------------------------------------------------------------------
@@ -578,8 +583,11 @@ void A5::renderBall(const SceneNode & root, mat4x4 trans){
 		((Ball *)ball)->GeometryNode::set_transform_from_parent(root.parent_trans * Translation);	
 	}
 	if (ball->ball_state == BallState::Contact){
-		
-		if (((Ball *)ball)->Contact_time < 100){
+		if (((Ball *)ball)->Contact_time == 0){
+			std::string explosion_music = "Assets/explosion.mp3";
+			soundEngine->play2D(explosion_music.c_str(), false);
+		}
+		if (((Ball *)ball)->Contact_time < 50){
 			for (SceneNode * node : root.children){
 				renderExplosive(*node, root.parent_trans * root.get_transform() * root.get_rotation(), ((Ball *)ball)->Contact_time);
 			}
@@ -591,34 +599,36 @@ void A5::renderBall(const SceneNode & root, mat4x4 trans){
 
 		
 	}
-	updateShaderUniforms(m_shader, *geometryNode, m_view);
-	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
-	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
 
-	//-- Now render the mesh:
-	m_shader.enable();
-	glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
-	m_shader.disable();
+	if (ball->ball_state == BallState::Flying){
+		updateShaderUniforms(m_shader, *geometryNode, m_view);
+		// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
+		BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
+
+		//-- Now render the mesh:
+		m_shader.enable();
+		glDrawArrays( GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices );
+		m_shader.disable();
+	}
 }
 
 void A5::renderExplosive(const SceneNode & root, mat4x4 trans, float Contact_time){
 	const GeometryNode * geometryNode = static_cast <const GeometryNode *>(& root);
 	const Explosive * explosive = static_cast <const Explosive *>(& root);
 	((GeometryNode *)geometryNode)->GeometryNode::set_transform_from_parent( trans );
-	int particalCount = 30 * Contact_time;
-	std::srand(std::time(0));
-	cout << Contact_time << endl;
+	int particalCount = 500;
+	// std::srand(std::time(0));
+	// cout << Contact_time << endl;
 	for (int i = 0; i < particalCount; i++){
-		 int random_a = std::rand() % 90 - 45;
-		 int random_g = std::rand() % particalCount - particalCount/2.0;
-		 int random_v = std::rand() % particalCount - particalCount/2.0;
-		 int random_w = std::rand() % particalCount - particalCount/2.0;
+		 int random_a = std::rand() % 720 - 360;
 		 // std::cout << random_g <<" "<< random_v <<" "<< random_w <<" "<< endl;
-		((Explosive *)explosive)->init_fly(random_a, random_v, random_g, random_w, Contact_time);
+		 // cout << i << endl;
+		((Explosive *)explosive)->init_fly(random_a, i, Contact_time);
 		
 		mat4x4 Translation = ((Explosive *)explosive)->fly();
-		((Explosive *)explosive)->GeometryNode::set_transform_from_parent(root.parent_trans * Translation);	
-		std::cout << root.parent_trans * Translation << std::endl;
+		mat4x4 Rotation = ((Explosive *)explosive)->rotation_mesh();
+		((Explosive *)explosive)->SceneNode::set_rotation(Rotation);
+		((Explosive *)explosive)->GeometryNode::set_transform_from_parent(root.parent_trans * Translation );	
 
 		updateShaderUniforms(m_shader, *geometryNode, m_view);
 		// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.

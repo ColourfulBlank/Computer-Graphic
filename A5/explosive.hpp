@@ -23,7 +23,9 @@ public:
 	float local_g, local_v, local_w, local_angle, time_to_contact;
 	float time_frame;
 	NodeType m_nodeType;
-	void init_fly(float arm_angle, float g, float v, float w, float Contact_time);
+	void init_fly(float arm_angle, int i, float Contact_time);
 	glm::mat4x4 fly();
+	glm::mat4x4 rotation_mesh();
 	float get_time_frame();
+	glm::vec3 transforms[1000];
 };

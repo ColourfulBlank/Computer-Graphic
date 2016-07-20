@@ -33,7 +33,7 @@ glm::mat4x4 Ball::fly(){
 	double ayb = local_g * sin( angle );
 	double change_distance_x = vx_b * t + 0.5 * axb * t * t;
 	double change_distance_y = vy_b * t + 0.5 * ayb * t * t;
-	double change_distance_z = local_w * t;
+	double change_distance_z = 0.5 * local_w * t * t;
 	glm::mat4x4 Translation;
 	double change_y = change_distance_y * cos(local_angle) + change_distance_x * cos(angle);
 	// std::cout << change_distance_x << std::endl;

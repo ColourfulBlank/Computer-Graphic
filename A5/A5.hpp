@@ -12,6 +12,7 @@
 
 #include <map>
 #include <vector>
+#include <irrKlang.h>
 
 struct LightSource {
 	glm::vec3 position;
@@ -144,5 +145,6 @@ protected:
 	glm::mat4 rootRotation;
 	std::vector<std::map<int, glm::vec2> > undo_stack;
 	std::vector<std::map<int, glm::vec2> > redo_stack;
+	irrklang::ISoundEngine *soundEngine;
 
 };

@@ -24,12 +24,12 @@ ifeq ($(config),debug)
   TARGETDIR  = ..
   TARGET     = $(TARGETDIR)/A5
   DEFINES   += -DDEBUG
-  INCLUDES  += -I../../shared -I../../shared/include -I../../shared/gl3w -I../../shared/imgui
+  INCLUDES  += -I../../shared -I../../shared/include -I../../shared/gl3w -I../../shared/imgui -I../irrKlang/include
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
   CFLAGS    += $(CPPFLAGS) $(ARCH) -g -std=c++11
   CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -framework IOKit -framework Cocoa -framework CoreVideo -framework OpenGL -L../../lib
-  LIBS      += -lcs488-framework -limgui -lglfw3 -llua
+  LDFLAGS   += -framework IOKit -framework Cocoa -framework CoreVideo -framework OpenGL -L../../lib -L../irrKlang/bin/macosx-gcc
+  LIBS      += -lcs488-framework -limgui -lglfw3 -llua -lIrrKlang
   RESFLAGS  += $(DEFINES) $(INCLUDES) 
   LDDEPS    += 
   LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(ARCH) $(LIBS)
@@ -46,12 +46,12 @@ ifeq ($(config),release)
   TARGETDIR  = ..
   TARGET     = $(TARGETDIR)/A5
   DEFINES   += -DNDEBUG
-  INCLUDES  += -I../../shared -I../../shared/include -I../../shared/gl3w -I../../shared/imgui
+  INCLUDES  += -I../../shared -I../../shared/include -I../../shared/gl3w -I../../shared/imgui -I../irrKlang/include
   CPPFLAGS  += -MMD -MP $(DEFINES) $(INCLUDES)
   CFLAGS    += $(CPPFLAGS) $(ARCH) -O2 -std=c++11
   CXXFLAGS  += $(CFLAGS) 
-  LDFLAGS   += -Wl,-x -framework IOKit -framework Cocoa -framework CoreVideo -framework OpenGL -L../../lib
-  LIBS      += -lcs488-framework -limgui -lglfw3 -llua
+  LDFLAGS   += -Wl,-x -framework IOKit -framework Cocoa -framework CoreVideo -framework OpenGL -L../../lib -L../irrKlang/bin/macosx-gcc
+  LIBS      += -lcs488-framework -limgui -lglfw3 -llua -lIrrKlang
   RESFLAGS  += $(DEFINES) $(INCLUDES) 
   LDDEPS    += 
   LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(ARCH) $(LIBS)

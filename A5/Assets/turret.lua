@@ -16,14 +16,15 @@ lightGreen = gr.material({0, 0.8, 0}, {0.1, 0.1, 0.1}, 5)
 
 ground = gr.mesh('plane', 'ground')
 rootnode:add_child(ground)
-ground:scale(30,0.1,30);
+ground:scale(15,0.1,15);
+ground:rotate("x",30);
 ground:set_material(red)
 
 -- ball thrower
 body = gr.mesh('cube', 'body')
 ground:add_child(body)
 body:scale(1,0.3,1)
-body:translate(12.5, 0.1, 0)
+body:translate(0, 0.1, 0)
 body:set_material(green)
 
 xz_joint = gr.mesh('sphere', 'xz_joint')
@@ -73,10 +74,31 @@ ball:translate(0.0, 0.6, 0.0)
 ball:set_material(red)
 arm:add_child(ball)
 
-explosive = gr.exp('sphere', 'partical')
-explosive:scale(0.2, 0.2, 0.2)
+explosive = gr.exp('mesh', 'partical')
+explosive:scale(0.1, 0.1, 0.1)
 explosive:set_material(white)
 ball:add_child(explosive)
+
+explosive_1 = gr.exp('mesh', 'partical_1')
+explosive_1:scale(0.1, 0.1, 0.1)
+explosive_1:set_material(yellow)
+ball:add_child(explosive_1)
+
+explosive_2 = gr.exp('mesh', 'partical_2')
+explosive_2:scale(0.1, 0.1, 0.1)
+explosive_2:set_material(green)
+ball:add_child(explosive_2)
+
+explosive_3 = gr.exp('mesh', 'partical_3')
+explosive_3:scale(0.1, 0.1, 0.1)
+explosive_3:set_material(blue)
+ball:add_child(explosive_3)
+
+explosive_4 = gr.exp('mesh', 'partical_4')
+explosive_4:scale(0.1, 0.1, 0.1)
+explosive_4:set_material(red)
+ball:add_child(explosive_4)
+
 
 
 return rootnode
